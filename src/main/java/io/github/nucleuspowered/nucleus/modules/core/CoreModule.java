@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.core;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
@@ -26,4 +27,10 @@ public class CoreModule extends ConfigurableModule<CoreConfigAdapter> {
         Nucleus.getNucleus().reloadMessages();
     }
 
+    @Override
+    protected void performPostTasks() {
+        super.performPostTasks();
+
+        Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class).postInit();
+    }
 }

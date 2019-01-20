@@ -5,8 +5,15 @@
 package io.github.nucleuspowered.nucleus.modules.powertool;
 
 import io.github.nucleuspowered.nucleus.internal.qsml.module.StandardModule;
+import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
-@ModuleData(id = "powertool", name = "Powertool")
+@ModuleData(id = "powertool", name = "Powertool", dependencies = CoreModule.ID)
 public class PowertoolModule extends StandardModule {
+
+    @Override
+    protected void performEnableTasks() throws Exception {
+        super.performEnableTasks();
+
+    }
 }

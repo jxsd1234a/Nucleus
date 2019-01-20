@@ -12,6 +12,8 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
+import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolUserPreferenceKeys;
 import io.github.nucleuspowered.nucleus.modules.powertool.datamodules.PowertoolUserDataModule;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
@@ -42,7 +44,9 @@ public class ListPowertoolCommand extends AbstractCommand<Player> {
     public CommandResult executeCommand(Player src, CommandContext args, Cause cause) {
         PowertoolUserDataModule inu = Nucleus.getNucleus().getUserDataManager().getUnchecked(src).get(PowertoolUserDataModule.class);
 
-        boolean toggle = inu.isPowertoolToggled();
+        boolean toggle = getServiceUnchecked(UserPreferenceService.class)
+                .getUnwrapped(src.getUniqueId(), PowertoolUserPreferenceKeys.POWERTOOL_ENABLED);
+
         Map<String, List<String>> powertools = inu.getPowertools();
 
         if (powertools.isEmpty()) {

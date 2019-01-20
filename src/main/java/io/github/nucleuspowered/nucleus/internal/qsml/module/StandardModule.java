@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
+import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.config.CommandsConfig;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.Constants;
@@ -33,6 +34,9 @@ import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
+import io.github.nucleuspowered.nucleus.internal.userprefs.PreferenceKey;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPrefKeys;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.misc.BasicSeenInformationProvider;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.services.SeenHandler;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -76,7 +80,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     private String packageName;
     protected final Nucleus plugin;
     private final CommandsConfig commandsConfig;
-    @Nullable private Map<String, List<String>> msls;
+    @Nullable private Map<String, List<String>> objectTypesToClassListMap;
     private final String message = NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("config.enabled");
 
     public StandardModule() {
@@ -88,7 +92,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     }
 
     public void init(Map<String, List<String>> m) {
-        this.msls = m;
+        this.objectTypesToClassListMap = m;
     }
 
     @Override
@@ -128,20 +132,8 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     @SuppressWarnings("unchecked")
     private void loadServices() throws Exception {
         Set<Class<? extends ServiceBase>> servicesToLoad;
-        if (this.msls != null) {
-            servicesToLoad = new HashSet<>();
-            List<String> l = this.msls.get(Constants.SERVICE);
-            if (l == null) {
-                return;
-            }
-
-            for (String s : l) {
-                try {
-                    checkPlatformOpt((Class<? extends ServiceBase>) Class.forName(s)).ifPresent(servicesToLoad::add);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (this.objectTypesToClassListMap != null) {
+            servicesToLoad = getClassesFromList(Constants.SERVICE);
         } else {
             servicesToLoad = getStreamForModule(ServiceBase.class).collect(Collectors.toSet());
         }
@@ -228,6 +220,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         loadCommands();
         loadEvents();
         loadRunnables();
+        loadUserPrefKeys();
         prepareAliasedCommands();
         try {
             performEnableTasks();
@@ -256,20 +249,8 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     private void loadCommands() {
 
         Set<Class<? extends AbstractCommand<?>>> cmds;
-        if (this.msls != null) {
-            cmds = new HashSet<>();
-            List<String> l = this.msls.get(Constants.COMMAND);
-            if (l == null) {
-                return;
-            }
-
-            for (String s : l) {
-                try {
-                    checkPlatformOpt((Class<? extends AbstractCommand<?>>) Class.forName(s)).ifPresent(cmds::add);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (this.objectTypesToClassListMap != null) {
+            cmds = getClassesFromList(Constants.COMMAND);
         } else {
             cmds = new HashSet<>(
                     performFilter(getStreamForModule(AbstractCommand.class).map(x -> (Class<? extends AbstractCommand<?>>) x))
@@ -325,20 +306,8 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     @SuppressWarnings("unchecked")
     private void loadEvents() {
         Set<Class<? extends ListenerBase>> listenersToLoad;
-        if (this.msls != null) {
-            listenersToLoad = new HashSet<>();
-            List<String> l = this.msls.get(Constants.LISTENER);
-            if (l == null) {
-                return;
-            }
-
-            for (String s : l) {
-                try {
-                    checkPlatformOpt((Class<? extends ListenerBase>) Class.forName(s)).ifPresent(listenersToLoad::add);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (this.objectTypesToClassListMap != null) {
+            listenersToLoad = getClassesFromList(Constants.LISTENER);
         } else {
             listenersToLoad = getStreamForModule(ListenerBase.class).collect(Collectors.toSet());
         }
@@ -380,20 +349,8 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     @SuppressWarnings("unchecked")
     private void loadRunnables() {
         Set<Class<? extends TaskBase>> tasksToLoad;
-        if (this.msls != null) {
-            tasksToLoad = new HashSet<>();
-            List<String> l = this.msls.get(Constants.RUNNABLE);
-            if (l == null) {
-                return;
-            }
-
-            for (String s : l) {
-                try {
-                    checkPlatformOpt((Class<? extends TaskBase>) Class.forName(s)).ifPresent(tasksToLoad::add);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (this.objectTypesToClassListMap != null) {
+            tasksToLoad = getClassesFromList(Constants.RUNNABLE);
         } else {
             tasksToLoad = getStreamForModule(TaskBase.class).collect(Collectors.toSet());
         }
@@ -448,20 +405,8 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
 
     private void loadRegistries() {
         Set<Class<? extends NucleusRegistryModule>> registries;
-        if (this.msls != null) {
-            registries = new HashSet<>();
-            List<String> l = this.msls.get(Constants.REGISTRY);
-            if (l == null) {
-                return;
-            }
-
-            for (String s : l) {
-                try {
-                    checkPlatformOpt((Class<? extends NucleusRegistryModule>) Class.forName(s)).ifPresent(registries::add);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (this.objectTypesToClassListMap != null) {
+            registries = getClassesFromList(Constants.REGISTRY);
         } else {
             registries = getStreamForModule(NucleusRegistryModule.class).collect(Collectors.toSet());
         }
@@ -472,6 +417,33 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
                 instance.init();
             } catch (Exception e) {
                 Nucleus.getNucleus().getLogger().error("Could not register registry " + r.getName(), e);
+            }
+        }
+    }
+
+    private void loadUserPrefKeys() {
+        Set<Class<? extends UserPrefKeys>> keyClasses;
+        if (this.objectTypesToClassListMap != null) {
+            keyClasses = getClassesFromList(Constants.PREF_KEYS);
+        } else {
+            keyClasses = getStreamForModule(UserPrefKeys.class).collect(Collectors.toSet());
+        }
+
+        if (!keyClasses.isEmpty()) {
+            // Get the User Preference Service
+            UserPreferenceService ups = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class);
+            for (Class<? extends UserPrefKeys> r : keyClasses) {
+                // These will contain static fields.
+                Arrays.stream(r.getFields())
+                        .filter(x -> Modifier.isStatic(x.getModifiers()) && NucleusUserPreferenceService.PreferenceKey.class.isAssignableFrom(x.getType()))
+                        .forEach(x -> {
+                            try {
+                                PreferenceKey<?> key = (PreferenceKey<?>) x.get(null);
+                                ups.register(key);
+                            } catch (IllegalAccessException e) {
+                                Nucleus.getNucleus().getLogger().error("Could not register " + x.getName() + " in the User Preference Service", e);
+                            }
+                        });
             }
         }
     }
@@ -625,4 +597,22 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         Nucleus.getNucleus().getInternalServiceManager().registerService(api, object);
         register(impl, object);
     }
+
+    private <T> Set<Class<? extends T>> getClassesFromList(String key) {
+        List<String> list = this.objectTypesToClassListMap.get(key);
+        if (list == null) {
+            return new HashSet<>();
+        }
+
+        Set<Class<? extends T>> classes = new HashSet<>();
+        for (String s : list) {
+            try {
+                checkPlatformOpt((Class<? extends T>) Class.forName(s)).ifPresent(classes::add);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return classes;
+    }
+
 }

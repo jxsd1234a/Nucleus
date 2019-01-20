@@ -6,10 +6,11 @@ package io.github.nucleuspowered.nucleus.modules.teleport;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
+import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfigAdapter;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
-@ModuleData(id = "teleport", name = "Teleport")
+@ModuleData(id = "teleport", name = "Teleport", dependencies = CoreModule.ID)
 public class TeleportModule extends ConfigurableModule<TeleportConfigAdapter> {
 
     @Override

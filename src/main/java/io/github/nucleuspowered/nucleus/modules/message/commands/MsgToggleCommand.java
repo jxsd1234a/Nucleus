@@ -4,8 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -14,7 +12,8 @@ import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
-import io.github.nucleuspowered.nucleus.modules.message.datamodules.MessageUserDataModule;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
+import io.github.nucleuspowered.nucleus.modules.message.MessageUserPrefKeys;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -47,11 +46,12 @@ public class MsgToggleCommand extends AbstractCommand<Player> {
 
     @Override
     protected CommandResult executeCommand(Player src, CommandContext args, Cause cause) {
-        ModularUserService mus = Nucleus.getNucleus().getUserDataManager().getUnchecked(src);
-        boolean flip = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElseGet(() -> !mus.get(MessageUserDataModule.class).isMsgToggle());
+        UserPreferenceService userPreferenceService = getServiceUnchecked(UserPreferenceService.class);
+        boolean flip = args.<Boolean>getOne(NucleusParameters.Keys.BOOL)
+                .orElseGet(() -> userPreferenceService.getUnwrapped(src.getUniqueId(), MessageUserPrefKeys.RECEIVING_MESSAGES));
 
-        mus.get(MessageUserDataModule.class).setMsgToggle(flip);
-        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.msgtoggle.success." + String.valueOf(flip)));
+        userPreferenceService.set(src.getUniqueId(), MessageUserPrefKeys.RECEIVING_MESSAGES, flip);
+        sendMessageTo(src, "command.msgtoggle.success." + flip);
 
         return CommandResult.success();
     }

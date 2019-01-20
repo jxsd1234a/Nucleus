@@ -7,6 +7,8 @@ package io.github.nucleuspowered.nucleus.modules.powertool.listeners;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
+import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolUserPreferenceKeys;
 import io.github.nucleuspowered.nucleus.modules.powertool.commands.PowertoolCommand;
 import io.github.nucleuspowered.nucleus.modules.powertool.datamodules.PowertoolUserDataModule;
 import org.spongepowered.api.Sponge;
@@ -24,12 +26,14 @@ public class PowertoolListener implements ListenerBase {
 
     private final CommandPermissionHandler permissionRegistry =
             Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(PowertoolCommand.class);
+    private final String basePermission = this.permissionRegistry.getBase();
+    private final UserPreferenceService userPreferenceService = getServiceUnchecked(UserPreferenceService.class);
 
     @Listener
     @Exclude(InteractBlockEvent.class)
     public void onUserInteract(final InteractEvent event, @Root Player player) {
         // No item in hand or no permission -> no powertool.
-        if (!this.permissionRegistry.testBase(player) || !player.getItemInHand(HandTypes.MAIN_HAND).isPresent()) {
+        if (!player.hasPermission(this.basePermission) || !player.getItemInHand(HandTypes.MAIN_HAND).isPresent()) {
             return;
         }
 
@@ -44,7 +48,7 @@ public class PowertoolListener implements ListenerBase {
         }
 
         // If the powertools are toggled on.
-        if (user.isPowertoolToggled()) {
+        if (this.userPreferenceService.get(player.getUniqueId(), PowertoolUserPreferenceKeys.POWERTOOL_ENABLED).orElse(true)) {
             // Execute all powertools if they exist.
             user.getPowertoolForItem(item).ifPresent(x -> {
                 // Cancel the interaction.

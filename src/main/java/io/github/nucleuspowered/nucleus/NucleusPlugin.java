@@ -19,6 +19,7 @@ import com.typesafe.config.ConfigException;
 import io.github.nucleuspowered.nucleus.api.NucleusAPITokens;
 import io.github.nucleuspowered.nucleus.api.service.NucleusMessageTokenService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
 import io.github.nucleuspowered.nucleus.config.CommandsConfig;
 import io.github.nucleuspowered.nucleus.configurate.ConfigurateHelper;
@@ -56,6 +57,7 @@ import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTokenServiceImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.logging.DebugLogger;
 import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
@@ -142,6 +144,7 @@ public class NucleusPlugin extends Nucleus {
     private DocGenCache docGenCache = null;
     private final NucleusTeleportHandler teleportHandler = new NucleusTeleportHandler();
     private NucleusTokenServiceImpl nucleusChatService;
+    private final UserPreferenceService userPreferenceService = new UserPreferenceService();
 
     private final List<Text> startupMessages = Lists.newArrayList();
 
@@ -330,6 +333,8 @@ public class NucleusPlugin extends Nucleus {
         game.getServiceManager().setProvider(this, NucleusModuleService.class, new ModuleRegistrationProxyService(this));
         game.getServiceManager().setProvider(this, NucleusWarmupManagerService.class, this.warmupManager);
         this.serviceManager.registerService(WarmupManager.class, this.warmupManager);
+        this.serviceManager.registerService(UserPreferenceService.class, this.userPreferenceService);
+        Sponge.getServiceManager().setProvider(this, NucleusUserPreferenceService.class, this.userPreferenceService);
 
         this.nucleusChatService = new NucleusTokenServiceImpl(this);
         this.serviceManager.registerService(NucleusTokenServiceImpl.class, this.nucleusChatService);

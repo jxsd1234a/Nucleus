@@ -18,9 +18,6 @@ import java.util.Optional;
 
 public class PowertoolUserDataModule extends DataModule<ModularUserService> {
 
-    @DataKey("powertoolToggle")
-    private boolean powertoolToggle = true;
-
     @DataKey("powertools")
     private Map<String, List<String>> powertools = Maps.newHashMap();
 
@@ -47,14 +44,6 @@ public class PowertoolUserDataModule extends DataModule<ModularUserService> {
 
     public void clearPowertool(String type) {
         this.powertools.remove(type);
-    }
-
-    public boolean isPowertoolToggled() {
-        return this.powertoolToggle;
-    }
-
-    public void setPowertoolToggle(boolean set) {
-        this.powertoolToggle = set;
     }
 
 }

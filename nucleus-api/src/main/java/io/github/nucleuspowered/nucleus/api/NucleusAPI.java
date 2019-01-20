@@ -24,6 +24,7 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusSeenService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusServerShopService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusStaffChatService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarningService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
@@ -100,6 +101,16 @@ public class NucleusAPI {
     public static NucleusWorldUUIDChangeService getWorldUUIDChangeService() {
         return getService(NucleusWorldUUIDChangeService.class).orElseThrow(() -> new IllegalStateException("World UUID mappings have not yet been "
                 + "loaded"));
+    }
+
+    /**
+     * Gets the {@link NucleusUserPreferenceService} service, which allows plugins to read and set user preferences.
+     * @return The {@link NucleusUserPreferenceService}
+     * @throws IllegalStateException if Nucleus hasn't completed pre init yet.
+     */
+    public static NucleusUserPreferenceService getUserPreferenceService() {
+        return getService(NucleusUserPreferenceService.class)
+                .orElseThrow(() -> new IllegalStateException("Nucleus API has not started registering yet"));
     }
 
     /**

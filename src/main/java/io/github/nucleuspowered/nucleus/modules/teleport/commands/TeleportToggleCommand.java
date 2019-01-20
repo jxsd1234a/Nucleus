@@ -4,7 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -14,7 +13,8 @@ import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
-import io.github.nucleuspowered.nucleus.modules.teleport.datamodules.TeleportUserDataModule;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
+import io.github.nucleuspowered.nucleus.modules.teleport.TeleportUserPrefKeys;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -50,12 +50,13 @@ public class TeleportToggleCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args, Cause cause) {
-        final TeleportUserDataModule iqsu = Nucleus.getNucleus().getUserDataManager().getUnchecked(src).get(TeleportUserDataModule.class);
-        boolean flip = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElseGet(() -> !iqsu.isTeleportToggled());
-        iqsu.setTeleportToggled(flip);
+        UserPreferenceService ups = getServiceUnchecked(UserPreferenceService.class);
+        boolean toggle = ups.get(src.getUniqueId(), TeleportUserPrefKeys.TELEPORT_TARGETABLE).get(); // we know it's always there
+        boolean flip = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElseGet(() -> !toggle);
+        ups.set(src.getUniqueId(), TeleportUserPrefKeys.TELEPORT_TARGETABLE, flip);
         src.sendMessage(Text.builder().append(
-                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tptoggle.success",
-                        Nucleus.getNucleus().getMessageProvider().getMessageWithFormat(flip ? "standard.enabled" : "standard.disabled")))
+                getMessageFor(src, "command.tptoggle.success",
+                        getMessageFor(src, flip ? "standard.enabled" : "standard.disabled")))
                 .build());
         return CommandResult.success();
     }

@@ -9,9 +9,9 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.message.commands.SocialSpyCommand;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.message.datamodules.MessageUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.message.services.MessageHandler;
 import org.spongepowered.api.text.Text;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
@@ -32,8 +32,8 @@ public class MessageModule extends ConfigurableModule<MessageConfigAdapter> {
         createSeenModule(SocialSpyCommand.class, (cs, user) -> {
             MessageHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(MessageHandler.class);
             boolean socialSpy = handler.isSocialSpy(user);
-            boolean msgToggle = Nucleus.getNucleus().getUserDataManager().get(user)
-                    .map(y -> y.get(MessageUserDataModule.class).isMsgToggle()).orElse(true);
+            boolean msgToggle = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class)
+                    .getUnwrapped(user.getUniqueId(), MessageUserPrefKeys.RECEIVING_MESSAGES);
             MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
             List<Text> lt = Lists.newArrayList(
                 mp.getTextMessageWithFormat("seen.socialspy",

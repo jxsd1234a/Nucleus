@@ -18,12 +18,13 @@ import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.jail.JailModule;
 import io.github.nucleuspowered.nucleus.modules.jail.datamodules.JailUserDataModule;
+import io.github.nucleuspowered.nucleus.modules.teleport.TeleportUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.teleport.commands.TeleportAcceptCommand;
 import io.github.nucleuspowered.nucleus.modules.teleport.commands.TeleportDenyCommand;
 import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.teleport.datamodules.TeleportUserDataModule;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
@@ -66,7 +67,8 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
 
     public static boolean canTeleportTo(CommandSource source, User to)  {
         if (source instanceof Player && !TeleportHandler.canBypassTpToggle(source)) {
-            if (!Nucleus.getNucleus().getUserDataManager().get(to).map(x -> x.get(TeleportUserDataModule.class).isTeleportToggled()).orElse(true)) {
+            UserPreferenceService ups = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class);
+            if (!ups.get(to.getUniqueId(), TeleportUserPrefKeys.TELEPORT_TARGETABLE).orElse(true)) {
                 source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("teleport.fail.targettoggle", to.getName()));
                 return false;
             }
@@ -397,7 +399,9 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
             }
 
             ModularUserService toPlayer = Nucleus.getNucleus().getUserDataManager().get(this.to).get();
-            if (!this.bypassToggle && !toPlayer.get(TeleportUserDataModule.class).isTeleportToggled() && !canBypassTpToggle(source)) {
+            UserPreferenceService ups = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class);
+            if (!this.bypassToggle && !ups.get(toPlayer.getUniqueId(), TeleportUserPrefKeys.TELEPORT_TARGETABLE).orElse(true)
+                    && !canBypassTpToggle(source)) {
                 sendMessageTo(source, "teleport.fail.targettoggle", toPlayer.getUser().getName());
                 return false;
             }

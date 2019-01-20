@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
+import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.vanish.services.VanishService;
 import org.spongepowered.api.command.CommandSource;
@@ -19,7 +20,7 @@ import uk.co.drnaylor.quickstart.annotations.ModuleData;
 import java.util.Map;
 import java.util.Optional;
 
-@ModuleData(id = "vanish", name = "Vanish")
+@ModuleData(id = "vanish", name = "Vanish", dependencies = CoreModule.ID)
 public class VanishModule extends ConfigurableModule<VanishConfigAdapter> {
 
     @Override

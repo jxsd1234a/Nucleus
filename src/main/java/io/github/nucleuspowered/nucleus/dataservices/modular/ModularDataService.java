@@ -116,6 +116,7 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
     @Override public void loadInternal() throws Exception {
         super.loadInternal();
         this.cached.clear(); // Only clear if no exception was caught.
+        migrate();
     }
 
     @Override public void saveInternal() throws Exception {
@@ -130,5 +131,9 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
         } finally {
             this.saveTimings.stopTimingIfSync();
         }
+    }
+
+    public void migrate() {
+        // noop
     }
 }

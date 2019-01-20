@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.argumentparsers.util;
 
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.text.Text;
 
@@ -24,5 +25,9 @@ public abstract class WrappedElement extends CommandElement {
 
     @Nullable @Override public Text getKey() {
         return this.wrappedElement.getKey();
+    }
+
+    @Override public Text getUsage(CommandSource src) {
+        return getWrappedElement().getUsage(src);
     }
 }

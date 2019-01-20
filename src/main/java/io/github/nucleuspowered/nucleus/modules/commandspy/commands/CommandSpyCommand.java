@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.commandspy.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -13,7 +12,8 @@ import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
-import io.github.nucleuspowered.nucleus.modules.commandspy.datamodules.CommandSpyUserDataModule;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
+import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyUserPrefKeys;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -41,10 +41,10 @@ public class CommandSpyCommand extends AbstractCommand<Player> {
     }
 
     @Override public CommandResult executeCommand(Player src, CommandContext args, Cause cause) {
-        ModularUserService service = Nucleus.getNucleus().getUserDataManager().getUnchecked(src);
-        CommandSpyUserDataModule c = service.get(CommandSpyUserDataModule.class);
-        boolean to = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElseGet(() -> !c.isCommandSpy());
-        c.setCommandSpy(to);
+        UserPreferenceService ups = getServiceUnchecked(UserPreferenceService.class);
+        boolean to = args.<Boolean>getOne(NucleusParameters.Keys.BOOL)
+                .orElseGet(() -> !ups.getUnwrapped(src.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY));
+        ups.set(src.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY, to);
 
         MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
         src.sendMessage(mp.getTextMessageWithFormat("command.commandspy.success", mp.getMessageWithFormat(to ? "standard.enabled" : "standard.disabled")));

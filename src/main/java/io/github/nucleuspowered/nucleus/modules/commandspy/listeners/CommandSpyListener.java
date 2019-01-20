@@ -11,11 +11,12 @@ import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyModule;
+import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.commandspy.commands.CommandSpyCommand;
 import io.github.nucleuspowered.nucleus.modules.commandspy.config.CommandSpyConfig;
 import io.github.nucleuspowered.nucleus.modules.commandspy.config.CommandSpyConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.commandspy.datamodules.CommandSpyUserDataModule;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.entity.living.player.Player;
@@ -36,12 +37,14 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
     private final String exemptTarget;
     private CommandSpyConfig config = new CommandSpyConfig();
     private boolean listIsEmpty = true;
+    private final UserPreferenceService userPreferenceService;
 
     public CommandSpyListener() {
         CommandPermissionHandler permissionHandler =
                 Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(CommandSpyCommand.class);
         this.basePermission = permissionHandler.getBase();
         this.exemptTarget = permissionHandler.getPermissionWithSuffix("exempt.target");
+        this.userPreferenceService = getServiceUnchecked(UserPreferenceService.class);
     }
 
     @Listener(order = Order.LAST)
@@ -66,7 +69,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
                     .stream()
                     .filter(x -> !x.getUniqueId().equals(player.getUniqueId()))
                     .filter(x -> hasPermission(x, this.basePermission))
-                    .filter(x -> Nucleus.getNucleus().getUserDataManager().getUnchecked(x).get(CommandSpyUserDataModule.class).isCommandSpy())
+                    .filter(x -> this.userPreferenceService.getUnwrapped(player.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY))
                     .collect(Collectors.toList());
 
                 if (!playerList.isEmpty()) {

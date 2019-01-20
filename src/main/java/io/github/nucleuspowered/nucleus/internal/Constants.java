@@ -12,6 +12,7 @@ public final class Constants {
     public static final String COMMAND = "command";
     public static final String RUNNABLE = "runnable";
     public static final String HELPER = "helper";
+    public static final String PREF_KEYS = "prefkeys";
     public static final String REGISTRY = "registry";
     public static final String SERVICE = "service";
 

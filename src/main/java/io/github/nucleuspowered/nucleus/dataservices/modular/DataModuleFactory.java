@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.dataservices.modular;
 
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.modules.back.datamodules.BackUserTransientModule;
-import io.github.nucleuspowered.nucleus.modules.commandspy.datamodules.CommandSpyUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.CoreUserDataModule;
+import io.github.nucleuspowered.nucleus.modules.core.datamodules.PreferencesUserModule;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.UniqueUserCountTransientModule;
 import io.github.nucleuspowered.nucleus.modules.environment.datamodule.EnvironmentWorldDataModule;
 import io.github.nucleuspowered.nucleus.modules.fly.datamodules.FlyUserDataModule;
@@ -19,7 +19,6 @@ import io.github.nucleuspowered.nucleus.modules.jail.datamodules.JailGeneralData
 import io.github.nucleuspowered.nucleus.modules.jail.datamodules.JailUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.mail.datamodules.MailUserDataModule;
-import io.github.nucleuspowered.nucleus.modules.message.datamodules.MessageUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.mute.datamodules.MuteUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.nickname.datamodules.NicknameUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.note.datamodules.NoteUserDataModule;
@@ -28,7 +27,6 @@ import io.github.nucleuspowered.nucleus.modules.serverlist.datamodules.ServerLis
 import io.github.nucleuspowered.nucleus.modules.spawn.datamodules.SpawnGeneralDataModule;
 import io.github.nucleuspowered.nucleus.modules.spawn.datamodules.SpawnWorldDataModule;
 import io.github.nucleuspowered.nucleus.modules.staffchat.datamodules.StaffChatTransientModule;
-import io.github.nucleuspowered.nucleus.modules.teleport.datamodules.TeleportUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.vanish.datamodules.VanishUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.warn.datamodules.WarnUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.warp.datamodules.WarpGeneralDataModule;
@@ -75,7 +73,6 @@ final class DataModuleFactory {
         usert.put(BackUserTransientModule.class, x -> new BackUserTransientModule());
         usert.put(StaffChatTransientModule.class, x -> new StaffChatTransientModule());
 
-        user.put(CommandSpyUserDataModule.class, x -> new CommandSpyUserDataModule());
         user.put(CoreUserDataModule.class, x -> new CoreUserDataModule());
         user.put(FlyUserDataModule.class, FlyUserDataModule::new);
         user.put(FreezePlayerUserDataModule.class, x -> new FreezePlayerUserDataModule());
@@ -84,15 +81,14 @@ final class DataModuleFactory {
         user.put(JailUserDataModule.class, JailUserDataModule::new);
         user.put(KitUserDataModule.class, x -> new KitUserDataModule());
         user.put(MailUserDataModule.class, x -> new MailUserDataModule());
-        user.put(MessageUserDataModule.class, MessageUserDataModule::new);
         user.put(InvulnerabilityUserDataModule.class, InvulnerabilityUserDataModule::new);
         user.put(MuteUserDataModule.class, x -> new MuteUserDataModule());
         user.put(NicknameUserDataModule.class, NicknameUserDataModule::new);
         user.put(NoteUserDataModule.class, x -> new NoteUserDataModule());
         user.put(PowertoolUserDataModule.class, x -> new PowertoolUserDataModule());
-        user.put(TeleportUserDataModule.class, x -> new TeleportUserDataModule());
         user.put(VanishUserDataModule.class, x -> new VanishUserDataModule());
         user.put(WarnUserDataModule.class, x -> new WarnUserDataModule());
+        user.put(PreferencesUserModule.class, x -> new PreferencesUserModule());
     }
 
     @SuppressWarnings("unchecked")

@@ -19,13 +19,14 @@ import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
 import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.message.MessageModule;
+import io.github.nucleuspowered.nucleus.modules.message.MessageUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.message.commands.MessageCommand;
 import io.github.nucleuspowered.nucleus.modules.message.commands.MsgToggleCommand;
 import io.github.nucleuspowered.nucleus.modules.message.commands.SocialSpyCommand;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfig;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.message.datamodules.MessageUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusMessageEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -71,6 +72,8 @@ public class MessageHandler implements NucleusPrivateMessagingService, Reloadabl
     private final Map<String, UUID> targetNames = Maps.newHashMap();
     private final String msgToggleBypass = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(MsgToggleCommand.class)
             .getPermissionWithSuffix("bypass");
+    private final UserPreferenceService userPreferenceService =
+            Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class);
 
     public static final String socialSpyOption = "nucleus.socialspy.level";
 
@@ -96,7 +99,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, Reloadabl
     public boolean isSocialSpy(User user) {
         Tristate ts = forcedSocialSpyState(user);
         if (ts == Tristate.UNDEFINED) {
-            return this.ucl.get(user).map(y -> y.get(MessageUserDataModule.class).isSocialSpy()).orElse(false);
+            return this.userPreferenceService.getUnwrapped(user.getUniqueId(), MessageUserPrefKeys.SOCIAL_SPY);
         }
 
         return ts.asBoolean();
@@ -140,10 +143,8 @@ public class MessageHandler implements NucleusPrivateMessagingService, Reloadabl
             return false;
         }
 
-        return this.ucl.get(user).map(x -> {
-            x.get(MessageUserDataModule.class).setSocialSpy(isSocialSpy);
-            return true;
-        }).orElse(false);
+        this.userPreferenceService.set(user.getUniqueId(), MessageUserPrefKeys.SOCIAL_SPY, isSocialSpy);
+        return true;
     }
 
     @Override
@@ -226,8 +227,12 @@ public class MessageHandler implements NucleusPrivateMessagingService, Reloadabl
         }
 
         // What about msgtoggle?
+        UserPreferenceService userPreferenceService =
+                Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class);
+        // Cancel message if the reciever has message toggle false
         if (receiver instanceof Player && !hasPermission(sender, this.msgToggleBypass) &&
-                this.ucl.get((Player) receiver).map(x -> !x.get(MessageUserDataModule.class).isMsgToggle()).orElse(false)) {
+                !userPreferenceService.getUnwrapped(((Player) receiver).getUniqueId(), MessageUserPrefKeys.RECEIVING_MESSAGES)) {
+
             isCancelled = true;
             isBlocked = true;
             sender.sendMessage(Nucleus.getNucleus().getMessageProvider()
