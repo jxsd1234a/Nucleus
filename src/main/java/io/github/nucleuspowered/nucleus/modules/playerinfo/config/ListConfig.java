@@ -33,6 +33,9 @@ public class ListConfig {
     @Default(value = "{{displayname}}", saveDefaultIfNull = true, useDefaultIfEmpty = true)
     private NucleusTextTemplateImpl template;
 
+    @Setting(value = "compact-list", comment = "config.playerinfo.list.compact")
+    private boolean compact = true;
+
     public boolean isGroupByPermissionGroup() {
         return this.groupByPermissionGroup.enabled;
     }
@@ -63,6 +66,10 @@ public class ListConfig {
 
     public NucleusTextTemplate getListTemplate() {
         return this.template;
+    }
+
+    public boolean isCompact() {
+        return this.compact;
     }
 
     @ConfigSerializable

@@ -19,7 +19,6 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.afk.services.AFKHandler;
-import io.github.nucleuspowered.nucleus.modules.chat.util.TemplateUtil;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.config.ListConfig;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.config.PlayerInfoConfigAdapter;
 import org.spongepowered.api.Sponge;
@@ -30,11 +29,11 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.service.context.Contextual;
+import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Collection;
@@ -55,7 +54,6 @@ import javax.annotation.Nullable;
 @EssentialsEquivalent({"list", "who", "playerlist", "online", "plist"})
 public class ListPlayerCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
-    @Nullable private final TemplateUtil templateUtil;
     private ListConfig listConfig = new ListConfig();
 
     @Nullable private AFKHandler handler;
@@ -69,7 +67,6 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
         this.afk = plugin.getMessageProvider().getTextMessageWithFormat("command.list.afk");
         this.hidden = plugin.getMessageProvider().getTextMessageWithFormat("command.list.hidden");
         this.handler = plugin.getInternalServiceManager().getService(AFKHandler.class).orElse(null);
-        this.templateUtil = plugin.getInternalServiceManager().getService(TemplateUtil.class).orElse(null);
     }
 
     @Override
@@ -96,20 +93,21 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                     String.valueOf(Sponge.getServer().getMaxPlayers()));
         }
 
-        src.sendMessage(header);
+        PaginationList.Builder builder = Util.getPaginationBuilder(src).title(header);
 
         Optional<PermissionService> optPermissionService = Sponge.getServiceManager().provide(PermissionService.class);
         if (this.listConfig.isGroupByPermissionGroup() && optPermissionService.isPresent()) {
-            listByPermissionGroup(optPermissionService.get(), players, src, showVanished);
+            builder.contents(listByPermissionGroup(optPermissionService.get(), players, showVanished));
         } else {
             // If we have players, send them on.
-            getPlayerList(players, showVanished).ifPresent(src::sendMessage);
+            builder.contents(getPlayerList(players, showVanished));
         }
 
+        builder.sendTo(src);
         return CommandResult.success();
     }
 
-    private void listByPermissionGroup(final PermissionService service, Collection<Player> players, CommandSource src, boolean showVanished)
+    private List<Text> listByPermissionGroup(final PermissionService service, Collection<Player> players, boolean showVanished)
             throws ReturnMessageException {
         // Get the groups
         List<Subject> groups = Lists.newArrayList();
@@ -147,44 +145,32 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
             if (plList != null && !plList.isEmpty()) {
                 // Get and put the player list into the map, if there is a
                 // player to show. There might not be, they might be vanished!
-                getPlayerList(plList, showVanished).ifPresent(y ->
-                    messages.add(Text.builder().append(
-                            Text.of(
-                                    TextColors.YELLOW,
-                                    TextSerializers.FORMATTING_CODE.deserialize(alias),
-                                    ": ")).append(y).build()));
+                getList(plList, showVanished, messages, alias);
             }
 
             groupToPlayer.remove(alias);
         });
 
+        String defaultGroupName = this.listConfig.getDefaultGroupName();
         if (this.listConfig.isUseAliasOnly()) {
             List<Player> playersLeft = groupToPlayer.entrySet().stream().flatMap(x -> x.getValue().stream()).collect(Collectors.toList());
             if (!playersLeft.isEmpty()) {
-                getPlayerList(playersLeft, showVanished).ifPresent(y ->
-                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW,
-                            TextSerializers.FORMATTING_CODE.deserialize(this.listConfig.getDefaultGroupName()), ": ")).append(y).build()));
+                getList(playersLeft, showVanished, messages, defaultGroupName);
             }
         } else {
             groupToPlayer.entrySet().stream()
-                .filter(x -> !x.getValue().isEmpty())
-                .filter(x -> !x.getKey().equals(this.listConfig.getDefaultGroupName()))
-                .sorted((x, y) -> x.getKey().compareToIgnoreCase(y.getKey())).forEach(x ->
-                    getPlayerList(x.getValue(), showVanished).ifPresent(y ->
-                        messages.add(Text.builder().append(Text.of(TextColors.YELLOW, x.getKey() + ": ")).append(y).build()))
-            );
+                    .filter(x -> !x.getValue().isEmpty())
+                    .filter(x -> !x.getKey().equals(this.listConfig.getDefaultGroupName()))
+                    .sorted((x, y) -> x.getKey().compareToIgnoreCase(y.getKey()))
+                    .forEach(x -> getList(x.getValue(), showVanished, messages, x.getKey()));
 
-            List<Player> pl = groupToPlayer.get(this.listConfig.getDefaultGroupName());
+            List<Player> pl = groupToPlayer.get(defaultGroupName);
             if (pl != null && !pl.isEmpty()) {
-                getPlayerList(pl, showVanished).ifPresent(y ->
-                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW,
-                            TextSerializers.FORMATTING_CODE.deserialize(this.listConfig.getDefaultGroupName()), ": ")).append(y).build()));
+                getList(pl, showVanished, messages, defaultGroupName);
             }
         }
 
-        if (!messages.isEmpty()) {
-            src.sendMessages(messages);
-        }
+        return messages;
     }
 
     /**
@@ -197,7 +183,7 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
      *         <code>empty</code> if the player list is of zero length.
      */
     @SuppressWarnings("ConstantConditions")
-    private Optional<Text> getPlayerList(Collection<Player> playersToList, boolean showVanished) {
+    private List<Text> getPlayerList(Collection<Player> playersToList, boolean showVanished) {
         NucleusTextTemplate template = this.listConfig.getListTemplate();
         List<Text> playerList = playersToList.stream().filter(x -> showVanished || !x.get(Keys.VANISH).orElse(false))
                 .sorted((x, y) -> x.getName().compareToIgnoreCase(y.getName())).map(x -> {
@@ -224,7 +210,7 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                     }
                 }).collect(Collectors.toList());
 
-        if (!playerList.isEmpty()) {
+        if (this.listConfig.isCompact() && !playerList.isEmpty()) {
             boolean isFirst = true;
             Text.Builder tb = Text.builder();
             for (Text text : playerList) {
@@ -236,10 +222,10 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                 isFirst = false;
             }
 
-            return Optional.of(tb.build());
+            return Lists.newArrayList(tb.build());
         }
 
-        return Optional.empty();
+        return playerList;
     }
 
     @Override public void onReload() {
@@ -283,5 +269,23 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
         }
 
         return res;
+    }
+
+    private void getList(Collection<Player> player, boolean showVanished, List<Text> messages, @Nullable String groupName) {
+        List<Text> m = getPlayerList(player, showVanished);
+        if (this.listConfig.isCompact()) {
+            for (Text y : m) {
+                Text.Builder tb = Text.builder();
+                if (groupName != null) {
+                    tb.append(Text.of(TextColors.YELLOW, groupName, ": "));
+                }
+                messages.add(tb.append(y).build());
+            }
+        } else {
+            if (groupName != null) {
+                messages.add(Text.of(TextColors.YELLOW, groupName, ":"));
+            }
+            messages.addAll(m);
+        }
     }
 }
