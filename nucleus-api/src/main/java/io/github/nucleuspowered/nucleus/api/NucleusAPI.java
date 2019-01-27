@@ -20,6 +20,7 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusNicknameService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusNoteService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPlayerMetadataService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPrivateMessagingService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusSeenService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusServerShopService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusStaffChatService;
@@ -257,6 +258,19 @@ public class NucleusAPI {
      */
     public static Optional<NucleusPrivateMessagingService> getPrivateMessagingService() {
         return getService(NucleusPrivateMessagingService.class);
+    }
+
+    /**
+     * Gets the {@link NucleusRTPService}, if it exists.
+     *
+     * <p>
+     *     Requires the "rtp" module.
+     * </p>
+     *
+     * @return The {@link NucleusRTPService}
+     */
+    public static Optional<NucleusRTPService> getRTPService() {
+        return getService(NucleusRTPService.class);
     }
 
     /**
