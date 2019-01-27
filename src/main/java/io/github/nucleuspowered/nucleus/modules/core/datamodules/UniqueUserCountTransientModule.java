@@ -54,13 +54,13 @@ public class UniqueUserCountTransientModule extends TransientModule<ModularGener
                                     // Temporary until Data is hooked up properly, I hope.
                                     return x.get().get(JoinData.class).map(y -> y.firstPlayed().getDirect().isPresent()).orElse(false);
                                 } catch (IllegalStateException e) {
-                                    if (ERROR_REPORTED) {
+                                    if (!ERROR_REPORTED) {
                                         ERROR_REPORTED = true;
                                         Nucleus.getNucleus().getLogger().warn("The Sponge player data provider has not yet been initialised, not "
                                                 + "using join data in this count.");
                                     }
                                 } catch (NoSuchElementException e) {
-                                    if (ERROR_REPORTED) {
+                                    if (!ERROR_REPORTED) {
                                         ERROR_REPORTED = true;
                                         Nucleus.getNucleus().getLogger().warn("The join data can not be constructed on some users.");
                                     }
