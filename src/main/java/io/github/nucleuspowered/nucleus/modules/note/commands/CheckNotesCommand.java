@@ -6,12 +6,15 @@ package io.github.nucleuspowered.nucleus.modules.note.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
 import io.github.nucleuspowered.nucleus.modules.note.data.NoteData;
 import io.github.nucleuspowered.nucleus.modules.note.services.NoteHandler;
 import org.spongepowered.api.Sponge;
@@ -66,7 +69,9 @@ public class CheckNotesCommand extends AbstractCommand<CommandSource> {
             return CommandResult.success();
         }
 
-        List<Text> messages = notes.stream().sorted(Comparator.comparing(NoteData::getDate)).map(x -> createMessage(x, user)).collect(Collectors.toList());
+        List<Text> messages =
+                notes.stream().sorted(Comparator.comparing(NoteData::getDate)).map(x -> createMessage(x, user, src))
+                        .collect(Collectors.toList());
         messages.add(0, Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.info"));
 
         PaginationService paginationService = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class);
@@ -87,7 +92,7 @@ public class CheckNotesCommand extends AbstractCommand<CommandSource> {
         return CommandResult.success();
     }
 
-    private Text createMessage(NoteData note, User user) {
+    private Text createMessage(NoteData note, User user, CommandSource source) {
         String name;
         if (note.getNoterInternal().equals(Util.consoleFakeUUID)) {
             name = Sponge.getServer().getConsole().getName();
@@ -127,14 +132,16 @@ public class CheckNotesCommand extends AbstractCommand<CommandSource> {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd, yyyy").withZone(ZoneId.systemDefault());
         String date = dtf.format(note.getDate());
 
+        Text nodeMessage = TextParsingUtils.addUrls(note.getNote());
+
         //Create a clickable name providing more information about the warning
         Text.Builder information = Text.builder(name)
-                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.hover.check")))
+                .onHover(TextActions.showText(getMessageFor(source, "command.checknotes.hover.check")))
                 .onClick(TextActions.executeCallback(commandSource -> {
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.id", String.valueOf(id)));
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.date", date));
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.noter", name));
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.note", note.getNote()));
+                    sendMessageTo(commandSource, "command.checknotes.id", String.valueOf(id));
+                    sendMessageTo(commandSource, "command.checknotes.date", date);
+                    sendMessageTo(commandSource, "command.checknotes.noter", name);
+                    sendMessageTo(commandSource, "command.checknotes.note", nodeMessage);
                     commandSource.sendMessage(actions.build());
                 }));
 

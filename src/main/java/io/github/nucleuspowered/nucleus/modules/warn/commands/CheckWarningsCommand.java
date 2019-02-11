@@ -12,6 +12,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
 import io.github.nucleuspowered.nucleus.modules.warn.data.WarnData;
 import io.github.nucleuspowered.nucleus.modules.warn.services.WarnHandler;
 import org.spongepowered.api.Sponge;
@@ -79,7 +80,8 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
             return CommandResult.success();
         }
 
-        List<Text> messages = warnings.stream().sorted(Comparator.comparing(WarnData::getDate)).map(x -> createMessage(allWarnings, x, user)).collect(Collectors.toList());
+        List<Text> messages = warnings.stream().sorted(Comparator.comparing(WarnData::getDate))
+                .map(x -> createMessage(allWarnings, x, user, src)).collect(Collectors.toList());
         messages.add(0, Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.info"));
 
         PaginationService paginationService = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class);
@@ -100,7 +102,7 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         return CommandResult.success();
     }
 
-    private Text createMessage(List<WarnData> allData, WarnData warning, User user) {
+    private Text createMessage(List<WarnData> allData, WarnData warning, User user, CommandSource source) {
         Optional<UUID> warner = warning.getWarner();
         final String name;
         name = warner.map(
@@ -127,8 +129,9 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         actions.append(Text.of(TextColors.GOLD, " > "));
 
         //Add the delete button [Delete]
-        actions.append(Text.builder().append(Text.of(TextColors.RED, Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.action.delete")))
-                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.delete")))
+        actions.append(
+                Text.builder().append(Text.of(TextColors.RED, getMessageFor(source,"standard.action.delete")))
+                .onHover(TextActions.showText(getMessageFor(source,"command.checkwarnings.hover.delete")))
                 .onClick(TextActions.runCommand("/removewarning --remove " + user.getName() + " " + id))
                 .build());
 
@@ -138,8 +141,8 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         //Add the expire button if the warning isn't expired [Expire]
         if (!warning.isExpired()) {
             actions.append(Text.builder().append(Text.of(TextColors.YELLOW,
-                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.action.expire")))
-                    .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.expire")))
+                    getMessageFor(source, "standard.action.expire")))
+                    .onHover(TextActions.showText(getMessageFor(source, "command.checkwarnings.hover.expire")))
                     .onClick(TextActions.runCommand("/removewarning " + user.getName() + " " + id))
                     .build());
 
@@ -148,8 +151,8 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         }
 
         //Add the return button [Return]
-        actions.append(Text.builder().append(Text.of(TextColors.GREEN, Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.action.return")))
-                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.return")))
+        actions.append(Text.builder().append(Text.of(TextColors.GREEN, getMessageFor(source, "standard.action.return")))
+                .onHover(TextActions.showText(getMessageFor(source, "command.checkwarnings.hover.return")))
                 .onClick(TextActions.runCommand("/checkwarnings " + user.getName()))
                 .build());
 
@@ -160,17 +163,17 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd, yyyy").withZone(ZoneId.systemDefault());
         String date = dtf.format(warning.getDate());
 
+        Text warningMessage = TextParsingUtils.addUrls(warning.getReason());
+
         //Create a clickable name providing more information about the warning
         Text.Builder information = Text.builder(name)
-                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.check")))
+                .onHover(TextActions.showText(getMessageFor(source, "command.checkwarnings.hover.check")))
                 .onClick(TextActions.executeCallback(commandSource -> {
-                    commandSource.sendMessage(
-                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.id", String.valueOf(id)));
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.date", date));
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.remaining", time));
-                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.warner", name));
-                    commandSource.sendMessage(
-                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.warning", warning.getReason()));
+                    sendMessageTo(source, "command.checkwarnings.id", String.valueOf(id));
+                    sendMessageTo(source, "command.checkwarnings.date", date);
+                    sendMessageTo(source, "command.checkwarnings.remaining", time);
+                    sendMessageTo(source, "command.checkwarnings.warner", name);
+                    sendMessageTo(source, "command.checkwarnings.warning", warningMessage);
                     commandSource.sendMessage(actions.build());
                 }));
 
