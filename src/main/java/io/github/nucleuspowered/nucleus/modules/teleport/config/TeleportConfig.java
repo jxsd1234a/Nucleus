@@ -16,11 +16,18 @@ public class TeleportConfig {
     @Setting(value = "default-quiet", comment = "config.teleport.quiet")
     private boolean defaultQuiet = true;
 
+    @Setting(value = "refund-on-deny", comment = "config.teleport.refundondeny")
+    private boolean refundOnDeny = true;
+
     public boolean isDefaultQuiet() {
         return this.defaultQuiet;
     }
 
     public boolean isUseSafeTeleport() {
         return this.useSafeTeleport;
+    }
+
+    public boolean isRefundOnDeny() {
+        return refundOnDeny;
     }
 }

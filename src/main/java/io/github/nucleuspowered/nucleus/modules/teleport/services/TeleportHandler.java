@@ -5,12 +5,14 @@
 package io.github.nucleuspowered.nucleus.modules.teleport.services;
 
 import com.google.common.base.Preconditions;
+import io.github.nucleuspowered.nucleus.NameUtil;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.interfaces.CancellableTask;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
@@ -45,8 +47,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class TeleportHandler implements MessageProviderTrait, PermissionTrait, ServiceBase {
+public class TeleportHandler implements MessageProviderTrait, InternalServiceManagerTrait, PermissionTrait, ServiceBase, Reloadable {
 
+    private boolean refundOnDeny;
     private final Map<UUID, TeleportPrep> ask = new HashMap<>();
     private final String acceptPerm = getPermissionHandlerFor(TeleportAcceptCommand.class).getBase();
     private final String denyPerm = getPermissionHandlerFor(TeleportDenyCommand.class).getBase();
@@ -74,14 +77,14 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait, S
 
     public void addAskQuestion(UUID target, TeleportPrep tp) {
         clearExpired();
-        get(target).ifPresent(this::cancel);
+        get(target).ifPresent(x -> this.cancel(x, this.refundOnDeny));
         this.ask.put(target, tp);
     }
 
     public void clearExpired() {
         Instant now = Instant.now();
         this.ask.entrySet().stream().filter(x -> now.isAfter(x.getValue().getExpire())).map(Map.Entry::getKey).collect(Collectors.toList())
-                .forEach(x -> cancel(this.ask.remove(x)));
+                .forEach(x -> cancel(this.ask.remove(x), this.refundOnDeny));
     }
 
     public Optional<TeleportPrep> get(UUID uuid) {
@@ -91,7 +94,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait, S
 
     public boolean remove(UUID uuid) {
         TeleportPrep tp = this.ask.remove(uuid);
-        cancel(tp);
+        cancel(tp, this.refundOnDeny);
         return tp != null;
     }
 
@@ -145,7 +148,9 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait, S
             return false;
         }
 
-        target.setForceExpire(true);
+        cancel(target, this.refundOnDeny);
+        Sponge.getServer().getPlayer(target.getTpbuilder().source)
+                .ifPresent(source -> sendMessageTo(source, "command.tpdeny.denyrequester", Nucleus.getNucleus().getNameUtil().getName(player)));
         sendMessageTo(player, "command.tpdeny.deny");
         return true;
     }
@@ -182,20 +187,26 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait, S
                 ).build();
     }
 
-    private void cancel(@Nullable TeleportPrep prep) {
-        if (prep == null) {
+    private void cancel(@Nullable TeleportPrep prep, boolean refund) {
+        if (prep == null || prep.hasCancelRun()) {
             return;
         }
 
-        if (prep.charged != null && prep.cost > 0) {
+        prep.setForceExpire(true);
+        prep.setCancelRun();
+        if (refund && prep.charged != null && prep.cost > 0) {
             if (prep.charged.isOnline()) {
-                prep.charged.getPlayer().ifPresent(x -> x
-                        .sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("teleport.prep.cancel",
-                                Nucleus.getNucleus().getEconHelper().getCurrencySymbol(prep.cost))));
+                prep.charged.getPlayer().ifPresent(x -> sendMessageTo(x, "teleport.prep.cancel",
+                        Nucleus.getNucleus().getEconHelper().getCurrencySymbol(prep.cost)));
             }
 
             Nucleus.getNucleus().getEconHelper().depositInPlayer(prep.charged, prep.cost);
         }
+    }
+
+    @Override
+    public void onReload() {
+        this.refundOnDeny = getServiceUnchecked(TeleportConfigAdapter.class).getNodeOrDefault().isRefundOnDeny();
     }
 
     private static class TeleportTask implements CancellableTask {
@@ -452,6 +463,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait, S
     public static class TeleportPrep {
 
         private boolean forceExpire = false;
+        private boolean hasCancelRun = false;
         private final Instant expire;
         private final User charged;
         private final double cost;
@@ -482,6 +494,14 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait, S
 
         public double getCost() {
             return this.cost;
+        }
+
+        public boolean hasCancelRun() {
+            return this.hasCancelRun;
+        }
+
+        public void setCancelRun() {
+            this.hasCancelRun = true;
         }
 
         public TeleportBuilder getTpbuilder() {
