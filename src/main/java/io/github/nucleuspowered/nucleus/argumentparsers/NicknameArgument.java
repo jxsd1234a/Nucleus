@@ -104,7 +104,7 @@ public class NicknameArgument extends CommandElement implements MessageProviderT
 
         // offline users take precedence over nicknames
         UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
-        if (this.target == Target.USER) {
+        if (!toParse.isEmpty() && this.target == Target.USER) {
             Optional<User> user = uss.get(toParse);
             if (user.isPresent()) {
                 return ImmutableSet.of(user.get());
