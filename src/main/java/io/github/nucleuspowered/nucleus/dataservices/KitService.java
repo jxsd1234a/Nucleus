@@ -41,8 +41,12 @@ public class KitService extends AbstractService<KitConfigDataNode> {
     }
 
     public List<Kit> getAutoRedeemable() {
-        return this.data.getKits().entrySet().stream().filter(x -> x.getValue().autoRedeem && x.getValue().cost <= 0)
-                .map(x -> new SingleKit(x.getKey(), x.getValue())).collect(Collectors.toList());
+        return this.data.getKits()
+                .entrySet()
+                .stream()
+                .filter(x -> x.getValue().autoRedeem && x.getValue().cost <= 0)
+                .map(x -> new SingleKit(x.getKey(), x.getValue()))
+                .collect(Collectors.toList());
     }
 
     public boolean addKit(String name, Kit kit) {

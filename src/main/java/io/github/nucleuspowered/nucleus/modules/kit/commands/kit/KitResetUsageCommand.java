@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -45,7 +44,7 @@ public class KitResetUsageCommand extends KitFallbackBase<CommandSource> {
         User u = args.<User>getOne(NucleusParameters.Keys.USER).get();
         KitUserDataModule inu = Nucleus.getNucleus().getUserDataManager().getUnchecked(u).get(KitUserDataModule.class);
 
-        if (Util.getKeyIgnoreCase(inu.getKitLastUsedTime(), kitInfo.getName()).isPresent()) {
+        if (inu.getLastRedeemedTime(kitInfo.getName()) != null) {
             // Remove the key.
             inu.removeKitLastUsedTime(kitInfo.getName().toLowerCase());
 

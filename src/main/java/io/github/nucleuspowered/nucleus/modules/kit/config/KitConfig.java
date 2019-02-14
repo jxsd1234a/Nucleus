@@ -19,6 +19,9 @@ public class KitConfig {
     @Setting(value = "process-tokens-in-lore", comment = "config.kits.process-tokens")
     private boolean processTokens = false;
 
+    @Setting(value = "log-autoredeem", comment = "config.kits.logauto")
+    private boolean logAutoredeem = false;
+
     public boolean isMustGetAll() {
         return this.mustGetAll;
     }
@@ -29,5 +32,9 @@ public class KitConfig {
 
     public boolean isProcessTokens() {
         return this.processTokens;
+    }
+
+    public boolean isLogAutoredeem() {
+        return logAutoredeem;
     }
 }

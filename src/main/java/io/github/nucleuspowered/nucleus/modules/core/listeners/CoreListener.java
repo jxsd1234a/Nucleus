@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.core.listeners;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
@@ -28,7 +27,6 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.Getter;
-import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -38,7 +36,6 @@ import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -65,20 +62,6 @@ public class CoreListener implements Reloadable, ListenerBase {
             e.printStackTrace();
         }
         this.url = u;
-    }
-
-    @IsCancelled(Tristate.UNDEFINED)
-    @Listener(order = Order.FIRST)
-    public void onPlayerLoginFirst(final ClientConnectionEvent.Login event, @Getter("getTargetUser") User user) {
-        // This works here. Not complaining.
-        if (Util.isFirstPlay(user)) {
-            Nucleus.getNucleus().getUserDataManager().get(user).ifPresent(qsu -> {
-                CoreUserDataModule cu = qsu.get(CoreUserDataModule.class);
-                if (!cu.getLastLogout().isPresent()) {
-                    cu.setStartedFirstJoin(true);
-                }
-            });
-        }
     }
 
     /* (non-Javadoc)
@@ -125,14 +108,6 @@ public class CoreListener implements Reloadable, ListenerBase {
             CoreUserDataModule c = qsu.get(CoreUserDataModule.class);
             c.setLastLogin(Instant.now());
 
-            // If in the cache, unset it too.
-            c.setFirstPlay(c.isStartedFirstJoin() && !c.getLastLogout().isPresent());
-
-            if (c.isFirstPlay()) {
-                Nucleus.getNucleus().getGeneralService().getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
-            }
-
-            c.setFirstJoin(player.getJoinData().firstPlayed().get());
             if (Nucleus.getNucleus().isServer()) {
                 c.setLastIp(player.getConnection().getAddress().getAddress());
             }
@@ -147,7 +122,12 @@ public class CoreListener implements Reloadable, ListenerBase {
 
     @Listener
     public void onPlayerJoinLast(final ClientConnectionEvent.Join event, @Getter("getTargetEntity") final Player player) {
-        if (Nucleus.getNucleus().getUserDataManager().get(player).map(x -> x.get(CoreUserDataModule.class).isFirstPlay()).orElse(true)) {
+        // created before
+        ModularUserService qsu = Nucleus.getNucleus().getUserDataManager().getUnchecked(player);
+        CoreUserDataModule c = qsu.get(CoreUserDataModule.class);
+        if (!c.getFirstJoin().isPresent()) {
+            Nucleus.getNucleus().getGeneralService().getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
+
             NucleusFirstJoinEvent firstJoinEvent = new OnFirstLoginEvent(
                 event.getCause(), player, event.getOriginalChannel(), event.getChannel().orElse(null), event.getOriginalMessage(),
                     event.isMessageCancelled(), event.getFormatter());
@@ -155,7 +135,7 @@ public class CoreListener implements Reloadable, ListenerBase {
             Sponge.getEventManager().post(firstJoinEvent);
             event.setChannel(firstJoinEvent.getChannel().get());
             event.setMessageCancelled(firstJoinEvent.isMessageCancelled());
-            Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(CoreUserDataModule.class).setStartedFirstJoin(false);
+            c.setFirstJoin(c.getLastLogin().orElseGet(Instant::now)); // the player events have completed, no more first join.
         }
 
         // Warn about wildcard.

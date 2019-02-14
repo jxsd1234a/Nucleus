@@ -22,9 +22,6 @@ import javax.annotation.Nullable;
 
 public class CoreUserDataModule extends DataModule<ModularUserService> {
 
-    // Transient
-    private boolean firstPlay;
-
     @DataKey("lastKnownName")
     private String lastKnownName;
 
@@ -134,14 +131,6 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
         this.lastKnownName = lastKnownName;
     }
 
-    public boolean isFirstPlay() {
-        return this.firstPlay;
-    }
-
-    public void setFirstPlay(boolean firstPlay) {
-        this.firstPlay = firstPlay;
-    }
-
     public Optional<Instant> getFirstJoin() {
         if (this.firstJoin > 0) {
             return Optional.of(Instant.ofEpochMilli(this.firstJoin));
@@ -154,11 +143,4 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
         this.firstJoin = firstJoin.toEpochMilli();
     }
 
-    public boolean isStartedFirstJoin() {
-        return this.startedFirstJoin;
-    }
-
-    public void setStartedFirstJoin(boolean startedFirstJoin) {
-        this.startedFirstJoin = startedFirstJoin;
-    }
 }

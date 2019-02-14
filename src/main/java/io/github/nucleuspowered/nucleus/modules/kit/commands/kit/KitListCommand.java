@@ -78,27 +78,32 @@ public class KitListCommand extends KitFallbackBase<CommandSource> {
     private Text createKit(CommandSource source, @Nullable KitUserDataModule user, String kitName, Kit kitObj) {
         Text.Builder tb = Text.builder(kitName);
 
-        if (user != null && Util.getKeyIgnoreCase(user.getKitLastUsedTime(), kitName).isPresent()) {
-            // If one time used...
-            if (kitObj.isOneTime() && !this.kitPermissionHandler.testSuffix(source, "exempt.onetime")) {
-                return tb.color(TextColors.RED)
-                        .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.list.onetime", kitName)))
-                        .style(TextStyles.STRIKETHROUGH).build();
-            }
-
-            // If an intervalOld is used...
-            Duration interval = kitObj.getCooldown().orElse(Duration.ZERO);
-            if (!interval.isZero() && !this.kitPermissionHandler.testCooldownExempt(source)) {
-
-                // Get the next time the kit can be used.
-                Instant next = Util.getValueIgnoreCase(user.getKitLastUsedTime(), kitName).get().plus(interval);
-                if (next.isAfter(Instant.now())) {
-                    // Get the time to next usage.
-                    String time = Util.getTimeToNow(next);
+        if (user != null) {
+            Instant lastRedeem = user.getLastRedeemedTime(kitName);
+            if (lastRedeem != null) {
+                // If one time used...
+                if (kitObj.isOneTime() && !this.kitPermissionHandler.testSuffix(source, "exempt.onetime")) {
                     return tb.color(TextColors.RED)
                             .onHover(TextActions.showText(
-                                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.list.interval", kitName, time)))
+                                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.list.onetime", kitName)))
                             .style(TextStyles.STRIKETHROUGH).build();
+                }
+
+                // If an intervalOld is used...
+                Duration interval = kitObj.getCooldown().orElse(Duration.ZERO);
+                if (!interval.isZero() && !this.kitPermissionHandler.testCooldownExempt(source)) {
+
+                    // Get the next time the kit can be used.
+                    Instant next = lastRedeem.plus(interval);
+                    if (next.isAfter(Instant.now())) {
+                        // Get the time to next usage.
+                        String time = Util.getTimeToNow(next);
+                        return tb.color(TextColors.RED)
+                                .onHover(TextActions.showText(
+                                        Nucleus.getNucleus().getMessageProvider()
+                                                .getTextMessageWithFormat("command.kit.list.interval", kitName, time)))
+                                .style(TextStyles.STRIKETHROUGH).build();
+                    }
                 }
             }
         }

@@ -12,15 +12,20 @@ import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import java.time.Instant;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 public class KitUserDataModule extends DataModule<ModularUserService> {
 
     @DataKey("kitLastUsedTime")
     private Map<String, Long> kitLastUsedTime = Maps.newHashMap();
 
-    public Map<String, Instant> getKitLastUsedTime() {
-        final Map<String, Instant> r = Maps.newHashMap();
-        this.kitLastUsedTime.forEach((k, v) -> r.put(k.toLowerCase(), Instant.ofEpochSecond(v)));
-        return r;
+    @Nullable
+    public Instant getLastRedeemedTime(String name) {
+        if (!this.kitLastUsedTime.containsKey(name.toLowerCase())) {
+            return null;
+        }
+
+        return Instant.ofEpochSecond(this.kitLastUsedTime.get(name.toLowerCase()));
     }
 
     public void addKitLastUsedTime(String kitName, Instant lastTime) {

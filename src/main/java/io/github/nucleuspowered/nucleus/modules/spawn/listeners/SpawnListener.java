@@ -56,7 +56,7 @@ public class SpawnListener implements Reloadable, ListenerBase, MessageProviderT
     @Listener
     public void onJoin(ClientConnectionEvent.Login loginEvent) {
         UUID pl = loginEvent.getProfile().getUniqueId();
-        boolean first = Nucleus.getNucleus().getUserDataManager().getUnchecked(pl).get(CoreUserDataModule.class).isStartedFirstJoin();
+        boolean first = !Nucleus.getNucleus().getUserDataManager().getUnchecked(pl).get(CoreUserDataModule.class).getFirstJoin().isPresent();
 
         try {
             if (first) {

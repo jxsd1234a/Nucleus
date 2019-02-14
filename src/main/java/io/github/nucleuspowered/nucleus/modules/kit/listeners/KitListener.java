@@ -5,16 +5,20 @@
 package io.github.nucleuspowered.nucleus.modules.kit.listeners;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
 import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.dataservices.KitService;
 import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
+import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfig;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.kit.services.KitHandler;
+import org.slf4j.Logger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.Getter;
@@ -23,49 +27,76 @@ import org.spongepowered.api.event.filter.type.Exclude;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.inventory.Container;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-@SuppressWarnings("ALL")
 public class KitListener implements Reloadable, ListenerBase {
 
     private final UserDataManager loader = Nucleus.getNucleus().getUserDataManager();
     private final KitHandler handler = getServiceUnchecked(KitHandler.class);
     private final KitService gds = Nucleus.getNucleus().getKitService();
+    private final Logger logger = Nucleus.getNucleus().getLogger();
 
     private boolean mustGetAll;
+    private boolean logAutoRedeem = false;
 
     @Listener
     public void onPlayerFirstJoin(NucleusFirstJoinEvent event, @Getter("getTargetEntity") Player player) {
         loader.get(player).ifPresent(p -> {
-            gds.getFirstJoinKits().stream().filter(x -> x.isFirstJoinKit())
-                .forEach(kit -> {
-                    try {
-                        handler.redeemKit(kit, player, false, true);
-                    } catch (KitRedeemException e) {
-                        // ignored
-                    }
-                });
+            for (Kit kit : gds.getFirstJoinKits()) {
+                try {
+                    handler.redeemKit(kit, player, true, true);
+                } catch (KitRedeemException e) {
+                    // ignored
+                }
+            }
         });
     }
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event, @Root Player player) {
         loader.get(player).ifPresent(p -> {
-            KitUserDataModule user = loader.get(player.getUniqueId()).get().get(KitUserDataModule.class);
-            gds.getAutoRedeemable().stream()
-                .filter(k -> k.ignoresPermission() ||
-                        !hasPermission(player, PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getName().toLowerCase()))
-                .forEach(k -> {
-                    try {
-                        handler.redeemKit(k, player, true, this.mustGetAll);
-                    } catch (KitRedeemException e) {
-                        // player.sendMessage(e.getText());
+            KitUserDataModule user = loader.getUnchecked(player.getUniqueId()).get(KitUserDataModule.class);
+            List<Kit> autoRedeemable = this.gds.getAutoRedeemable();
+            String name = "[Kit Auto Redeem - " + player.getName() + "]: ";
+            for (Kit kit : autoRedeemable) {
+                String permission = PermissionRegistry.PERMISSIONS_PREFIX + "kits." + kit.getName().toLowerCase();
+                String kitName = kit.getName();
+                if (kit.ignoresPermission()) {
+                    log(name + kitName + " - permission check bypassed.");
+                } else if (player.hasPermission(permission)) {
+                    log(name  + kitName + " - permission check " + permission + " passed.");
+                } else {
+                    continue;
+                }
+
+                Instant timeOfLastUse = user.getLastRedeemedTime(kit.getName());
+                if (timeOfLastUse != null && !this.handler.checkOneTime(kit, player)) {
+                    log(name  + kitName + " - one time kit already redeemed.");
+                } else {
+                    if (timeOfLastUse != null) {
+                        Optional<Duration> od = this.handler.checkCooldown(kit, player, timeOfLastUse);
+                        if (od.isPresent()) {
+                            log(name + kitName + " - cooldown not expired - " + Util.getTimeStringFromSeconds(od.get().getSeconds()) + ".");
+                            continue;
+                        }
                     }
-                });
+
+                    log(name  + kitName + " - redeeming kit.");
+                    try {
+                        this.handler.redeemKit(kit, player, false, false, this.mustGetAll, false, user);
+                        user.addKitLastUsedTime(kit.getName(), Instant.now());
+                        log(name  + kitName + " - kit redeemed.");
+                    } catch (KitRedeemException e) {
+                        if (this.logAutoRedeem) {
+                            Nucleus.getNucleus().getLogger().error(name + kitName + " - kit could not be redeemed.", e);
+                        }
+                    }
+                }
+            }
         });
     }
 
@@ -102,40 +133,15 @@ public class KitListener implements Reloadable, ListenerBase {
         }
     }
 
-    private String fixup(List<Text> texts) {
-        return getCommand(texts.stream().map(x -> {
-            try {
-                return TextSerializers.JSON.deserialize(x.toPlain()).toPlain();
-            } catch (Exception e) {
-                return x.toPlain();
-            }
-        }).collect(Collectors.toList()));
-    }
-
-    private String getCommandFromText(List<Text> texts) {
-        return getCommand(texts.stream().map(x -> x.toPlain()).collect(Collectors.toList()));
-    }
-
-    private String getCommand(List<String> strings) {
-        StringBuilder builder = new StringBuilder();
-        for (String string : strings) {
-            if (builder.length() > 0) {
-                builder.append(" ");
-            }
-
-            if (string.contains("\n")) {
-                builder.append(string.split("\\n")[0]);
-                return builder.toString();
-            }
-
-            builder.append(string);
+    private void log(String message) {
+        if (this.logAutoRedeem) {
+            this.logger.info(message);
         }
-
-        return builder.toString();
     }
 
     @Override public void onReload() throws Exception {
-        KitConfigAdapter kca = getServiceUnchecked(KitConfigAdapter.class);
-        this.mustGetAll = kca.getNodeOrDefault().isMustGetAll();
+        KitConfig kca = getServiceUnchecked(KitConfigAdapter.class).getNodeOrDefault();
+        this.mustGetAll = kca.isMustGetAll();
+        this.logAutoRedeem = kca.isLogAutoredeem();
     }
 }

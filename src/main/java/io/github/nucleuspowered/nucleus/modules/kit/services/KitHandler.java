@@ -80,7 +80,6 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
     private final List<Container> viewers = Lists.newArrayList();
     private final Map<Container, Tuple<Kit, Inventory>> inventoryKitMap = Maps.newHashMap();
-    private final Map<Container, Tuple<Kit, Inventory>> inventoryKitCommandMap = Maps.newHashMap();
 
     private final KitService store = Nucleus.getNucleus().getKitService();
 
@@ -114,38 +113,40 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
     @Override
     public RedeemResult redeemKit(Kit kit, Player player, boolean performChecks) throws KitRedeemException {
-        return redeemKit(kit, player, performChecks, this.isMustGetAll, false);
+        return redeemKit(kit, player, performChecks, performChecks, this.isMustGetAll, false,
+                Nucleus.getNucleus().getUserDataManager().getUnchecked(player.getUniqueId()).get(KitUserDataModule.class));
     }
 
     @Override
     public RedeemResult redeemKit(Kit kit, Player player, boolean performChecks, boolean mustRedeemAll) throws KitRedeemException {
-        return redeemKit(kit, player, performChecks, mustRedeemAll, false);
+        return redeemKit(kit, player, performChecks, performChecks, mustRedeemAll, false,
+                Nucleus.getNucleus().getUserDataManager().getUnchecked(player.getUniqueId()).get(KitUserDataModule.class));
     }
 
-    public RedeemResult redeemKit(Kit kit, Player player, boolean performChecks, boolean isMustGetAll, boolean isFirstJoin) throws
-            KitRedeemException {
-        KitUserDataModule user = Nucleus.getNucleus().getUserDataManager().get(player.getUniqueId()).get().get(KitUserDataModule.class);
-        Optional<Instant> oi = Util.getValueIgnoreCase(user.getKitLastUsedTime(), kit.getName());
+    public RedeemResult redeemKit(Kit kit,
+            Player player,
+            boolean checkOneTime,
+            boolean checkCooldown,
+            boolean isMustGetAll,
+            boolean isFirstJoin,
+            KitUserDataModule user) throws KitRedeemException {
+        Instant timeOfLastUse = user.getLastRedeemedTime(kit.getName());
         Instant now = Instant.now();
-        if (performChecks) {
 
-            // If the kit was used before...
-            if (oi.isPresent()) {
+        // If the kit was used before...
+        if ((checkOneTime || checkCooldown) && timeOfLastUse != null) {
 
-                // if it's one time only and the user does not have an exemption...
-                if (kit.isOneTime() && !hasPermission(player, this.cph.getPermissionWithSuffix("exempt.onetime"))) {
-                    throw new KitRedeemException("Already redeemed", KitRedeemException.Reason.ALREADY_REDEEMED);
-                }
+            // if it's one time only and the user does not have an exemption...
+            if (checkOneTime && !checkOneTime(kit, player)) {
+                throw new KitRedeemException("Already redeemed", KitRedeemException.Reason.ALREADY_REDEEMED);
+            }
 
-                // If we have a cooldown for the kit, and we don't have permission to
-                // bypass it...
-                if (!this.cph.testCooldownExempt(player) && kit.getCooldown().map(Duration::getSeconds).orElse(0L) > 0) {
-
-                    // ...and we haven't reached the cooldown point yet...
-                    Instant timeForNextUse = oi.get().plus(kit.getCooldown().get());
-                    if (timeForNextUse.isAfter(now)) {
-                        throw new KitRedeemException.Cooldown("Cooldown not expired", Duration.between(now, timeForNextUse));
-                    }
+            // If we have a cooldown for the kit, and we don't have permission to
+            // bypass it...
+            if (checkCooldown) {
+                Optional<Duration> duration = checkCooldown(kit, player, timeOfLastUse);
+                if (duration.isPresent()) {
+                    throw new KitRedeemException.Cooldown("Cooldown not expired", duration.get());
                 }
             }
         }
@@ -153,7 +154,7 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
         // Kit pre redeem
         Cause cause = CauseStackHelper.createCause(player);
 
-        NucleusKitEvent.Redeem.Pre preEvent = new KitEvent.PreRedeem(cause, oi.orElse(null), kit, player);
+        NucleusKitEvent.Redeem.Pre preEvent = new KitEvent.PreRedeem(cause, timeOfLastUse, kit, player);
         if (Sponge.getEventManager().post(preEvent)) {
             throw new KitRedeemException.PreCancelled(preEvent.getCancelMessage().orElse(null));
         }
@@ -188,20 +189,46 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
             // Register the last used time. Do it for everyone, in case
             // permissions or cooldowns change later
-            if (performChecks) {
+            if (checkCooldown) {
                 user.addKitLastUsedTime(kit.getName(), now);
             }
 
-            Sponge.getEventManager().post(new KitEvent.PostRedeem(cause, oi.orElse(null), kit, player));
+            Sponge.getEventManager().post(new KitEvent.PostRedeem(cause, timeOfLastUse, kit, player));
             return new KitRedeemResult(inventoryTransactionResult.getRejectedItems(), slotList.stream()
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .collect(Collectors.toList()));
         } else {
             // Failed.
-            Sponge.getEventManager().post(new KitEvent.FailedRedeem(cause, oi.orElse(null), kit, player));
+            Sponge.getEventManager().post(new KitEvent.FailedRedeem(cause, timeOfLastUse, kit, player));
             throw new KitRedeemException("No items were redeemed", KitRedeemException.Reason.UNKNOWN);
         }
+    }
+
+    public boolean checkOneTime(Kit kit, Player player) {
+        // if it's one time only and the user does not have an exemption...
+        return !kit.isOneTime() || hasPermission(player, this.cph.getPermissionWithSuffix("exempt.onetime"));
+    }
+
+    public Optional<Duration> checkCooldown(Kit kit, Player player, Instant timeOfLastUse) {
+        Instant now = Instant.now();
+
+        // If the kit was used before...
+        if (timeOfLastUse != null) {
+
+            // If we have a cooldown for the kit, and we don't have permission to
+            // bypass it...
+            if (!this.cph.testCooldownExempt(player) && kit.getCooldown().map(Duration::getSeconds).orElse(0L) > 0) {
+
+                // ...and we haven't reached the cooldown point yet...
+                Instant timeForNextUse = timeOfLastUse.plus(kit.getCooldown().get());
+                if (timeForNextUse.isAfter(now)) {
+                    return Optional.of(Duration.between(now, timeForNextUse));
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -261,19 +288,6 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
     public void removeKitInventoryFromListener(Container inventory) {
         this.inventoryKitMap.remove(inventory);
-    }
-
-    public Optional<Tuple<Kit, Inventory>> getCurrentlyOpenInventoryCommandKit(Container inventory) {
-        return Optional.ofNullable(this.inventoryKitCommandMap.get(inventory));
-    }
-
-    public void addKitCommandInventoryToListener(Tuple<Kit, Inventory> kit, Container inventory) {
-        Preconditions.checkState(!this.inventoryKitCommandMap.containsKey(inventory));
-        this.inventoryKitCommandMap.put(inventory, kit);
-    }
-
-    public void removeKitCommandInventoryFromListener(Container inventory) {
-        this.inventoryKitCommandMap.remove(inventory);
     }
 
     public void addViewer(Container inventory) {
