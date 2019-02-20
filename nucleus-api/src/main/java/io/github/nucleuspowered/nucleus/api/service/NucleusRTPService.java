@@ -66,6 +66,14 @@ public interface NucleusRTPService {
      * <p>Note that this may fail if the search times out. This does not
      * indicate a failing routine.</p>
      *
+     * <p>A source of confusion is that this method works in exactly the same
+     * way as the rtp command. <strong>It does not.</strong> The RTP command
+     * makes attempts over multiple ticks to keep the server running while
+     * increasing the chance of finding a suitable spot.</p>
+     *
+     * <p>This method makes <strong>one</strong> attempt at finding a
+     * suitable location. You may need to run this more than once.</p>
+     *
      * @param currentLocation The current location to base the RTP off.
      * @param world The world to warp to
      * @param options The RTP options to use
