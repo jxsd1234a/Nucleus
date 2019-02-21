@@ -36,6 +36,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -173,6 +174,70 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
         return messages;
     }
 
+    @Override public void onReload() {
+        this.listConfig = getServiceUnchecked(PlayerInfoConfigAdapter.class).getNodeOrDefault().getList();
+    }
+
+    public static Map<String, List<Player>> linkPlayersToGroups(List<Subject> groups, Map<String, String> groupAliases,
+           Map<Player, List<String>> players) {
+
+        final Map<String, List<Player>> groupToPlayer = Maps.newHashMap();
+
+        for (Subject x : groups) {
+            List<Player> groupPlayerList;
+            String groupName = x.getIdentifier();
+            if (groupAliases.containsKey(x.getIdentifier())) {
+                groupName = groupAliases.get(x.getIdentifier());
+            }
+
+            // Get the players in the group.
+            Collection<Player> cp = players.entrySet().stream().filter(k -> k.getValue().contains(x.getIdentifier()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+            if (!cp.isEmpty()) {
+                groupPlayerList = groupToPlayer.computeIfAbsent(groupName, g -> Lists.newArrayList());
+                cp.forEach(players::remove);
+                groupPlayerList.addAll(cp);
+            }
+        }
+
+        return groupToPlayer;
+    }
+
+    // For testing
+
+    public static int groupComparison(Function<Subject, Integer> weightingFunction, Subject x, Subject y)  {
+        // If the weight of x is bigger than y, x should go first. We therefore need a large x to provide a negative number.
+        int res = weightingFunction.apply(y) - weightingFunction.apply(x);
+        if (res == 0) {
+            // If x is bigger than y, x should go first. We therefore need a large x to provide a negative number,
+            // so x is above y.
+            return y.getParents().size() - x.getParents().size();
+        }
+
+        return res;
+    }
+
+    private void getList(Collection<Player> player, boolean showVanished, List<Text> messages, @Nullable String groupName) {
+        List<Text> m = getPlayerList(player, showVanished);
+        if (this.listConfig.isCompact()) {
+            boolean isFirst = true;
+            for (Text y : m) {
+                Text.Builder tb = Text.builder();
+                if (isFirst && groupName != null) {
+                    tb.append(Text.of(TextColors.YELLOW, groupName, ": "));
+                }
+                isFirst = false;
+                messages.add(tb.append(y).build());
+            }
+        } else {
+            if (groupName != null) {
+                messages.add(Text.of(TextColors.YELLOW, groupName, ":"));
+            }
+            messages.addAll(m);
+        }
+    }
+
     /**
      * Gets {@link Text} that represents the provided player list.
      *
@@ -211,81 +276,26 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                 }).collect(Collectors.toList());
 
         if (this.listConfig.isCompact() && !playerList.isEmpty()) {
-            boolean isFirst = true;
-            Text.Builder tb = Text.builder();
-            for (Text text : playerList) {
-                if (!isFirst) {
-                    tb.append(Text.of(TextColors.WHITE, ", "));
+            List<Text> toReturn = new ArrayList<>();
+            List<List<Text>> parts = Lists.partition(playerList, this.listConfig.getMaxPlayersPerLine());
+            for (List<Text> p : parts) {
+                Text.Builder tb = Text.builder();
+                boolean isFirst = true;
+                for (Text text : p) {
+                    if (!isFirst) {
+                        tb.append(Text.of(TextColors.WHITE, ", "));
+                    }
+
+                    tb.append(text);
+                    isFirst = false;
                 }
 
-                tb.append(text);
-                isFirst = false;
+                toReturn.add(tb.build());
             }
 
-            return Lists.newArrayList(tb.build());
+            return toReturn;
         }
 
         return playerList;
-    }
-
-    @Override public void onReload() {
-        this.listConfig = getServiceUnchecked(PlayerInfoConfigAdapter.class).getNodeOrDefault().getList();
-    }
-
-    public static Map<String, List<Player>> linkPlayersToGroups(List<Subject> groups, Map<String, String> groupAliases,
-           Map<Player, List<String>> players) {
-
-        final Map<String, List<Player>> groupToPlayer = Maps.newHashMap();
-
-        for (Subject x : groups) {
-            List<Player> groupPlayerList;
-            String groupName = x.getIdentifier();
-            if (groupAliases.containsKey(x.getIdentifier())) {
-                groupName = groupAliases.get(x.getIdentifier());
-            }
-
-            // Get the players in the group.
-            Collection<Player> cp = players.entrySet().stream().filter(k -> k.getValue().contains(x.getIdentifier()))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            if (!cp.isEmpty()) {
-                groupPlayerList = groupToPlayer.computeIfAbsent(groupName, g -> Lists.newArrayList());
-                cp.forEach(players::remove);
-                groupPlayerList.addAll(cp);
-            }
-        }
-
-        return groupToPlayer;
-    }
-
-    // For testing
-    public static int groupComparison(Function<Subject, Integer> weightingFunction, Subject x, Subject y)  {
-        // If the weight of x is bigger than y, x should go first. We therefore need a large x to provide a negative number.
-        int res = weightingFunction.apply(y) - weightingFunction.apply(x);
-        if (res == 0) {
-            // If x is bigger than y, x should go first. We therefore need a large x to provide a negative number,
-            // so x is above y.
-            return y.getParents().size() - x.getParents().size();
-        }
-
-        return res;
-    }
-
-    private void getList(Collection<Player> player, boolean showVanished, List<Text> messages, @Nullable String groupName) {
-        List<Text> m = getPlayerList(player, showVanished);
-        if (this.listConfig.isCompact()) {
-            for (Text y : m) {
-                Text.Builder tb = Text.builder();
-                if (groupName != null) {
-                    tb.append(Text.of(TextColors.YELLOW, groupName, ": "));
-                }
-                messages.add(tb.append(y).build());
-            }
-        } else {
-            if (groupName != null) {
-                messages.add(Text.of(TextColors.YELLOW, groupName, ":"));
-            }
-            messages.addAll(m);
-        }
     }
 }

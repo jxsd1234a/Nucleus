@@ -36,6 +36,9 @@ public class ListConfig {
     @Setting(value = "compact-list", comment = "config.playerinfo.list.compact")
     private boolean compact = true;
 
+    @Setting(value = "compact-max-players", comment = "config.playerinfo.list.compactmax")
+    private int maxPlayersPerLine = 20;
+
     public boolean isGroupByPermissionGroup() {
         return this.groupByPermissionGroup.enabled;
     }
@@ -70,6 +73,10 @@ public class ListConfig {
 
     public boolean isCompact() {
         return this.compact;
+    }
+
+    public int getMaxPlayersPerLine() {
+        return this.maxPlayersPerLine;
     }
 
     @ConfigSerializable
