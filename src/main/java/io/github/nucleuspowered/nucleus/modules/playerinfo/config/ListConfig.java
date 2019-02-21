@@ -76,7 +76,7 @@ public class ListConfig {
     }
 
     public int getMaxPlayersPerLine() {
-        return this.maxPlayersPerLine;
+        return Math.max(1, this.maxPlayersPerLine);
     }
 
     @ConfigSerializable
