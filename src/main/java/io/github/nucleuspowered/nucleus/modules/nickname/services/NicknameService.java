@@ -157,6 +157,10 @@ public class NicknameService implements NucleusNicknameService, Reloadable, Perm
 
     private void removeNick(User user, Cause cause) throws NicknameException {
         Text currentNickname = getNickname(user).orElse(null);
+        if (!(user instanceof Player) && user.getPlayer().isPresent()) {
+            user = user.getPlayer().get();
+        }
+
         ChangeNicknameEventPre cne = new ChangeNicknameEventPre(cause, currentNickname, null, user);
         if (Sponge.getEventManager().post(cne)) {
             throw new NicknameException(
@@ -177,6 +181,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable, Perm
         mus.set(n);
         mus.save();
         removeFromCache(user.getUniqueId());
+        Sponge.getEventManager().post(new ChangeNicknameEventPost(cause, currentNickname, null, user));
 
         if (user.isOnline()) {
             user.getPlayer().ifPresent(x ->
@@ -211,6 +216,10 @@ public class NicknameService implements NucleusNicknameService, Reloadable, Perm
             }
         } catch (IllegalArgumentException ignored) {
             // We allow some other nicknames too.
+        }
+
+        if (!(pl instanceof Player) && pl.getPlayer().isPresent()) {
+            pl = pl.getPlayer().get();
         }
 
         if (!bypass) {

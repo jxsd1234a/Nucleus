@@ -37,4 +37,5 @@ public class NicknameListener implements ListenerBase, InternalServiceManagerTra
     public void onPlayerQuit(ClientConnectionEvent.Disconnect event, @Root Player player) {
         getServiceUnchecked(NicknameService.class).removeFromCache(player.getUniqueId());
     }
+
 }
