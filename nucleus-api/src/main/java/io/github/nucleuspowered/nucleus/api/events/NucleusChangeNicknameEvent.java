@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.api.events;
 import io.github.nucleuspowered.nucleus.api.annotations.MightOccurAsync;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.user.TargetUserEvent;
 import org.spongepowered.api.text.Text;
 
@@ -73,7 +74,7 @@ public interface NucleusChangeNicknameEvent extends Cancellable, TargetUserEvent
 
     @SuppressWarnings("deprecation")
     @MightOccurAsync
-    interface Post {
+    interface Post extends Event {
 
         /**
          * The use whose nickname was changed.
