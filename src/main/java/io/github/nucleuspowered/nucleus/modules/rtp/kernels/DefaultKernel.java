@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.rtp.kernels;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.rtp.RTPKernel;
@@ -27,7 +28,17 @@ public class DefaultKernel implements RTPKernel {
     @Override
     public Optional<Location<World>> getLocation(@Nullable Location<World> currentLocation, World target, NucleusRTPService.RTPOptions options) {
         // from world spawn
-        Vector3i location = KernelHelper.getLocationWithOffset(getCentralLocation(currentLocation, target), options);
+        Vector3d location;
+        int count = 25;
+        do {
+            if (--count < 0) {
+                // We found nothing in the timeframe.
+                return Optional.empty();
+            }
+
+            location = KernelHelper.getLocationWithOffset(getCentralLocation(currentLocation, target), options);
+        } while (!Util.isLocationInWorldBorder(location.toDouble(), target));
+
         Location<World> worldLocation = getStartingLocation(new Location<>(target, location));
         if (worldLocation == null) {
             return Optional.empty();

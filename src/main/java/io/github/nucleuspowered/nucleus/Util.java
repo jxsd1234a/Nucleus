@@ -390,7 +390,10 @@ public class Util {
      * @return <code>true</code> if the location is within the border.
      */
     public static boolean isLocationInWorldBorder(Location<World> location) {
-        World world = location.getExtent();
+        return isLocationInWorldBorder(location.getPosition(), location.getExtent());
+    }
+
+    public static boolean isLocationInWorldBorder(Vector3d location, World world) {
 
         // Diameter, not radius - we'll want the radius later. We use long, we want the floor!
         long radius = (long)Math.floor(world.getWorldBorder().getDiameter() / 2.0);
@@ -398,7 +401,7 @@ public class Util {
         // We get the current position and subtract the border centre. This gives us an effective distance from the
         // centre in all three dimensions. We just care about the magnitude in the x and z directions, so we get the
         // positive amount.
-        Vector3d displacement = location.getPosition().sub(world.getWorldBorder().getCenter()).abs();
+        Vector3d displacement = location.sub(world.getWorldBorder().getCenter()).abs();
 
         // Check that we're not too far out.
         return !(displacement.getX() > radius || displacement.getZ() > radius);

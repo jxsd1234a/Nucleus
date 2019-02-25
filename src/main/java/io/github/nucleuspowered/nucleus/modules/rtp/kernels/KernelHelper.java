@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.rtp.kernels;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
 
@@ -23,11 +24,11 @@ class KernelHelper {
         return random.nextInt(2) == 0 ? -in : in;
     }
 
-    static Vector3i getLocationWithOffset(Vector3i centre, NucleusRTPService.RTPOptions options) {
-        return new Vector3i(
+    static Vector3d getLocationWithOffset(Vector3i centre, NucleusRTPService.RTPOptions options) {
+        return new Vector3d(
                 randomSign(getRandomBetween(options.minRadius(), options.maxRadius()) + centre.getX()),
                 getRandomBetween(options.minHeight(), options.maxHeight()),
-                randomSign(getRandomBetween(options.minRadius(), options.maxRadius())  + centre.getZ())
+                randomSign(getRandomBetween(options.minRadius(), options.maxRadius()) + centre.getZ())
         );
     }
 
