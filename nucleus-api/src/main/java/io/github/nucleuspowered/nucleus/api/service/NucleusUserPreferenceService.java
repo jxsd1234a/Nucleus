@@ -137,7 +137,8 @@ public interface NucleusUserPreferenceService {
         /**
          * Tests whether a user can change their preference.
          *
-         * @return The permission, if any.
+         * @param user The user to check
+         * @return If they have permission
          */
         boolean canAccess(User user);
 
