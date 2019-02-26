@@ -119,7 +119,7 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
     }
 
     // We do this first so that other plugins can alter it later if needs be.
-    @Listener(order = Order.EARLY)
+    @Listener(order = Order.EARLY, beforeModifications = true)
     public void onPlayerChat(MessageChannelEvent.Chat event) {
         Util.onPlayerSimulatedOrPlayer(event, this::onPlayerChatInternal);
     }
