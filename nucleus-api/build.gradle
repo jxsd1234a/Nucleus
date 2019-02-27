@@ -82,3 +82,12 @@ blossom {
     replaceToken '@description@', description
     replaceToken '@gitHash@', gitHash.hash
 }
+
+javadoc {
+    options.links(
+        'https://flow.github.io/math/',
+        'https://flow.github.io/noise/',
+        'https://jd.spongepowered.org/7.1.0/',
+        'https://docs.oracle.com/javase/8/docs/api/'
+    )
+}
