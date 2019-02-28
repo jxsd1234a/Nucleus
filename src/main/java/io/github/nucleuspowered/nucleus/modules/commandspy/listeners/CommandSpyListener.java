@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.commandspy.listeners;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
@@ -17,8 +17,8 @@ import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyUserPrefKey
 import io.github.nucleuspowered.nucleus.modules.commandspy.commands.CommandSpyCommand;
 import io.github.nucleuspowered.nucleus.modules.commandspy.config.CommandSpyConfig;
 import io.github.nucleuspowered.nucleus.modules.commandspy.config.CommandSpyConfigAdapter;
+import io.github.nucleuspowered.nucleus.util.CommandNameCache;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -27,7 +27,6 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.text.Text;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +35,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
     private final String basePermission;
     private final String exemptTarget;
     private CommandSpyConfig config = new CommandSpyConfig();
+    private Set<String> toSpy = ImmutableSet.of();
     private boolean listIsEmpty = true;
     private final UserPreferenceService userPreferenceService;
 
@@ -54,13 +54,9 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
             boolean isInList = false;
             if (!this.listIsEmpty) {
                 String command = event.getCommand().toLowerCase();
-                Optional<? extends CommandMapping> oc = Sponge.getCommandManager().get(command, player);
-                Set<String> cmd;
-
-                // If the command exists, then get all aliases.
-                cmd = oc.map(commandMapping -> commandMapping.getAllAliases().stream().map(String::toLowerCase).collect(Collectors.toSet()))
-                        .orElseGet(() -> Sets.newHashSet(command));
-                isInList = this.config.getCommands().stream().map(String::toLowerCase).anyMatch(cmd::contains);
+                Set<String> cmd = CommandNameCache.INSTANCE.getFromCommandAndSource(command, player);
+                cmd.retainAll(this.toSpy);
+                isInList = !cmd.isEmpty();
             }
 
             // If the command is in the list, report it.
@@ -89,6 +85,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
         this.config = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
             .getNodeOrDefault();
         this.listIsEmpty = this.config.getCommands().isEmpty();
+        this.toSpy = this.config.getCommands().stream().map(String::toLowerCase).collect(ImmutableSet.toImmutableSet());
     }
 
     @Override

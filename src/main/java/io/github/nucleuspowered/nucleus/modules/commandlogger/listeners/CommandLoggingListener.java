@@ -4,15 +4,14 @@
  */
 package io.github.nucleuspowered.nucleus.modules.commandlogger.listeners;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.modules.commandlogger.config.CommandLoggerConfig;
 import io.github.nucleuspowered.nucleus.modules.commandlogger.config.CommandLoggerConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.commandlogger.services.CommandLoggerHandler;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
+import io.github.nucleuspowered.nucleus.util.CommandNameCache;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.command.source.ConsoleSource;
@@ -24,14 +23,14 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CommandLoggingListener implements Reloadable, ListenerBase {
 
     private final CommandLoggerHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CommandLoggerHandler.class);
     private CommandLoggerConfig c = new CommandLoggerConfig();
+    private Set<String> commandsToFilter = new HashSet<>();
 
     @Listener(order = Order.LAST)
     public void onCommand(SendCommandEvent event, @First CommandSource source) {
@@ -53,15 +52,11 @@ public class CommandLoggingListener implements Reloadable, ListenerBase {
         }
 
         String command = event.getCommand().toLowerCase();
-        Optional<? extends CommandMapping> oc = Sponge.getCommandManager().get(command, source);
-        Set<String> commands;
-
-        // If the command exists, then get all aliases.
-        commands = oc.map(commandMapping -> commandMapping.getAllAliases().stream().map(String::toLowerCase).collect(Collectors.toSet()))
-            .orElseGet(() -> Sets.newHashSet(command));
+        Set<String> commands = CommandNameCache.INSTANCE.getFromCommandAndSource(command, source);
+        commands.retainAll(this.commandsToFilter);
 
         // If whitelist, and we have the command, or if not blacklist, and we do not have the command.
-        if (this.c.isWhitelist() == this.c.getCommandsToFilter().stream().map(String::toLowerCase).anyMatch(commands::contains)) {
+        if (this.c.isWhitelist() == !commands.isEmpty()) {
             String message = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("commandlog.message", source.getName(), event.getCommand(), event.getArguments());
             Nucleus.getNucleus().getLogger().info(message);
             this.handler.queueEntry(message);
@@ -71,6 +66,7 @@ public class CommandLoggingListener implements Reloadable, ListenerBase {
     @Override
     public void onReload() {
         this.c = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CommandLoggerConfigAdapter.class).getNodeOrDefault();
+        this.commandsToFilter = this.c.getCommandsToFilter().stream().map(String::toLowerCase).collect(ImmutableSet.toImmutableSet());
     }
 
     @Listener
