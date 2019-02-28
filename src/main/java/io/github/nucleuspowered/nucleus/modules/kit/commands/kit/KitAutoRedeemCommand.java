@@ -4,15 +4,16 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
+import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -28,7 +29,9 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RunAsync
 @NoModifiers
 @NonnullByDefault
-public class KitAutoRedeemCommand extends KitFallbackBase<CommandSource> {
+public class KitAutoRedeemCommand extends KitFallbackBase<CommandSource> implements Reloadable {
+
+    private boolean autoRedeemEnabled = false;
 
     @Override
     public CommandElement[] getArguments() {
@@ -47,10 +50,16 @@ public class KitAutoRedeemCommand extends KitFallbackBase<CommandSource> {
         // to update it explicitly
         kitInfo.setAutoRedeem(b);
         KIT_HANDLER.saveKit(kitInfo);
-        player.sendMessage(Nucleus.getNucleus()
-                .getMessageProvider().getTextMessageWithFormat(b ? "command.kit.autoredeem.on" : "command.kit.autoredeem.off",
-                kitInfo.getName()));
+        sendMessageTo(player, b ? "command.kit.autoredeem.on" : "command.kit.autoredeem.off", kitInfo.getName());
+        if (!this.autoRedeemEnabled) {
+            sendMessageTo(player, "command.kit.autoredeem.disabled");
+        }
 
         return CommandResult.success();
+    }
+
+    @Override
+    public void onReload() throws Exception {
+        this.autoRedeemEnabled = getServiceUnchecked(KitConfigAdapter.class).getNodeOrDefault().isEnableAutoredeem();
     }
 }
