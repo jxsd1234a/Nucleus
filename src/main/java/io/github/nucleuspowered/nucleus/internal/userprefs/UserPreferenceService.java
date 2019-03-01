@@ -142,10 +142,6 @@ public class UserPreferenceService implements NucleusUserPreferenceService {
         return this.provider;
     }
 
-    public NucleusKeysProvider keysImpl() {
-        return this.provider;
-    }
-
     @Override
     public <T> Optional<T> getPreferenceFor(User user, NucleusUserPreferenceService.PreferenceKey<T> key) {
         return get(user.getUniqueId(), key);

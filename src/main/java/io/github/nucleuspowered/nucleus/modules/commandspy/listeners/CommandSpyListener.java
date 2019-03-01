@@ -28,6 +28,7 @@ import org.spongepowered.api.text.Text;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CommandSpyListener implements Reloadable, ListenerBase.Conditional {
@@ -61,9 +62,10 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
 
             // If the command is in the list, report it.
             if (isInList == this.config.isUseWhitelist()) {
+                UUID currentUUID = player.getUniqueId();
                 List<Player> playerList = Sponge.getServer().getOnlinePlayers()
                     .stream()
-                    .filter(x -> !x.getUniqueId().equals(player.getUniqueId()))
+                    .filter(x -> !x.getUniqueId().equals(currentUUID))
                     .filter(x -> hasPermission(x, this.basePermission))
                     .filter(x -> this.userPreferenceService.getUnwrapped(player.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY))
                     .collect(Collectors.toList());
