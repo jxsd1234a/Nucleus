@@ -14,7 +14,8 @@ public class TeleportUserPrefKeys implements UserPrefKeys {
 
     // String key, @Nullable Boolean def, String permission, String descriptionKey
     public static final PreferenceKey<Boolean> TELEPORT_TARGETABLE = new PreferenceKey.BooleanKey(
-            NucleusKeysProvider.TELEPORT_TARGETABLE_KEY, false,
+            NucleusKeysProvider.TELEPORT_TARGETABLE_KEY,
+            true,
             Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(TeleportToggleCommand.class).getBase(),
             "userpref.teleporttarget"
     );
