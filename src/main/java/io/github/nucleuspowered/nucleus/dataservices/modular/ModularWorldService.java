@@ -14,6 +14,8 @@ import java.util.UUID;
 
 public class ModularWorldService extends ModularDataService<ModularWorldService> {
 
+    private static final int CURRENT_VERSION = 1;
+
     private final UUID worldUUID;
 
     public ModularWorldService(DataProvider<ConfigurationNode> dataProvider, UUID worldUUID) throws Exception {
@@ -37,4 +39,5 @@ public class ModularWorldService extends ModularDataService<ModularWorldService>
     @Override <T extends DataModule<ModularWorldService>> Optional<T> tryGet(Class<T> module) {
         return DataModuleFactory.get(module, this);
     }
+
 }

@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public class ModularGeneralService extends ModularDataService<ModularGeneralService> {
 
+    private final static int CURRENT_VERSION = 1;
+
     public ModularGeneralService(DataProvider<ConfigurationNode> dataProvider) throws Exception {
         super(dataProvider);
     }

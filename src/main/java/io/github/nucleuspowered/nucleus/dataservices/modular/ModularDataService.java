@@ -136,4 +136,5 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
     public void migrate() {
         // noop
     }
+
 }

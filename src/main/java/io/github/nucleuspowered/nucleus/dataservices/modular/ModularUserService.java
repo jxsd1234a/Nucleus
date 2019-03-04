@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.dataservices.modular;
 import io.github.nucleuspowered.nucleus.dataservices.dataproviders.DataProvider;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.transformation.ConfigurationTransformation;
+import ninja.leaping.configurate.transformation.MoveStrategy;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -22,18 +23,21 @@ public class ModularUserService extends ModularDataService<ModularUserService> {
 
     private final UUID uuid;
     private static final ConfigurationTransformation TRANSFORMER =
-            ConfigurationTransformation.chain(
-                    ConfigurationTransformation.builder().addAction(new Object[] { "tptoggle" },
-                            (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:teleport-targetable" }).build(),
-                    ConfigurationTransformation.builder().addAction(new Object[] { "powertoolToggle" },
-                            (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:powertool-toggle" }).build(),
-                    ConfigurationTransformation.builder().addAction(new Object[] { "socialspy" },
-                            (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:social-spy" }).build(),
-                    ConfigurationTransformation.builder().addAction(new Object[] { "msgtoggle" },
-                            (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:message-receiving-enabled" }).build(),
-                    ConfigurationTransformation.builder().addAction(new Object[] { "isCommandSpy" },
-                            (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:command-spy" }).build()
-            );
+            ConfigurationTransformation.versionedBuilder()
+                    .addVersion(2,
+                        ConfigurationTransformation.builder()
+                            .setMoveStrategy(MoveStrategy.MERGE)
+                            .addAction(new Object[] { "tptoggle" },
+                                (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:teleport-targetable" })
+                            .addAction(new Object[] { "powertoolToggle" },
+                                (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:powertool-toggle" })
+                            .addAction(new Object[] { "socialspy" },
+                                (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:social-spy" })
+                            .addAction(new Object[] { "msgtoggle" },
+                                (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:message-receiving-enabled" })
+                            .addAction(new Object[] { "isCommandSpy" },
+                                (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:command-spy" }).build()
+                    ).build();
 
     public ModularUserService(DataProvider<ConfigurationNode> provider, UUID uuid) throws Exception {
         super(provider);
@@ -72,6 +76,9 @@ public class ModularUserService extends ModularDataService<ModularUserService> {
 
     @Override public void migrate() {
         super.migrate();
-        TRANSFORMER.apply(this.data);
+        if (this.data.getNode("user-prefs").isVirtual()) {
+            TRANSFORMER.apply(this.data);
+        }
     }
+
 }
