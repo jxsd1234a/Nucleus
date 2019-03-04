@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.internal.userprefs;
 
+import com.google.common.collect.ImmutableList;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.argumentparsers.TargetHasPermissionArgument;
@@ -15,7 +16,9 @@ import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 
 import java.util.ArrayList;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -34,7 +38,6 @@ public class UserPreferenceService implements NucleusUserPreferenceService {
 
     private final Map<String, NucleusUserPreferenceService.PreferenceKey<?>> registered = new HashMap<>();
     private final Element element = new Element();
-    private final List<CommandElement> elements = new ArrayList<>();
 
     public static final Text PREFERENCE_ARG = Text.of("preference");
     public static final Text VALUE_ARG = Text.of("value");
@@ -62,37 +65,12 @@ public class UserPreferenceService implements NucleusUserPreferenceService {
     }
 
     public void register(io.github.nucleuspowered.nucleus.internal.userprefs.PreferenceKey<?> key) {
-        this.registered.put(key.getID(), key);
-
-        CommandElement lit = GenericArguments.literal(PREFERENCE_ARG, key, key.getID().replaceAll("^nucleus:", ""));
-        Class<?> clazz = key.getValueClass();
-        if (clazz == Boolean.class || clazz == boolean.class) {
-            this.elements.add(new TargetHasPermissionArgument(
-                    GenericArguments.seq(lit, GenericArguments.optional(GenericArguments.bool(VALUE_ARG))),
-                    NucleusParameters.Keys.USER,
-                    user -> !(user instanceof User) || key.canAccess((User) user))
-            );
-        } else if (clazz == Integer.class || clazz == int.class) {
-            this.elements.add(new TargetHasPermissionArgument(
-                    GenericArguments.seq(lit, GenericArguments.optional(GenericArguments.integer(VALUE_ARG))),
-                    NucleusParameters.Keys.USER,
-                    user -> !(user instanceof User) || key.canAccess((User) user))
-            );
-        } else if (clazz == Double.class || clazz == double.class) {
-            this.elements.add(new TargetHasPermissionArgument(
-                    GenericArguments.seq(lit, GenericArguments.optional(GenericArguments.doubleNum(VALUE_ARG))),
-                    NucleusParameters.Keys.USER,
-                    user -> !(user instanceof User) || key.canAccess((User) user))
-            );
-        } else {
-            this.elements.add(new TargetHasPermissionArgument(
-                    GenericArguments.seq(lit, GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(VALUE_ARG))),
-                    NucleusParameters.Keys.USER,
-                    user -> !(user instanceof User) || key.canAccess((User) user))
-            );
+        if (this.registered.containsKey(key.getID())) {
+            throw new IllegalArgumentException("ID already registered");
         }
-
-        this.element.setReferencedElement(GenericArguments.firstParsing(this.elements.toArray(new CommandElement[0])));
+        this.registered.put(key.getID(), key);
+        this.element.keys.put(key.getID().toLowerCase().replaceAll("^nucleus:", ""), key);
+        this.element.keys.put(key.getID().toLowerCase(), key);
     }
 
     public <T> void set(UUID uuid, NucleusUserPreferenceService.PreferenceKey<T> key, @Nullable T value) {
@@ -157,25 +135,90 @@ public class UserPreferenceService implements NucleusUserPreferenceService {
         set(user.getUniqueId(), key, null);
     }
 
-    public class Element extends CommandElement {
+    public static class Element extends CommandElement {
+
+        private enum Type {
+            BOOLEAN(GenericArguments.bool(VALUE_ARG)),
+            DOUBLE(GenericArguments.doubleNum(VALUE_ARG)),
+            INTEGER(GenericArguments.integer(VALUE_ARG)),
+            STRING(GenericArguments.remainingRawJoinedStrings(VALUE_ARG));
+
+            final CommandElement element;
+
+            Type(CommandElement element) {
+                this.element = element;
+            }
+        }
 
         Element() {
             super(null);
         }
 
-        CommandElement referencedElement = GenericArguments.none();
-
-        void setReferencedElement(CommandElement e) {
-            this.referencedElement = e;
-        }
+        private final Map<String, NucleusUserPreferenceService.PreferenceKey<?>> keys = new HashMap<>();
 
         @Nullable @Override public Text getKey() {
-            return this.referencedElement.getKey();
+            return Text.of("<preference> [value]");
         }
 
         @Override
         public void parse(CommandSource source, CommandArgs args, CommandContext context) throws ArgumentParseException {
-            this.referencedElement.parse(source, args, context);
+            String next = args.next().toLowerCase();
+            Type type = parseFirst(source, args, context, next);
+
+            if (args.hasNext()) {
+                type.element.parse(source, args, context);
+            }
+        }
+
+        private Type parseFirst(CommandSource source, CommandArgs args, CommandContext context, String next) throws ArgumentParseException {
+            NucleusUserPreferenceService.PreferenceKey<?> key = this.keys.get(next);
+            if (key != null) {
+                Type type = null;
+                Class<?> cls = key.getValueClass();
+                if (cls == boolean.class || cls == Boolean.class) {
+                    type = Type.BOOLEAN;
+                } else if (cls == int.class || cls == Integer.class) {
+                    type = Type.INTEGER;
+                } else if (cls == double.class || cls == Double.class) {
+                    type = Type.DOUBLE;
+                } else if (cls == String.class) {
+                    type = Type.STRING;
+                }
+
+                if (type != null) {
+                    checkAccess(key, getUser(source, args, context), args, source);
+                    context.putArg(PREFERENCE_ARG, key);
+                    return type;
+                }
+            }
+
+            throw args.createError(Nucleus.getNucleus().getMessageProvider()
+                    .getTextMessageWithFormat("args.userprefs.incorrect", next));
+        }
+
+        private void checkAccess(NucleusUserPreferenceService.PreferenceKey<?> key, User user, CommandArgs args, CommandSource source)
+                throws ArgumentParseException {
+            if (!key.canAccess(user)) {
+                if (source instanceof Player && ((Player) source).getUniqueId().equals(user.getUniqueId())) {
+                    throw args.createError(Nucleus.getNucleus().getMessageProvider()
+                            .getTextMessageWithFormat("args.userprefs.noperm.self", key.getID()));
+                }
+                throw args.createError(Nucleus.getNucleus().getMessageProvider()
+                        .getTextMessageWithFormat("args.userprefs.noperm.other", user.getName(), key.getID()));
+            }
+        }
+
+        private User getUser(CommandSource source, CommandArgs args, CommandContext context) throws ArgumentParseException {
+            Optional<User> o = context.getOne(NucleusParameters.Keys.USER);
+            if (!o.isPresent()) {
+                if (source instanceof User) {
+                    return (User) source;
+                }
+
+                throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.none"));
+            } else {
+                return o.get();
+            }
         }
 
         @Nullable
@@ -184,12 +227,32 @@ public class UserPreferenceService implements NucleusUserPreferenceService {
             return null;
         }
 
-        @Override public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
-            return this.referencedElement.complete(src, args, context);
+        @Override
+        public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
+            try {
+                final User user = getUser(src, args, context);
+                CommandArgs.Snapshot snapshot = args.getSnapshot();
+                final String arg1 = args.next().toLowerCase();
+
+                if (!args.hasNext()) {
+                    args.applySnapshot(snapshot);
+                    // complete what we have.
+                    return this.keys.entrySet().stream()
+                            .filter(x -> x.getKey().startsWith(arg1))
+                            .filter(x -> x.getValue().canAccess(user))
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList());
+                } else {
+                    return parseFirst(src, args, context, arg1).element.complete(src, args, context);
+                }
+            } catch (ArgumentParseException e) {
+                return ImmutableList.of();
+            }
         }
 
-        @Override public Text getUsage(CommandSource src) {
-            return this.referencedElement.getUsage(src);
+        @Override
+        public Text getUsage(CommandSource src) {
+            return getKey();
         }
     }
 
