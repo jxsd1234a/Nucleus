@@ -20,6 +20,7 @@ import java.util.Optional;
 
 public abstract class ModularDataService<S extends ModularDataService<S>> extends AbstractService<ConfigurationNode> {
 
+    protected static final Object[] VERSION_PATH = { "version" };
     private final Map<Class<?>, DataModule<S>> cached = new HashMap<>();
     private final Map<Class<?>, TransientModule<S>> transientCache = new HashMap<>();
     private final Timing saveTimings = Timings.of(Nucleus.getNucleus(), "Data Modules - Saving");
@@ -116,7 +117,12 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
     @Override public void loadInternal() throws Exception {
         super.loadInternal();
         this.cached.clear(); // Only clear if no exception was caught.
+        int version = this.data.getNode(VERSION_PATH).getInt(-1);
         migrate();
+        int newVersion = this.data.getNode(VERSION_PATH).getInt(-1);
+        if (version != newVersion) {
+            saveInternal();
+        }
     }
 
     @Override public void saveInternal() throws Exception {

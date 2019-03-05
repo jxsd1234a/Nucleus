@@ -22,8 +22,9 @@ public class ModularUserService extends ModularDataService<ModularUserService> {
     private static UserStorageService uss = null;
 
     private final UUID uuid;
-    private static final ConfigurationTransformation TRANSFORMER =
+    private static final ConfigurationTransformation V2_TRANSFORMER =
             ConfigurationTransformation.versionedBuilder()
+                    .setVersionKey(ModularDataService.VERSION_PATH)
                     .addVersion(2,
                         ConfigurationTransformation.builder()
                             .setMoveStrategy(MoveStrategy.MERGE)
@@ -38,6 +39,11 @@ public class ModularUserService extends ModularDataService<ModularUserService> {
                             .addAction(new Object[] { "isCommandSpy" },
                                 (inputPath, valueAtPath) -> new Object[] { "user-prefs", "nucleus:command-spy" }).build()
                     ).build();
+    private static final ConfigurationTransformation TRANSFORMERS = ConfigurationTransformation.versionedBuilder()
+            .setVersionKey(ModularDataService.VERSION_PATH)
+            .addVersion(2, ConfigurationTransformation.builder().build())
+            .build();
+
 
     public ModularUserService(DataProvider<ConfigurationNode> provider, UUID uuid) throws Exception {
         super(provider);
@@ -77,7 +83,9 @@ public class ModularUserService extends ModularDataService<ModularUserService> {
     @Override public void migrate() {
         super.migrate();
         if (this.data.getNode("user-prefs").isVirtual()) {
-            TRANSFORMER.apply(this.data);
+            V2_TRANSFORMER.apply(this.data);
+        } else {
+            TRANSFORMERS.apply(this.data);
         }
     }
 
