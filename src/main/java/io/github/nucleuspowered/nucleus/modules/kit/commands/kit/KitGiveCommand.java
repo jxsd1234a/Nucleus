@@ -91,10 +91,10 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
         } catch (KitRedeemException ex) {
             switch (ex.getReason()) {
                 case ALREADY_REDEEMED:
-                    throw ReturnMessageException.fromKeyText("command.kit.give.onetime.alreadyredeemed", kitName, playerName);
+                    throw ReturnMessageException.fromKey("command.kit.give.onetime.alreadyredeemed", kitName, playerName);
                 case COOLDOWN_NOT_EXPIRED:
                     KitRedeemException.Cooldown kre = (KitRedeemException.Cooldown) ex;
-                    throw ReturnMessageException.fromKeyText("command.kit.give.cooldown",
+                    throw ReturnMessageException.fromKey("command.kit.give.cooldown",
                             playerName,
                             Text.of(Util.getTimeStringFromSeconds(kre.getTimeLeft().getSeconds())),
                             kitName);
@@ -104,10 +104,10 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
                             .orElseGet(() -> (Nucleus.getNucleus()
                                     .getMessageProvider().getTextMessageWithFormat("command.kit.cancelledpre", kit.getName()))));
                 case NO_SPACE:
-                    throw ReturnMessageException.fromKeyText("command.kit.give.fullinventorynosave", playerName);
+                    throw ReturnMessageException.fromKey("command.kit.give.fullinventorynosave", playerName);
                 case UNKNOWN:
                 default:
-                    throw ReturnMessageException.fromKeyText("command.kit.give.fail", playerName, kitName);
+                    throw ReturnMessageException.fromKey("command.kit.give.fail", playerName, kitName);
             }
         }
 

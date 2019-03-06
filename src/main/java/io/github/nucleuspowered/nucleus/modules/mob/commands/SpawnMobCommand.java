@@ -101,7 +101,7 @@ public class SpawnMobCommand extends AbstractCommand.SimpleTargetOtherPlayer imp
         do {
             Entity e = w.createEntity(et, loc.getPosition());
             if (!w.spawnEntity(e)) {
-                throw ReturnMessageException.fromKeyText("command.spawnmob.fail", Text.of(e));
+                throw ReturnMessageException.fromKey("command.spawnmob.fail", Text.of(e));
             }
 
             if (entityone == null) {

@@ -16,6 +16,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.item.config.ItemConfigAdapter;
+import io.github.nucleuspowered.nucleus.modules.item.config.SkullConfig;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -43,24 +44,30 @@ import java.util.Map;
 
 @NonnullByDefault
 @RegisterCommand({"skull"})
-@Permissions
+@Permissions(supportsOthers = true)
 @EssentialsEquivalent({"skull", "playerskull", "head"})
 public class SkullCommand extends AbstractCommand<Player> implements Reloadable {
 
-    private final String player = "subject";
-    private final String amountKey = "amount";
+    private final String limitExemptPermission = Nucleus.getNucleus().getPermissionRegistry()
+            .getPermissionsForNucleusCommand(SkullCommand.class)
+            .getPermissionWithSuffix("exempt.limit");
 
+    private final String amountKey = "amount";
+    private final String player = "subject";
+
+    private int amountLimit = Integer.MAX_VALUE;
     private boolean isUseMinecraftCommand = false;
 
     @Override public void onReload() {
-        this.isUseMinecraftCommand = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ItemConfigAdapter.class)
-                .getNodeOrDefault().getSkullConfig().isUseMinecraftCommand();
+        SkullConfig config = getServiceUnchecked(ItemConfigAdapter.class).getNodeOrDefault().getSkullConfig();
+        this.isUseMinecraftCommand = config.isUseMinecraftCommand();
+        this.amountLimit = config.getSkullLimit();
     }
 
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
-        m.put("others", new PermissionInformation(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.others", this.getAliases()[0]), SuggestedLevel.ADMIN));
+        m.put("exempt.limit", PermissionInformation.getWithTranslation("permission.skull.exempt.limit", SuggestedLevel.ADMIN));
         return m;
     }
 
@@ -79,15 +86,20 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
         User user = this.getUserFromArgs(User.class, pl, this.player, args);
         int amount = args.<Integer>getOne(this.amountKey).orElse(1);
 
+        if (amount > this.amountLimit && !pl.hasPermission(this.limitExemptPermission)) {
+            // fail
+            throw ReturnMessageException.fromKey(pl, "command.skull.limit", this.amountLimit);
+        }
+
         if (this.isUseMinecraftCommand) {
             CommandResult result = Sponge.getCommandManager().process(Sponge.getServer().getConsole(),
                 String.format("minecraft:give %s skull %d 3 {SkullOwner:%s}", pl.getName(), amount, user.getName()));
             if (result.getSuccessCount().orElse(0) > 0) {
-                pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.success.plural", String.valueOf(amount), user.getName()));
+                sendMessageTo(pl, "command.skull.success.plural", String.valueOf(amount), user.getName());
                 return result;
             }
 
-            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.error", user.getName()));
+            throw ReturnMessageException.fromKey(pl, "command.skull.error", user.getName());
         }
 
         int fullStacks = amount / 64;
@@ -134,23 +146,22 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
             // What was accepted?
             if (accepted > 0) {
                 if (failed > 0) {
-                    pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.semifull", String.valueOf(failed)));
+                    sendMessageTo(pl, "command.skull.semifull", String.valueOf(failed));
                 }
 
                 if (accepted == 1) {
-                    pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.success.single", user.getName()));
+                    sendMessageTo(pl, "command.skull.success.single", user.getName());
                 } else {
-                    pl.sendMessage(
-                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.success.plural", String.valueOf(accepted), user.getName()));
+                    sendMessageTo(pl, "command.skull.success.plural", String.valueOf(accepted), user.getName());
                 }
 
                 return CommandResult.success();
             }
 
-            pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.full", user.getName()));
+            sendMessageTo(pl, "command.skull.full", user.getName());
             return CommandResult.empty();
         } else {
-            pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.error", user.getName()));
+            sendMessageTo(pl, "command.skull.error", user.getName());
             return CommandResult.empty();
         }
     }

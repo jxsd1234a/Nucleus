@@ -97,7 +97,7 @@ public class LightningCommand extends AbstractCommand<CommandSource> {
         }
 
         if (target != null) {
-            throw ReturnMessageException.fromKeyText("command.lightning.errorplayer", Nucleus.getNucleus().getNameUtil().getName(target));
+            throw ReturnMessageException.fromKey("command.lightning.errorplayer", Nucleus.getNucleus().getNameUtil().getName(target));
         } else {
             throw ReturnMessageException.fromKey("command.lightning.error");
         }

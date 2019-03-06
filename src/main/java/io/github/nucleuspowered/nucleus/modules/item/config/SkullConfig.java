@@ -13,7 +13,14 @@ public class SkullConfig {
     @Setting(value = "use-minecraft-command", comment = "config.item.skullcompat")
     private boolean useMinecraftCommand = false;
 
+    @Setting(value = "spawn-limit", comment = "config.item.skullspawnlimit")
+    private int skullLimit = -1;
+
     public boolean isUseMinecraftCommand() {
         return this.useMinecraftCommand;
+    }
+
+    public int getSkullLimit() {
+        return this.skullLimit <= 0 ? Integer.MAX_VALUE : this.skullLimit;
     }
 }
