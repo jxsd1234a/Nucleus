@@ -6,6 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.freezeplayer.listeners;
 
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
+import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.freezeplayer.datamodules.FreezePlayerUserDataModule;
 import org.spongepowered.api.entity.living.player.Player;
@@ -18,10 +20,12 @@ import org.spongepowered.api.event.filter.cause.Root;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FreezePlayerListener implements ListenerBase {
 
+    private final UserDataManager userDataManager = Nucleus.getNucleus().getUserDataManager();
     private final Map<UUID, Instant> lastFreezeNotification = Maps.newHashMap();
 
     @Listener
@@ -40,7 +44,8 @@ public class FreezePlayerListener implements ListenerBase {
     }
 
     private boolean checkForFrozen(Player player, String message) {
-        if (Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(FreezePlayerUserDataModule.class).isFrozen()) {
+        Optional<ModularUserService> userService = this.userDataManager.get(player);
+        if (userService.map(x -> x.get(FreezePlayerUserDataModule.class).isFrozen()).orElse(false)) {
             Instant now = Instant.now();
             if (this.lastFreezeNotification.getOrDefault(player.getUniqueId(), now).isBefore(now)) {
                 player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(message));
