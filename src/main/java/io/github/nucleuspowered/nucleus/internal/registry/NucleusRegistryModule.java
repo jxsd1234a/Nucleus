@@ -31,11 +31,16 @@ public abstract class NucleusRegistryModule<T extends CatalogType>
 
     public abstract Class<T> catalogClass();
 
-    public abstract void registerDefaults();
+    public abstract void registerModuleDefaults();
+
+    public final void registerDefaults() {
+        // no-op, I'll do it myself and not rely on the current impl that's being used.
+        // API 8 will rely on impl.
+    }
 
     public final void init() throws Exception {
         if (!this.registered) {
-            registerDefaults();
+            registerModuleDefaults();
             this.registered = true;
             if (getClass().isAnnotationPresent(Registry.class)) {
                 for (Class<?> clazz : getClass().getAnnotation(Registry.class).value()) {

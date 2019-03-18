@@ -41,7 +41,7 @@ public class RTPRegistryModule extends NucleusRegistryModule<RTPKernel> {
     }
 
     @Override
-    public void registerDefaults() {
+    public void registerModuleDefaults() {
         this.registerAdditionalCatalog(DefaultKernel.INSTANCE);
         this.registerAdditionalCatalog(new AroundPlayerAndSurfaceKernel());
         this.registerAdditionalCatalog(new AroundPlayerKernel());
