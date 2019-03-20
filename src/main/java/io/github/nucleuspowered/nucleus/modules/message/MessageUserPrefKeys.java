@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.message;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.internal.userprefs.PreferenceKey;
 import io.github.nucleuspowered.nucleus.internal.userprefs.PreferenceKey.BooleanKey;
@@ -14,6 +15,8 @@ import io.github.nucleuspowered.nucleus.modules.message.commands.SocialSpyComman
 
 public class MessageUserPrefKeys implements UserPrefKeys {
 
+    private static final String MSG_TOGGLE_BASE =
+            Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(MsgToggleCommand.class).getBase();
     private static final String SOCIAL_SPY_BASE =
             Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(SocialSpyCommand.class).getBase();
     private static final String SOCIAL_SPY_FORCE =
@@ -22,14 +25,17 @@ public class MessageUserPrefKeys implements UserPrefKeys {
     public static final PreferenceKey<Boolean> SOCIAL_SPY = new BooleanKey(
             NucleusKeysProvider.SOCIAL_SPY_KEY,
             true,
-            user -> user.hasPermission(SOCIAL_SPY_BASE) && !user.hasPermission(SOCIAL_SPY_FORCE),
+            user -> {
+                PermissionResolver resolver = Nucleus.getNucleus().getPermissionResolver();
+                return resolver.hasPermission(user, SOCIAL_SPY_BASE) && !resolver.hasPermission(user, SOCIAL_SPY_FORCE);
+            },
             "userpref.socialspy"
     );
 
     public static final PreferenceKey<Boolean> RECEIVING_MESSAGES = new BooleanKey(
             NucleusKeysProvider.MESSAGE_TOGGLE_KEY,
             true,
-            Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(MsgToggleCommand.class).getBase(),
+            MSG_TOGGLE_BASE,
             "userpref.messagetoggle"
     );
 

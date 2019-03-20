@@ -18,7 +18,7 @@ public class CommandSpyUserPrefKeys implements UserPrefKeys {
     public static final PreferenceKey<Boolean> COMMAND_SPY = new PreferenceKey.BooleanKey(
             NucleusKeysProvider.COMMAND_SPY_KEY,
             false,
-            user -> user.hasPermission(COMMAND_SPY_PERMISSION),
+            COMMAND_SPY_PERMISSION,
             "userpref.commandspy"
     );
 

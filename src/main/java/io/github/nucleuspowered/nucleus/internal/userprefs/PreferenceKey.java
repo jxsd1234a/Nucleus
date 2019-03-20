@@ -21,7 +21,7 @@ public class PreferenceKey<T> implements io.github.nucleuspowered.nucleus.api.se
     private final String descriptionKey;
 
     PreferenceKey(String key, @Nullable T def, Class<T> clazz, String permission, String descriptionKey) {
-        this(key, def, clazz, user -> user.hasPermission(permission), descriptionKey);
+        this(key, def, clazz, user -> Nucleus.getNucleus().getPermissionResolver().hasPermission(user, permission), descriptionKey);
     }
 
     PreferenceKey(String key, @Nullable T def, Class<T> clazz, Predicate<User> canAccess, String descriptionKey) {
