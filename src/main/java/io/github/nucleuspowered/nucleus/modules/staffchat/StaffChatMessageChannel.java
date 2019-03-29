@@ -7,13 +7,17 @@ package io.github.nucleuspowered.nucleus.modules.staffchat;
 import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.chat.NucleusChatChannel;
+import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.staffchat.commands.StaffChatCommand;
 import io.github.nucleuspowered.nucleus.modules.staffchat.config.StaffChatConfigAdapter;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.ProxySource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
@@ -30,12 +34,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, PermissionTrait {
+public class StaffChatMessageChannel
+        implements NucleusChatChannel.StaffChat, PermissionTrait, InternalServiceManagerTrait {
 
     private static StaffChatMessageChannel INSTANCE = null;
 
@@ -78,7 +84,9 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, Pe
     @Nonnull
     public Collection<MessageReceiver> getMembers() {
         List<MessageReceiver> c =
-                Sponge.getServer().getOnlinePlayers().stream().filter(x -> hasPermission(x, this.basePerm)).collect(Collectors.toList());
+                Sponge.getServer().getOnlinePlayers().stream()
+                        .filter(this::test)
+                        .collect(Collectors.toList());
         c.add(Sponge.getServer().getConsole());
         return c;
     }
@@ -86,6 +94,16 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, Pe
     @Override
     public boolean formatMessages() {
         return this.formatting;
+    }
+
+    private boolean test(Player player) {
+        if (hasPermission(player, this.basePerm)) {
+            return getServiceUnchecked(UserPreferenceService.class)
+                    .getPreferenceFor(player, StaffChatUserPrefKeys.VIEW_STAFF_CHAT)
+                    .orElse(true);
+        }
+
+        return false;
     }
 
     private void onReload() {

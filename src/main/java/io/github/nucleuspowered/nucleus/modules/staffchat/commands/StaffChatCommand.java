@@ -14,7 +14,9 @@ import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
+import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatMessageChannel;
+import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.staffchat.datamodules.StaffChatTransientModule;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
@@ -59,6 +61,9 @@ public class StaffChatCommand extends AbstractCommand<CommandSource> {
                     pl.setMessageChannel(StaffChatMessageChannel.getInstance());
                     pl.simulateChat(TextParsingUtils.addUrls(toSend.get()), Sponge.getCauseStackManager().getCurrentCause());
                     pl.setMessageChannel(mc);
+
+                    // If you send a message, you're viewing it again.
+                    getServiceUnchecked(UserPreferenceService.class).setPreferenceFor(pl, StaffChatUserPrefKeys.VIEW_STAFF_CHAT, true);
                 } else {
                     StaffChatMessageChannel.getInstance()
                             .send(src, TextParsingUtils.addUrls(toSend.get()), ChatTypes.CHAT);
@@ -81,11 +86,16 @@ public class StaffChatCommand extends AbstractCommand<CommandSource> {
         if (result) {
             s.setPreviousMessageChannel(player.getMessageChannel());
             src.setMessageChannel(StaffChatMessageChannel.getInstance());
+
+            // If you switch, you're switching to the staff chat channel so you should want to listen to it.
+            getServiceUnchecked(UserPreferenceService.class).setPreferenceFor(player, StaffChatUserPrefKeys.VIEW_STAFF_CHAT, true);
         } else {
             src.setMessageChannel(s.getPreviousMessageChannel().orElse(MessageChannel.TO_ALL));
         }
 
-        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.staffchat." + (result ? "on" : "off")));
+        sendMessageTo(src, "command.staffchat." + (result ? "on" : "off"));
+
+        // If you send a message, you're viewing it again.
         return CommandResult.success();
     }
 

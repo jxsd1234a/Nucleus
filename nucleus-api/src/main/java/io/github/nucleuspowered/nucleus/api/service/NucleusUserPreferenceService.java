@@ -97,11 +97,19 @@ public interface NucleusUserPreferenceService {
 
         /**
          * If the command spy module is enabled, gets a preference key that indicates whether the user
-         * has is receiving messages that indicate commands that are being run by other players.
+         * is receiving messages that indicate commands that are being run by other players.
          *
          * @return The {@link PreferenceKey}, if the module is loaded.
          */
         Optional<PreferenceKey<Boolean>> commandSpyEnabled();
+
+        /**
+         * If the staff chat module is enabled, gets a preference key that indicates whether the user
+         * is receiving messages on the staff chat channel.
+         *
+         * @return The {@link PreferenceKey}, if the module is loaded.
+         */
+        Optional<PreferenceKey<Boolean>> viewStaffChat();
     }
 
     /**

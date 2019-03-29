@@ -18,6 +18,7 @@ public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
     public final static String POWERTOOL_ENABLED_KEY = "nucleus:powertool-toggle";
     public static final String TELEPORT_TARGETABLE_KEY = "nucleus:teleport-targetable";
     public static final String VANISH_ON_LOGIN_KEY = "nucleus:vanish-on-login";
+    public static final String VIEW_STAFF_CHAT_KEY = "nucleus:view-staff-chat";
 
     @TargetID(VANISH_ON_LOGIN_KEY) @Nullable private PreferenceKey<Boolean> vanishOnLoginKey = null;
     @TargetID(TELEPORT_TARGETABLE_KEY) @Nullable private PreferenceKey<Boolean> teleportTargetKey = null;
@@ -25,6 +26,7 @@ public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
     @TargetID(SOCIAL_SPY_KEY) @Nullable private PreferenceKey<Boolean> socialSpyEnabled = null;
     @TargetID(MESSAGE_TOGGLE_KEY) @Nullable private PreferenceKey<Boolean> messageToggle = null;
     @TargetID(COMMAND_SPY_KEY) @Nullable private PreferenceKey<Boolean> commandSpyEnabled = null;
+    @TargetID(VIEW_STAFF_CHAT_KEY) @Nullable private PreferenceKey<Boolean> viewStaffChat = null;
 
     @Override public Optional<NucleusUserPreferenceService.PreferenceKey<Boolean>> vanishOnLogin() {
         return Optional.ofNullable(this.vanishOnLoginKey);
@@ -49,4 +51,9 @@ public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
     @Override public Optional<NucleusUserPreferenceService.PreferenceKey<Boolean>> commandSpyEnabled() {
         return Optional.ofNullable(this.commandSpyEnabled);
     }
+
+    @Override public Optional<NucleusUserPreferenceService.PreferenceKey<Boolean>> viewStaffChat() {
+        return Optional.ofNullable(this.viewStaffChat);
+    }
+
 }
