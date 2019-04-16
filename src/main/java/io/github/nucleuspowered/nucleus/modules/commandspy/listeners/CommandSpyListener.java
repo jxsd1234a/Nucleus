@@ -67,7 +67,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
                     .stream()
                     .filter(x -> !x.getUniqueId().equals(currentUUID))
                     .filter(x -> hasPermission(x, this.basePermission))
-                    .filter(x -> this.userPreferenceService.getUnwrapped(player.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY))
+                    .filter(x -> this.userPreferenceService.getUnwrapped(x.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY))
                     .collect(Collectors.toList());
 
                 if (!playerList.isEmpty()) {
