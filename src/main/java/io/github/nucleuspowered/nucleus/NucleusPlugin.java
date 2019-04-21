@@ -240,7 +240,7 @@ public class NucleusPlugin extends Nucleus {
         this.pluginContainer = container;
     }
 
-    @Listener
+    @Listener(order = Order.FIRST)
     public void onPreInit(GamePreInitializationEvent preInitializationEvent) {
         // Setup object mapper.
         MessageReceiver s;
