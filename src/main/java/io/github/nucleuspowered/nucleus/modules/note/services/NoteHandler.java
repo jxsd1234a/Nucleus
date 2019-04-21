@@ -17,6 +17,8 @@ import io.github.nucleuspowered.nucleus.internal.annotations.APIService;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
 import io.github.nucleuspowered.nucleus.modules.note.data.NoteData;
 import io.github.nucleuspowered.nucleus.modules.note.datamodules.NoteUserDataModule;
+import io.github.nucleuspowered.nucleus.modules.note.event.CreateNoteEvent;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.User;
 
@@ -53,6 +55,15 @@ public class NoteHandler implements NucleusNoteService, ServiceBase {
         }
 
         optUserService.get().get(NoteUserDataModule.class).addNote(note);
+        // Create the note event.
+        CreateNoteEvent event = new CreateNoteEvent(
+                note.getNoterInternal(),
+                note.getNote(),
+                note.getDate(),
+                user,
+                Sponge.getCauseStackManager().getCurrentCause()
+        );
+        Sponge.getEventManager().post(event);
         return true;
     }
 
