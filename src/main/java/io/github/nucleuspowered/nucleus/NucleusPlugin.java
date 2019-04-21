@@ -330,7 +330,7 @@ public class NucleusPlugin extends Nucleus {
         PreloadTasks.getPreloadTasks2().forEach(x -> x.accept(this));
 
         // We register the ModuleService NOW so that others can hook into it.
-        game.getServiceManager().setProvider(this, NucleusModuleService.class, new ModuleRegistrationProxyService(this));
+        game.getServiceManager().setProvider(this, NucleusModuleService.class, new ModuleRegistrationProxyService());
         game.getServiceManager().setProvider(this, NucleusWarmupManagerService.class, this.warmupManager);
         this.serviceManager.registerService(WarmupManager.class, this.warmupManager);
         this.serviceManager.registerService(UserPreferenceService.class, this.userPreferenceService);

@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.internal.qsml;
 
 import com.google.common.base.Preconditions;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.api.exceptions.ModulesLoadedException;
 import io.github.nucleuspowered.nucleus.api.exceptions.NoModuleException;
@@ -19,22 +20,14 @@ import java.util.Set;
 
 public class ModuleRegistrationProxyService implements NucleusModuleService {
 
-    private final ModuleContainer container;
-    private final NucleusPlugin nucleus;
-
-    public ModuleRegistrationProxyService(NucleusPlugin nucleus) {
-        this.container = nucleus.getModuleContainer();
-        this.nucleus = nucleus;
-    }
-
     @Override
     public Set<String> getModulesToLoad() {
-        return this.container.getModules(ModuleContainer.ModuleStatusTristate.ENABLE);
+        return Nucleus.getNucleus().getModuleContainer().getModules(ModuleContainer.ModuleStatusTristate.ENABLE);
     }
 
     @Override
     public boolean canDisableModules() {
-        return this.container.getCurrentPhase() == ConstructionPhase.DISCOVERED;
+        return Nucleus.getNucleus().getModuleContainer().getCurrentPhase() == ConstructionPhase.DISCOVERED;
     }
 
     @Override
@@ -51,13 +44,13 @@ public class ModuleRegistrationProxyService implements NucleusModuleService {
         }
 
         try {
-            this.container.disableModule(module);
-            this.nucleus.getLogger().info(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.modulerequest", pluginAnnotation.name(), pluginAnnotation.id(), module));
+            Nucleus.getNucleus().getModuleContainer().disableModule(module);
+            Nucleus.getNucleus().getLogger().info(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.modulerequest", pluginAnnotation.name(), pluginAnnotation.id(), module));
         } catch (IllegalStateException e) {
             throw new ModulesLoadedException();
         } catch (UndisableableModuleException e) {
-            this.nucleus.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.forceload", pluginAnnotation.name(), pluginAnnotation.id(), module));
-            this.nucleus.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.forceloadtwo", pluginAnnotation.name()));
+            Nucleus.getNucleus().getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.forceload", pluginAnnotation.name(), pluginAnnotation.id(), module));
+            Nucleus.getNucleus().getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.forceloadtwo", pluginAnnotation.name()));
             throw new UnremovableModuleException();
         } catch (uk.co.drnaylor.quickstart.exceptions.NoModuleException e) {
             throw new NoModuleException();
