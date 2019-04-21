@@ -8,7 +8,9 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusRequirePermissionArgument;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.permission.Subject;
 
 public interface PermissionTrait {
@@ -20,6 +22,15 @@ public interface PermissionTrait {
     default boolean hasPermission(Subject subject, String permission) {
         return Nucleus.getNucleus().getPermissionResolver().hasPermission(subject, permission);
     }
+
+    default boolean hasPermission(Subject src, String permission, boolean resultIfOverriden) {
+        if (Nucleus.getNucleus().isConsoleBypass() && src instanceof ConsoleSource) {
+            return resultIfOverriden;
+        }
+
+        return hasPermission(src, permission);
+    }
+
 
     default CommandElement requirePermissionArg(CommandElement wrapped, String permission) {
         return new NucleusRequirePermissionArgument(wrapped, permission);

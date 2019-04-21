@@ -36,6 +36,26 @@ public class EventContexts {
     public static final EventContextKey<NucleusSendToSpawnEvent.Type> SPAWN_EVENT_TYPE =
             EventContextKey.builder(NucleusSendToSpawnEvent.Type.class).id(Identifiers.SPAWN_EVENT_TYPE).name("SPAWN_EVENT_TYPE").build();
 
+    /**
+     * A context that indicates whether a teleport is a jailing action.
+     *
+     * <p>
+     *     For the ID, see {@link Identifiers#IS_JAILING_ACTION}
+     * </p>
+     */
+    public static final EventContextKey<Boolean> IS_JAILING_ACTION =
+            DummyObjectProvider.createExtendedFor(EventContextKey.class, "IS_JAILING_ACTION");
+
+    /**
+     * A context that indicates whether teleports should ignore the fact someone is jailed.
+     *
+     * <p>
+     *     For the ID, see {@link Identifiers#BYPASS_JAILING_RESTRICTION }
+     * </p>
+     */
+    public static final EventContextKey<Boolean> BYPASS_JAILING_RESTRICTION =
+            DummyObjectProvider.createExtendedFor(EventContextKey.class, "BYPASS_JAILING_RESTRICTION ");
+
     public static class Identifiers {
 
         private Identifiers() {}
@@ -49,6 +69,16 @@ public class EventContexts {
          * ID for {@link EventContexts#SPAWN_EVENT_TYPE}
          */
         public static final String SPAWN_EVENT_TYPE = "nucleus:spawn_event_type";
+
+        /**
+         * ID for {@link EventContexts#IS_JAILING_ACTION}
+         */
+        public static final String IS_JAILING_ACTION = "nucleus:is_jailing_action";
+
+        /**
+         * ID for {@link EventContexts#BYPASS_JAILING_RESTRICTION}
+         */
+        public static final String BYPASS_JAILING_RESTRICTION = "nucleus:bypass_jailing_restriction";
 
     }
 

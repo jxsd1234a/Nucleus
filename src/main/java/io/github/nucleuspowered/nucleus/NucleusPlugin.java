@@ -52,7 +52,6 @@ import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.services.PlayerOnlineService;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
-import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTokenServiceImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
 import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
@@ -140,7 +139,6 @@ public class NucleusPlugin extends Nucleus {
     private PermissionResolver permissionResolver = PermissionResolverImpl.INSTANCE;
     private final List<Reloadable> reloadableList = Lists.newArrayList();
     private DocGenCache docGenCache = null;
-    private final NucleusTeleportHandler teleportHandler = new NucleusTeleportHandler();
     private NucleusTokenServiceImpl nucleusChatService;
     private final UserPreferenceService userPreferenceService = new UserPreferenceService();
 
@@ -171,6 +169,7 @@ public class NucleusPlugin extends Nucleus {
     private boolean sessionDebugMode = false;
     private int isTraceUserCreations = 0;
     private boolean savesandloads = false;
+    private boolean isConsoleBypass = false;
 
     private static boolean versionCheck(MessageProvider provider) throws IllegalStateException {
         Pattern matching = Pattern.compile("^(?<major>\\d+)\\.(?<minor>\\d+)");
@@ -693,11 +692,6 @@ public class NucleusPlugin extends Nucleus {
     }
 
     @Override
-    public void saveSystemConfig() throws IOException {
-        this.moduleContainer.saveSystemConfig();
-    }
-
-    @Override
     public synchronized boolean reload() {
         try {
             this.moduleContainer.reloadSystemConfig();
@@ -708,6 +702,7 @@ public class NucleusPlugin extends Nucleus {
 
             CoreConfig coreConfig = this.getInternalServiceManager().getService(CoreConfigAdapter.class).get().getNodeOrDefault();
             this.isDebugMode = coreConfig.isDebugmode();
+            this.isConsoleBypass = coreConfig.isConsoleOverride();
             this.isTraceUserCreations = coreConfig.traceUserCreations();
             this.savesandloads = coreConfig.isPrintSaveLoad();
 
@@ -884,11 +879,6 @@ public class NucleusPlugin extends Nucleus {
         return this.commandMessageProvider;
     }
 
-    @Override
-    public NucleusTeleportHandler getTeleportHandler() {
-        return this.teleportHandler;
-    }
-
     @Override public NucleusMessageTokenService getMessageTokenService() {
         return this.nucleusChatService;
     }
@@ -901,10 +891,6 @@ public class NucleusPlugin extends Nucleus {
         if (isDebugMode()) {
             throwable.printStackTrace();
         }
-    }
-
-    @Override public int traceUserCreations() {
-        return this.isTraceUserCreations;
     }
 
     /**
@@ -978,9 +964,8 @@ public class NucleusPlugin extends Nucleus {
         return this.storageManager;
     }
 
-    @Override
-    public UserPreferenceService getUserPreferenceService() {
-        return this.userPreferenceService;
+    @Override public boolean isConsoleBypass() {
+        return this.isConsoleBypass;
     }
 
     private void disable() {

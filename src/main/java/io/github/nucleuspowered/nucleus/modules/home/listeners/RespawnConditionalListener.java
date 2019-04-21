@@ -17,7 +17,7 @@ import io.github.nucleuspowered.nucleus.modules.spawn.events.SendToSpawnEvent;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
-import io.github.nucleuspowered.nucleus.modules.home.services.HomeHandler;
+import io.github.nucleuspowered.nucleus.modules.home.services.HomeService;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.EventContext;
@@ -31,12 +31,12 @@ public class RespawnConditionalListener implements ListenerBase.Conditional, Int
 
     @Listener
     public void onRespawn(final RespawnPlayerEvent event, @Getter("getTargetEntity") final Player player) {
-        Optional<Home> oh = getServiceUnchecked(HomeHandler.class)
+        Optional<Home> oh = getServiceUnchecked(HomeService.class)
                 .getHome(player.getUniqueId(), NucleusHomeService.DEFAULT_HOME_NAME);
 
         Optional<Transform<World>> ot = oh.flatMap(Home::getTransform);
 
-        if(ot.isPresent()) {
+        if (ot.isPresent()) {
             EventContext context = EventContext.builder().add(EventContexts.SPAWN_EVENT_TYPE,SendToSpawnEvent.Type.HOME_ON_DEATH).build();
             SendToSpawnEvent sEvent = new SendToSpawnEvent(ot.get(), event.getTargetEntity(), CauseStackHelper.createCause(context, event.getTargetEntity()));
             if (Sponge.getEventManager().post(sEvent)) {
@@ -46,6 +46,7 @@ public class RespawnConditionalListener implements ListenerBase.Conditional, Int
 
             event.setToTransform(sEvent.getTransformTo());
         }
+
     }
 
     @Override public boolean shouldEnable() {

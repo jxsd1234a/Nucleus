@@ -136,8 +136,13 @@ dependencies {
         ext.suffix = suffix
     })
     compile "org.spongepowered:spongeapi:" + project.ext.spongeapi
+    compile "org.spongepowered:configurate-core:3.6.1"
+    compile "org.spongepowered:configurate-gson:3.6.1"
+    compile "org.spongepowered:configurate-hocon:3.6.1"
     compile qsmlDep
-    compile neutrinoDep
+    compile(neutrinoDep) {
+        exclude group: 'org.spongepowered', module: 'configurate-core'
+    }
 
     testCompile "junit:junit:4.12"
     testCompile "org.mockito:mockito-all:1.10.19"
