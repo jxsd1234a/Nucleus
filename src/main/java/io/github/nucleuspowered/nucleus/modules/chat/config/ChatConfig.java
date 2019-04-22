@@ -39,6 +39,9 @@ public class ChatConfig {
     @Setting(value = "remove-link-underlines", comment = "config.chat.removeunderlines")
     private boolean removeBlueUnderline = true;
 
+    @Setting(value = "overwrite-mod-changes", comment = "config.chat.overwritemod")
+    private boolean overwriteMods = false;
+
     @Setting(value = "me-prefix", comment = "config.chat.meprefix")
     @Default(value = "&7* {{displayName}} ", saveDefaultIfNull = true)
     private NucleusTextTemplateImpl mePrefix;
@@ -89,5 +92,9 @@ public class ChatConfig {
 
     public boolean isTryRemoveMinecraftPrefix() {
         return tryRemoveMinecraftPrefix;
+    }
+
+    public boolean isOverwriteMods() {
+        return overwriteMods;
     }
 }
