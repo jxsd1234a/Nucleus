@@ -4,7 +4,17 @@ about: Found a bug? Report using this!
 
 ---
 
-<!-- If you do not use this template, your issue may be closed without warning. -->
+<!--
+GITHUB ISSUES ARE NOT FOR SUPPORT. Any support requests will be closed without 
+warning. 
+
+If you need help, please visit our Docs or Discord.
+
+* Docs: https://nucleuspowered.org/docs/
+* Discord: https://discord.gg/A9QHG5H
+
+If you do not use this template, your issue may be closed without warning. 
+-->
 **What is the bug?**
 A clear and concise description of what the bug is.
 
