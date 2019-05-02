@@ -28,26 +28,34 @@ public class WorldGenListener implements ListenerBase {
     @Listener
     public void onWorldLoad(LoadWorldEvent event) {
         if (Sponge.getGame().getState() == GameState.SERVER_STARTED) {
-            onWorldLoad(event.getTargetWorld());
+            Task.builder().execute(() -> onWorldLoad(event.getTargetWorld())).delay(1, TimeUnit.SECONDS).submit(Nucleus.getNucleus());
         }
     }
 
     private void onWorldLoad(final World world) {
-        WorldHelper worldHelper = getServiceUnchecked(WorldHelper.class);
-        Nucleus.getNucleus().getWorldDataManager().getWorld(world).ifPresent(mws -> {
-            WorldgenWorldDataModule worldgenWorldDataModule = mws.get(WorldgenWorldDataModule.class);
-            if (worldgenWorldDataModule.isStart()) {
-                if (worldHelper.startPregenningForWorld(
-                        world,
-                        worldgenWorldDataModule.isAggressive(),
-                        worldgenWorldDataModule.getSaveTime(),
-                        worldgenWorldDataModule.getTickPercent(),
-                        worldgenWorldDataModule.getTickFreq(),
-                        true
-                )) {
-                    sendMessageTo(Sponge.getServer().getConsole(), "command.world.gen.started", world.getName());
+        try {
+            WorldHelper worldHelper = getServiceUnchecked(WorldHelper.class);
+            Nucleus.getNucleus().getWorldDataManager().getWorld(world).ifPresent(mws -> {
+                WorldgenWorldDataModule worldgenWorldDataModule = mws.get(WorldgenWorldDataModule.class);
+                if (worldgenWorldDataModule.isStart()) {
+                    if (worldHelper.startPregenningForWorld(
+                            world,
+                            worldgenWorldDataModule.isAggressive(),
+                            worldgenWorldDataModule.getSaveTime(),
+                            worldgenWorldDataModule.getTickPercent(),
+                            worldgenWorldDataModule.getTickFreq(),
+                            true
+                    )) {
+                        sendMessageTo(Sponge.getServer().getConsole(), "command.world.gen.started", world.getName());
+                    }
                 }
-            }
-        });
+            });
+
+        } catch (IllegalStateException e) {
+            Nucleus.getNucleus().getLogger().error(
+                    "Could not determine World Generation restart status for world {}, WorldProperties could not be loaded from the Sponge "
+                            + "World Manager (Sponge.getServer().getWorldProperties({}) returned empty.)", world.getName(), world.getUniqueId());
+            e.printStackTrace();
+        }
     }
 }
