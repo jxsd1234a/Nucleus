@@ -45,8 +45,8 @@ public final class Tokens implements NucleusMessageTokenService.TokenParser {
         this.translatorMap.put("maxplayers", (p, v, m) -> Optional.of(Text.of(Sponge.getServer().getMaxPlayers())));
         this.translatorMap.put("onlineplayers", (p, v, m) -> Optional.of(Text.of(Sponge.getServer().getOnlinePlayers().size())));
         this.translatorMap.put("currentworld", (p, v, m) -> Optional.of(Text.of(getWorld(getFromVariableIfExists(p, v, m)).getName())));
-        this.translatorMap.put("time", (p, v, m) -> Optional.of(Text.of(String.valueOf(Util
-                .getTimeFromTicks(getWorld(getFromVariableIfExists(p, v, m)).getProperties().getWorldTime())))));
+        this.translatorMap.put("time", (p, v, m) -> Optional.of(Text.of(Util
+                .getTimeFromTicks(getWorld(getFromVariableIfExists(p, v, m)).getProperties().getWorldTime()))));
 
         this.translatorMap.put("uniquevisitor", (p, v, m) -> Optional.of(Text.of(Nucleus.getNucleus()
                 .getGeneralService().getTransient(UniqueUserCountTransientModule.class).getUniqueUserCount())));
