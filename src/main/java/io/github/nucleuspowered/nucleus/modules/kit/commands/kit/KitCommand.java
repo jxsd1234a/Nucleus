@@ -73,6 +73,7 @@ public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
         Map<String, PermissionInformation> pi = Maps.newHashMap();
         pi.put("exempt.cooldown", PermissionInformation.getWithTranslation("permission.kit.exempt.cooldown", SuggestedLevel.ADMIN));
         pi.put("exempt.onetime", PermissionInformation.getWithTranslation("permission.kit.exempt.onetime", SuggestedLevel.ADMIN));
+        pi.put("exempt.cost", PermissionInformation.getWithTranslation("permission.kit.exempt.cost", SuggestedLevel.ADMIN));
         pi.put("showhidden", PermissionInformation.getWithTranslation("permission.kit.showhidden", SuggestedLevel.ADMIN));
         return pi;
     }
