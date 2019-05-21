@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config xmlns="http://zanata.org/namespace/config/">
+    <url>https://translate.zanata.org/</url>
+    <project>nucleus-plugin</project>
+    <project-version>Plugin</project-version>
+    <project-type>properties</project-type>
+    <src-dir>src/main/resources/assets/nucleus</src-dir>
+    <trans-dir>src/main/resources/assets/nucleus</trans-dir>
+    <includes>*.properties</includes>
+    <excludes>*_*.properties</excludes>
+    <rules/>
+</config>
