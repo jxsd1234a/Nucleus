@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.argumentparsers;
 import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;
 
 import com.google.common.collect.ImmutableList;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.util.WrappedElement;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
@@ -27,7 +28,8 @@ public class TargetHasPermissionArgument extends WrappedElement {
     private final Predicate<Subject> canAccess;
 
     public TargetHasPermissionArgument(CommandElement key, String userTextKey, @Nullable String permission) {
-        this(key, userTextKey, permission == null ? subject -> true : subject -> subject.hasPermission(permission));
+        this(key, userTextKey, permission == null ? subject -> true : subject ->
+                Nucleus.getNucleus().getPermissionResolver().hasPermission(subject, permission));
     }
 
     public TargetHasPermissionArgument(CommandElement key, String userTextKey, Predicate<Subject> canAccess) {

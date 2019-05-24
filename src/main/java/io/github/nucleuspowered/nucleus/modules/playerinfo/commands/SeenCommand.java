@@ -255,7 +255,7 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
 
         messages.add(Util.SPACE);
         for (Map.Entry<String, TriFunction<CommandSource, User, CoreUserDataModule, Text>> entry : this.entries.entrySet()) {
-            if (src.hasPermission(entry.getKey())) {
+            if (hasPermission(src, entry.getKey())) {
                 @Nullable Text m = entry.getValue().accept(src, user, coreUserDataModule);
                 if (m != null) {
                     messages.add(m);
