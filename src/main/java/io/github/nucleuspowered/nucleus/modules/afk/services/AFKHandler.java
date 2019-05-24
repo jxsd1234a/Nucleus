@@ -192,7 +192,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable, ServiceBase, M
             Tuples.NullableTuple<Text, MessageChannel> ttmc = getAFKMessage(player, true);
             AFKEvents.To event = new AFKEvents.To(player, ttmc.getFirstUnwrapped(), ttmc.getSecondUnwrapped(), cause);
             Sponge.getEventManager().post(event);
-            actionEvent(event, "command.afk.to.vanish", "command.afk.to.console");
+            actionEvent(event, "command.afk.to.nobc", "command.afk.to.console");
 
             a.isKnownAfk = true;
             return true;
@@ -221,7 +221,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable, ServiceBase, M
                 Tuples.NullableTuple<Text, MessageChannel> ttmc = getAFKMessage(x, false);
                 AFKEvents.From event = new AFKEvents.From(x, ttmc.getFirstUnwrapped(), ttmc.getSecondUnwrapped(), cause);
                 Sponge.getEventManager().post(event);
-                actionEvent(event, "command.afk.from.vanish", "command.afk.from.console");
+                actionEvent(event, "command.afk.from.nobc", "command.afk.from.console");
             });
 
         }
@@ -230,8 +230,9 @@ public class AFKHandler implements NucleusAFKService, Reloadable, ServiceBase, M
     }
 
     private void actionEvent(AFKEvents event, String key, @Nullable String consoleKey) {
-        Optional<Text> message = event.getMessage();
-        if (message.isPresent() && !message.get().isEmpty()) {
+        Optional<Text> message = event.getMessage()
+                .filter(x -> !x.isEmpty() && !x.toPlain().matches("^\\s*$"));
+        if (message.isPresent()) {
             event.getChannel().send(event.getTargetEntity(), message.get(), ChatTypes.SYSTEM);
         } else {
             sendMessageTo(event.getTargetEntity(), key);
