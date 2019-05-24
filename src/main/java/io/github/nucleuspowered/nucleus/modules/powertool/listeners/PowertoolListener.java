@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.powertool.listeners;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolUserPreferenceKeys;
 import io.github.nucleuspowered.nucleus.modules.powertool.commands.PowertoolCommand;
@@ -22,7 +23,7 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.filter.type.Exclude;
 import org.spongepowered.api.item.ItemType;
 
-public class PowertoolListener implements ListenerBase {
+public class PowertoolListener implements ListenerBase, PermissionTrait {
 
     private final CommandPermissionHandler permissionRegistry =
             Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(PowertoolCommand.class);
@@ -33,7 +34,7 @@ public class PowertoolListener implements ListenerBase {
     @Exclude(InteractBlockEvent.class)
     public void onUserInteract(final InteractEvent event, @Root Player player) {
         // No item in hand or no permission -> no powertool.
-        if (!player.hasPermission(this.basePermission) || !player.getItemInHand(HandTypes.MAIN_HAND).isPresent()) {
+        if (!hasPermission(player, this.basePermission) || !player.getItemInHand(HandTypes.MAIN_HAND).isPresent()) {
             return;
         }
 
