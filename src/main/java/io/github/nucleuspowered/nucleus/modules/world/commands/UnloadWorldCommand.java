@@ -19,6 +19,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.args.CommandFlags;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
@@ -46,6 +47,7 @@ public class UnloadWorldCommand extends AbstractCommand<CommandSource> {
             GenericArguments.flags()
                 .permissionFlag(Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(DisableWorldCommand.class).getBase(), "d", "-disable")
                 .valueFlag(new NucleusWorldPropertiesArgument(Text.of(this.transferWorldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY), "t", "-transfer")
+                .setUnknownShortFlagBehavior(CommandFlags.UnknownFlagBehavior.IGNORE)
                 .buildWith(NucleusParameters.WORLD_PROPERTIES_ENABLED_ONLY)
         };
     }
