@@ -116,10 +116,15 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
             st = TextParsingUtils.getLastColourAndStyle(this.prefix, null);
         }
 
-        if (st == null) {
-            builder.append(this.textTemplate.apply(finalArgs).build());
-        } else {
-            builder.append(Text.builder().color(st.colour).style(st.style).append(this.textTemplate.apply(finalArgs).build()).build());
+        Text finalText = this.textTemplate.apply(finalArgs).build();
+
+        // Don't append text if there is no text to append!
+        if (!finalText.isEmpty()) {
+            if (st == null) {
+                builder.append(finalText);
+            } else {
+                builder.append(Text.builder().color(st.colour).style(st.style).append(finalText).build());
+            }
         }
 
         if (this.suffix != null) {
