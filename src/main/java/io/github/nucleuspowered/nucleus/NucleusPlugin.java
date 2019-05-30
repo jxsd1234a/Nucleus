@@ -531,14 +531,6 @@ public class NucleusPlugin extends Nucleus {
 
     @Listener
     public void onGameStarted(GameStartedServerEvent event) {
-        if (!this.isServer) { // on client, disable whitelist
-            try {
-                Sponge.getServer().setHasWhitelist(false);
-            } catch (Throwable e) {
-                // ignored
-            }
-        }
-
         if (this.isErrored == null) {
             this.generalService.getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
             try {
