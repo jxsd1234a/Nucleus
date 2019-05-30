@@ -1004,7 +1004,7 @@ public class NucleusPlugin extends Nucleus {
 
     private void errorOnStartup() {
         try {
-            Sponge.getServer().setHasWhitelist(!this.isServer);
+            Sponge.getServer().setHasWhitelist(this.isServer);
         } catch (Throwable e) {
             //ignored
         }
