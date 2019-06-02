@@ -85,6 +85,9 @@ public class CoreConfig {
     @Setting(value = "enable-partial-name-matching", comment = "config.core.partialname")
     private boolean partialMatch = true;
 
+    @Setting(value = "print-message-when-permission-isnt-registered", comment = "config.core.printMissingPerms")
+    private boolean printWhenPermissionIsntRegistered = false;
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -171,5 +174,9 @@ public class CoreConfig {
 
     public boolean isPartialMatch() {
         return this.partialMatch;
+    }
+
+    public boolean isPrintWhenPermissionIsntRegistered() {
+        return this.printWhenPermissionIsntRegistered;
     }
 }

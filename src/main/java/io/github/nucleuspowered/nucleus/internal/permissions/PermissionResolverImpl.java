@@ -6,28 +6,39 @@ package io.github.nucleuspowered.nucleus.internal.permissions;
 
 import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
+import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
+import io.github.nucleuspowered.nucleus.util.PrettyPrinter;
+import org.slf4j.event.Level;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
 @Singleton
-public class PermissionResolverImpl implements PermissionResolver {
+public class PermissionResolverImpl implements PermissionResolver, Reloadable {
 
     public final static PermissionResolverImpl INSTANCE = new PermissionResolverImpl();
 
     private PermissionResolverImpl() {}
 
+    private boolean reportFailedChecks = false;
+
     private final Map<String, String> permissions = new HashMap<>();
     private final Map<Predicate<String>, String> permissionPredicates = new HashMap<>();
+
+    private final Set<String> failedChecks = new HashSet<>();
+
     private boolean init = false;
 
     public void registerPermissions() {
@@ -65,25 +76,50 @@ public class PermissionResolverImpl implements PermissionResolver {
         }
     }
 
-    @Override public boolean hasPermission(Subject subject, String permission) {
-        Tristate tristate = subject.getPermissionValue(subject.getActiveContexts(), permission);
-        if (tristate == Tristate.UNDEFINED) {
-            @Nullable String result = this.permissions.get(permission);
-            if (result != null) { // check the "parent" perm
-                return subject.hasPermission(result);
-            }
-
-            for (Map.Entry<Predicate<String>, String> entry : this.permissionPredicates.entrySet()) {
-                if (entry.getKey().test(permission)) {
-                    return subject.hasPermission(entry.getValue()); // check the "parent" perm
+    @Override
+    public boolean hasPermission(Subject subject, String permission) {
+        if (permission.startsWith("nucleus")) {
+            Tristate tristate = subject.getPermissionValue(subject.getActiveContexts(), permission);
+            if (tristate == Tristate.UNDEFINED) {
+                @Nullable String result = this.permissions.get(permission);
+                if (result != null) { // check the "parent" perm
+                    return subject.hasPermission(result);
                 }
+
+                for (Map.Entry<Predicate<String>, String> entry : this.permissionPredicates.entrySet()) {
+                    if (entry.getKey().test(permission)) {
+                        return subject.hasPermission(entry.getValue()); // check the "parent" perm
+                    }
+                }
+
+                // if we get here, no registered permissions were found
+                // therefore, warn
+                if (this.reportFailedChecks && this.failedChecks.add(permission)) {
+                    PrettyPrinter printer = new PrettyPrinter(80);
+                    printer.add("Nucleus Permission Not Registered").centre().hr();
+                    printer.add("Nucleus has not registered a permission properly. This is an error in Nucleus - please report to the Nucleus "
+                            + "github.");
+                    printer.hr();
+                    printer.add("Permission: %s", permission);
+                    printer.log(Nucleus.getNucleus().getLogger(), Level.WARN);
+                }
+
+                // guarantees that the subject default is selected.
+                return subject.hasPermission(permission);
             }
 
-            // guarantees that the subject default is selected.
-            return subject.hasPermission(permission);
+            return tristate.asBoolean();
         }
 
-        return tristate.asBoolean();
+        return subject.hasPermission(permission);
     }
 
+    @Override
+    public void onReload() throws Exception {
+        this.reportFailedChecks = Nucleus.getNucleus().getInternalServiceManager()
+                .getService(CoreConfigAdapter.class)
+                .map(x -> x.getNodeOrDefault().isPrintWhenPermissionIsntRegistered())
+                .orElse(true);
+
+    }
 }
