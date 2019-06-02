@@ -16,8 +16,10 @@ import io.github.nucleuspowered.nucleus.internal.command.ContinueMode;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.teleport.events.RequestEvent;
 import io.github.nucleuspowered.nucleus.modules.teleport.services.TeleportHandler;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
@@ -46,9 +48,10 @@ import java.util.Map;
 @EssentialsEquivalent({"tpa", "call", "tpask"})
 @NotifyIfAFK(NucleusParameters.Keys.PLAYER)
 @SetCooldownManually
-public class TeleportAskCommand extends AbstractCommand<Player> {
+public class TeleportAskCommand extends AbstractCommand<Player> implements Reloadable {
 
     private final TeleportHandler tpHandler = getServiceUnchecked(TeleportHandler.class);
+    private boolean isCooldownOnAsk = false;
 
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -94,7 +97,12 @@ public class TeleportAskCommand extends AbstractCommand<Player> {
             tb.setCharge(src).setCost(cost);
         }
 
-        tb.setSuccessCallback(this::setCooldown);
+        if (this.isCooldownOnAsk) {
+            setCooldown(src);
+        } else {
+            tb.setSuccessCallback(this::setCooldown);
+        }
+
         TeleportHandler.TeleportPrep tp = new TeleportHandler.TeleportPrep(Instant.now().plus(30, ChronoUnit.SECONDS), src, cost, tb);
         this.tpHandler.addAskQuestion(target.getUniqueId(), tp);
         target.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpa.question", src.getName()));
@@ -104,4 +112,8 @@ public class TeleportAskCommand extends AbstractCommand<Player> {
         return CommandResult.success();
     }
 
+    @Override
+    public void onReload() throws Exception {
+        this.isCooldownOnAsk = getServiceUnchecked(TeleportConfigAdapter.class).getNodeOrDefault().isCooldownOnAsk();
+    }
 }

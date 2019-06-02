@@ -22,6 +22,9 @@ public class TeleportConfig {
     @Setting(value = "only-same-dimension", comment = "config.teleport.onlySameDimension")
     private boolean onlySameDimension = false;
 
+    @Setting(value = "start-cooldown-when-asking", comment = "config.teleport.cooldownOnAsk")
+    private boolean cooldownOnAsk = false;
+
     public boolean isDefaultQuiet() {
         return this.defaultQuiet;
     }
@@ -36,5 +39,9 @@ public class TeleportConfig {
 
     public boolean isOnlySameDimension() {
         return onlySameDimension;
+    }
+
+    public boolean isCooldownOnAsk() {
+        return cooldownOnAsk;
     }
 }
