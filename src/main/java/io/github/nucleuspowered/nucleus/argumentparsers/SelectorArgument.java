@@ -39,9 +39,13 @@ public class SelectorArgument extends CommandElement {
     public void parse(CommandSource source, CommandArgs args, CommandContext context) throws ArgumentParseException {
         String a = args.peek();
         if (a.startsWith("@")) {
-            // Time to try to eek it all out.
-            Selector.parse(a).resolve(source).stream().filter(this.selectorFilter::isInstance)
-                    .forEach(x -> context.putArg(getKey(), x));
+            try {
+                // Time to try to eek it all out.
+                Selector.parse(a).resolve(source).stream().filter(this.selectorFilter::isInstance)
+                        .forEach(x -> context.putArg(getKey(), x));
+            } catch (IllegalArgumentException e) {
+                throw args.createError(Text.of(e.getMessage()));
+            }
 
             args.next();
             if (context.hasAny(getKey())) {
