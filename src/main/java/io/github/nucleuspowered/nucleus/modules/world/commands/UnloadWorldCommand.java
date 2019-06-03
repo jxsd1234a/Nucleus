@@ -30,7 +30,6 @@ import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @NoModifiers
@@ -72,23 +71,15 @@ public class UnloadWorldCommand extends AbstractCommand<CommandSource> {
         World world = worldOptional.get();
         List<Player> playerCollection = Sponge.getServer().getOnlinePlayers().stream().filter(x -> x.getWorld().equals(world)).collect(Collectors.toList());
 
-        if (playerCollection.isEmpty() || (transferWorld.isPresent() && transferWorld.get().isEnabled())) {
-            if (!playerCollection.isEmpty()) {
-                // Transfer World is present and enabled.
-                playerCollection.forEach(x -> x.transferToWorld(transferWorld.get().getUniqueId(), transferWorld.get().getSpawnPosition().toDouble()));
-                Sponge.getScheduler().createSyncExecutor(Nucleus.getNucleus()).schedule(() -> unloadWorld(src, world, Nucleus.getNucleus().getMessageProvider(), disable), 40, TimeUnit.MILLISECONDS);
-
-                // Well, this bit succeeded, at least.
-                return CommandResult.success();
-            } else if (unloadWorld(src, world, Nucleus.getNucleus().getMessageProvider(), disable)) {
-                return CommandResult.success();
-            } else {
-                return CommandResult.empty();
-            }
+        if ((transferWorld.isPresent() && transferWorld.get().isEnabled())) {
+            playerCollection.forEach(x -> x.transferToWorld(transferWorld.get().getUniqueId(), transferWorld.get().getSpawnPosition().toDouble()));
         }
 
-        throw new ReturnMessageException(
-                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.unload.players", worldProperties.getWorldName()));
+        if (unloadWorld(src, world, Nucleus.getNucleus().getMessageProvider(), disable)) {
+            return CommandResult.success();
+        } else {
+            return CommandResult.empty();
+        }
     }
 
     @SuppressWarnings("ConstantConditions")
