@@ -52,7 +52,7 @@ public class BasicSeenInformationProvider implements NucleusSeenService.SeenInfo
 
     private synchronized static PlayerInfoConfigAdapter getAdapter() throws Exception {
         if (adapter == null) {
-            adapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(PlayerInfoModule.ID, PlayerInfoConfigAdapter.class);
+            adapter = Nucleus.getNucleus().getModuleHolder().getConfigAdapterForModule(PlayerInfoModule.ID, PlayerInfoConfigAdapter.class);
         }
 
         return adapter;

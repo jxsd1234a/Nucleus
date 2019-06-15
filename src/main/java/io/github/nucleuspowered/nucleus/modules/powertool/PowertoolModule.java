@@ -11,8 +11,7 @@ import uk.co.drnaylor.quickstart.annotations.ModuleData;
 @ModuleData(id = "powertool", name = "Powertool", dependencies = CoreModule.ID)
 public class PowertoolModule extends StandardModule {
 
-    @Override
-    protected void performEnableTasks() throws Exception {
+    @Override public void performEnableTasks() throws Exception {
         super.performEnableTasks();
 
     }

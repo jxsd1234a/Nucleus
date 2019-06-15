@@ -1,0 +1,188 @@
+/*
+ * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
+ * at the root of this project for more details.
+ */
+package io.github.nucleuspowered.nucleus.modules.item;
+
+import io.github.nucleuspowered.nucleus.annotationprocessor.RegisterPermissions;
+import io.github.nucleuspowered.nucleus.internal.permissions.PermissionMetadata;
+import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+
+@RegisterPermissions
+public class ItemPermissions {
+    private ItemPermissions() {
+        throw new AssertionError("Nope");
+    }
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "enchant" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_ENCHANT = "enchant.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "enchant" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_ENCHANT = "enchant.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "enchant" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_ENCHANT = "enchant.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "enchant" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_ENCHANT = "enchant.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.enchant.unsafe", level = SuggestedLevel.ADMIN)
+    public static final String ENCHANT_UNSAFE = "enchant.unsafe";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "itemname" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_ITEMNAME = "itemname.base";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "itemname clear" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_ITEMNAME_CLEAR = "itemname.clear.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "itemname clear" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_ITEMNAME_CLEAR = "itemname.clear.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "itemname clear" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_ITEMNAME_CLEAR = "itemname.clear.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "itemname clear" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_ITEMNAME_CLEAR = "itemname.clear.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "itemname" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_ITEMNAME = "itemname.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "itemname" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_ITEMNAME = "itemname.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "itemname" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_ITEMNAME = "itemname.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "itemname set" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_ITEMNAME_SET = "itemname.set.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "itemname set" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_ITEMNAME_SET = "itemname.set.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "itemname set" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_ITEMNAME_SET = "itemname.set.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "itemname set" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_ITEMNAME_SET = "itemname.set.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "lore" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_LORE = "lore.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "lore" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_LORE = "lore.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "lore" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_LORE = "lore.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "lore" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_LORE = "lore.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "lore insert" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_LORE_INSERT = "lore.set.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "lore insert" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_LORE_INSERT = "lore.set.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "lore insert" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_LORE_INSERT = "lore.set.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "lore insert" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_LORE_INSERT = "lore.set.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "more" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_MORE = "more.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "more" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_MORE = "more.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "more" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_MORE = "more.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "more" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_MORE = "more.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "repair" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_REPAIR = "repair.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "repair" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_REPAIR = "repair.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "repair" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_REPAIR = "repair.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "repair" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_REPAIR = "repair.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.repair.flag.all", level = SuggestedLevel.ADMIN)
+    public static final String REPAIR_FLAG_ALL = "repair.flag.all";
+
+    @PermissionMetadata(descriptionKey = "permission.repair.flag.equip", level = SuggestedLevel.ADMIN)
+    public static final String REPAIR_FLAG_EQUIP = "repair.flag.equip";
+
+    @PermissionMetadata(descriptionKey = "permission.repair.flag.hotbar", level = SuggestedLevel.ADMIN)
+    public static final String REPAIR_FLAG_HOTBAR = "repair.flag.hotbar";
+
+    @PermissionMetadata(descriptionKey = "permission.repair.flag.offhand", level = SuggestedLevel.ADMIN)
+    public static final String REPAIR_FLAG_OFFHAND = "repair.flag.offhand";
+
+    @PermissionMetadata(descriptionKey = "permission.others", replacements = { "repair" }, level = SuggestedLevel.ADMIN)
+    public static final String OTHERS_REPAIR = "repair.others";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "showitemattributes" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_SHOWITEMATTRIBUTES = "showitemattributes.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "showitemattributes" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_SHOWITEMATTRIBUTES = "showitemattributes.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "showitemattributes" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_SHOWITEMATTRIBUTES = "showitemattributes.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "showitemattributes" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_SHOWITEMATTRIBUTES = "showitemattributes.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "skull" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_SKULL = "skull.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "skull" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_SKULL = "skull.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "skull" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_SKULL = "skull.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.skull.exempt.limit", level = SuggestedLevel.ADMIN)
+    public static final String SKULL_EXEMPT_LIMIT = "skull.exempt.limit";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "skull" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_SKULL = "skull.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.others", replacements = { "skull" }, level = SuggestedLevel.ADMIN)
+    public static final String OTHERS_SKULL = "skull.others";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "trash" }, level = SuggestedLevel.USER)
+    public static final String BASE_TRASH = "trash.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "trash" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_TRASH = "trash.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "trash" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_TRASH = "trash.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "trash" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_TRASH = "trash.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "unsignbook" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_UNSIGNBOOK = "unsignbook.base";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cooldown", replacements = { "unsignbook" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COOLDOWN_UNSIGNBOOK = "unsignbook.exempt.cooldown";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.cost", replacements = { "unsignbook" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_COST_UNSIGNBOOK = "unsignbook.exempt.cost";
+
+    @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "unsignbook" }, level = SuggestedLevel.ADMIN)
+    public static final String EXEMPT_WARMUP_UNSIGNBOOK = "unsignbook.exempt.warmup";
+
+    @PermissionMetadata(descriptionKey = "permission.others", replacements = { "unsignbook" }, level = SuggestedLevel.ADMIN)
+    public static final String OTHERS_UNSIGNBOOK = "unsignbook.others";
+
+}

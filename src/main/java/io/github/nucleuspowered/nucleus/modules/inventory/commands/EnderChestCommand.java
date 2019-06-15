@@ -41,7 +41,6 @@ public class EnderChestCommand extends AbstractCommand<Player> implements Intern
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> mspi = super.permissionSuffixesToRegister();
         mspi.put("exempt.target", PermissionInformation.getWithTranslation("permission.enderchest.exempt.inspect", SuggestedLevel.ADMIN));
-        mspi.put("exempt.interact", PermissionInformation.getWithTranslation("permission.enderchest.exempt.modify", SuggestedLevel.ADMIN));
         mspi.put("exempt.modify", PermissionInformation.getWithTranslation("permission.enderchest.exempt.modify", SuggestedLevel.ADMIN));
         mspi.put("modify", PermissionInformation.getWithTranslation("permission.enderchest.modify", SuggestedLevel.ADMIN));
         mspi.put("offline", PermissionInformation.getWithTranslation("permission.enderchest.offline", SuggestedLevel.ADMIN));
@@ -81,8 +80,7 @@ public class EnderChestCommand extends AbstractCommand<Player> implements Intern
             Container container = src.openInventory(ec)
                         .orElseThrow(() -> ReturnMessageException.fromKey("command.invsee.failed"));
 
-            if (this.permissions.testSuffix(target, "exempt.modify") ||
-                this.permissions.testSuffix(target, "exempt.interact") || !this.permissions.testSuffix(src, "modify")) {
+            if (this.permissions.testSuffix(target, "exempt.modify") || !this.permissions.testSuffix(src, "modify")) {
 
                 InvSeeListener.addEntry(src.getUniqueId(), container);
             }

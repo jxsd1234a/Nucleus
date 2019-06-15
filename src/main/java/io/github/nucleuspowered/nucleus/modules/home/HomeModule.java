@@ -22,7 +22,7 @@ public class HomeModule extends ConfigurableModule<HomeConfigAdapter> {
         return new HomeConfigAdapter();
     }
 
-    @Override protected void performPreTasks() throws Exception {
+    @Override public void performPreTasks() throws Exception {
         super.performPreTasks();
 
         HomeService homeService = new HomeService();

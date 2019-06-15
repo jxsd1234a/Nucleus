@@ -37,7 +37,7 @@ public class IgniteCommand extends AbstractCommand.SimpleTargetOtherPlayer {
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
-        m.put("others", new PermissionInformation(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.others", this.getAliases()[0]), SuggestedLevel.ADMIN));
+        m.put("others", PermissionInformation.getWithTranslation("permission.others", SuggestedLevel.ADMIN, this.getAliases()[0]));
         return m;
     }
 

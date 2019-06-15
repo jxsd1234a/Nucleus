@@ -15,7 +15,7 @@ public abstract class NucleusConfigAdapter<R> extends TypedAbstractConfigAdapter
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onAttach(String module, AbstractAdaptableConfig<?, ?> adapter) {
+    public void onAttach(String module, AbstractAdaptableConfig<?> adapter) {
         registerService((Class)this.getClass(), this);
     }
 

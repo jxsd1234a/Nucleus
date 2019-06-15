@@ -35,8 +35,7 @@ public abstract class ConfigurableModule<A extends NucleusConfigAdapter<?>> exte
         return Optional.of(getAdapter());
     }
 
-    @Override
-    void configTasks() {
+    @Override public void configTasks() {
         this.plugin.getDocGenCache().ifPresent(x -> x.addConfigurableModule(this.getClass().getAnnotation(ModuleData.class).id(), this));
     }
 }

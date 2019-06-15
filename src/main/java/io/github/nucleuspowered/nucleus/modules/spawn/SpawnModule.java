@@ -20,7 +20,7 @@ public class SpawnModule extends ConfigurableModule<SpawnConfigAdapter> {
         return new SpawnConfigAdapter();
     }
 
-    @Override protected void setPermissionPredicates() {
+    @Override public void setPermissionPredicates() {
         PermissionResolverImpl.INSTANCE.registerPermissionPredicate(perm -> perm.toLowerCase().startsWith("nucleus.spawn.worlds."), SuggestedLevel.ADMIN);
     }
 }

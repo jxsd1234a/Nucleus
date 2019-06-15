@@ -20,7 +20,7 @@ public class KitModule extends ConfigurableModule<KitConfigAdapter> {
         return new KitConfigAdapter();
     }
 
-    @Override protected void setPermissionPredicates() {
+    @Override public void setPermissionPredicates() {
         PermissionResolverImpl.INSTANCE.registerPermissionPredicate(perm -> perm.toLowerCase().startsWith("nucleus.kits."), SuggestedLevel.ADMIN);
     }
 }

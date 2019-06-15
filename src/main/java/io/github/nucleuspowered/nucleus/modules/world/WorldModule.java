@@ -19,8 +19,7 @@ public class WorldModule extends ConfigurableModule<WorldConfigAdapter> {
         return new WorldConfigAdapter();
     }
 
-    @Override
-    protected void setPermissionPredicates() {
+    @Override public void setPermissionPredicates() {
         PermissionResolverImpl.INSTANCE.registerPermissionPredicate(perm -> perm.toLowerCase().startsWith("nucleus.worlds."), SuggestedLevel.ADMIN);
     }
 

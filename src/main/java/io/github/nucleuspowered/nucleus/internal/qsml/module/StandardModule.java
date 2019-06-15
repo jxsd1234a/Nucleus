@@ -117,21 +117,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         return Optional.empty();
     }
 
-    @Override
-    public final void preEnable() {
-        try {
-            loadRegistries();
-            loadServices();
-            performPreTasks();
-            registerCommandInterceptors();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Cannot enable module!", e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void loadServices() throws Exception {
+    public final void loadServices() throws Exception {
         Set<Class<? extends ServiceBase>> servicesToLoad;
         if (this.objectTypesToClassListMap != null) {
             servicesToLoad = getClassesFromList(Constants.SERVICE);
@@ -199,7 +185,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         }
     }
 
-    private void registerCommandInterceptors() throws Exception {
+    public void registerCommandInterceptors() throws Exception {
         RegisterCommandInterceptors annotation = getClass().getAnnotation(RegisterCommandInterceptors.class);
         if (annotation != null) {
             // for each annotation, attempt to register the service.
@@ -226,41 +212,14 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         }
     }
 
-    @Override
-    public final void onEnable() {
+    public final void setPackageName() {
         this.packageName = this.getClass().getPackage().getName() + ".";
-
-        // Construct commands
-        loadCommands();
-        loadEvents();
-        loadRunnables();
-        loadUserPrefKeys();
-        prepareAliasedCommands();
-        try {
-            performEnableTasks();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Cannot enable module!", e);
-        }
     }
 
-    @Override
-    public final void postEnable() {
-        loadTokens();
-        setPermissionPredicates();
-        configTasks();
-        try {
-            performPostTasks();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Cannot perform post enable on module!", e);
-        }
-    }
-
-    protected void setPermissionPredicates() {}
+    public void setPermissionPredicates() {}
 
     @SuppressWarnings("unchecked")
-    private void loadCommands() {
+    public final void loadCommands() {
 
         Set<Class<? extends AbstractCommand<?>>> cmds;
         if (this.objectTypesToClassListMap != null) {
@@ -271,7 +230,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
                             .collect(Collectors.toSet()));
 
             // Find all commands that are also scannable.
-            performFilter(this.plugin.getModuleContainer().getLoadedClasses().stream()
+            performFilter(this.plugin.getModuleHolder().getLoadedClasses().stream()
                     .filter(x -> x.getPackage().getName().startsWith(this.packageName))
                     .filter(x -> x.isAnnotationPresent(Scan.class))
                     .flatMap(x -> Arrays.stream(x.getDeclaredClasses()))
@@ -298,7 +257,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         }
     }
 
-    private void prepareAliasedCommands() {
+    public final void prepareAliasedCommands() {
         ImmutableMap<String, String> toRegister = remapCommand();
         if (!toRegister.isEmpty()) {
             CommentedConfigurationNode ccn = SimpleCommentedConfigurationNode.root();
@@ -317,8 +276,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         return stream.filter(x -> x.isAnnotationPresent(RegisterCommand.class));
     }
 
-    @SuppressWarnings("unchecked")
-    private void loadEvents() {
+    public final void loadEvents() {
         Set<Class<? extends ListenerBase>> listenersToLoad;
         if (this.objectTypesToClassListMap != null) {
             listenersToLoad = getClassesFromList(Constants.LISTENER);
@@ -360,8 +318,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         });
     }
 
-    @SuppressWarnings("unchecked")
-    private void loadRunnables() {
+    public final void loadRunnables() {
         Set<Class<? extends TaskBase>> tasksToLoad;
         if (this.objectTypesToClassListMap != null) {
             tasksToLoad = getClassesFromList(Constants.RUNNABLE);
@@ -402,7 +359,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         });
     }
 
-    private void loadTokens() {
+    public final void loadTokens() {
         Map<String, Tokens.Translator> map = tokensToRegister();
         if (!map.isEmpty()) {
             map.forEach((k, t) -> {
@@ -417,7 +374,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         }
     }
 
-    private void loadRegistries() {
+    public final void loadRegistries() {
         Set<Class<? extends NucleusRegistryModule>> registries;
         if (this.objectTypesToClassListMap != null) {
             registries = getClassesFromList(Constants.REGISTRY);
@@ -435,7 +392,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
         }
     }
 
-    private void loadUserPrefKeys() {
+    public final void loadUserPrefKeys() {
         Set<Class<? extends UserPrefKeys>> keyClasses;
         if (this.objectTypesToClassListMap != null) {
             keyClasses = getClassesFromList(Constants.PREF_KEYS);
@@ -464,7 +421,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
 
     @SuppressWarnings("unchecked")
     private <T> Stream<Class<? extends T>> getStreamForModule(Class<T> assignableClass) {
-        return Nucleus.getNucleus().getModuleContainer().getLoadedClasses().stream()
+        return Nucleus.getNucleus().getModuleHolder().getLoadedClasses().stream()
                 .filter(assignableClass::isAssignableFrom)
                 .filter(x -> x.getPackage().getName().startsWith(this.packageName))
                 .filter(x -> !Modifier.isAbstract(x.getModifiers()) && !Modifier.isInterface(x.getModifiers()))
@@ -472,13 +429,13 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
                 .map(x -> (Class<? extends T>)x);
     }
 
-    protected void performPreTasks() throws Exception { }
+    public void performPreTasks() throws Exception { }
 
-    protected void performEnableTasks() throws Exception { }
+    public void performEnableTasks() throws Exception { }
 
-    protected void performPostTasks() { }
+    public void performPostTasks() { }
 
-    void configTasks() {
+    public void configTasks() {
 
     }
 

@@ -57,8 +57,7 @@ public class AFKModule extends ConfigurableModule<AFKConfigAdapter> implements P
                 .build();
     }
 
-    @Override
-    protected void performEnableTasks() throws Exception {
+    @Override public void performEnableTasks() throws Exception {
         super.performEnableTasks();
 
         final String perm = getPermissionHandlerFor(AFKCommand.class).getPermissionWithSuffix("notify");

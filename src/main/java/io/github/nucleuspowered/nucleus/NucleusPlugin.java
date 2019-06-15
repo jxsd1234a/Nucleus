@@ -48,6 +48,7 @@ import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusLoggerProxy;
 import io.github.nucleuspowered.nucleus.internal.qsml.QuickStartModuleConstructor;
 import io.github.nucleuspowered.nucleus.internal.qsml.event.BaseModuleEvent;
+import io.github.nucleuspowered.nucleus.internal.qsml.module.StandardModule;
 import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService;
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.services.PlayerOnlineService;
@@ -95,8 +96,10 @@ import uk.co.drnaylor.quickstart.exceptions.IncorrectAdapterTypeException;
 import uk.co.drnaylor.quickstart.exceptions.NoModuleException;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleDiscoveryException;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleLoaderException;
-import uk.co.drnaylor.quickstart.modulecontainers.DiscoveryModuleContainer;
-import uk.co.drnaylor.quickstart.modulecontainers.discoverystrategies.Strategy;
+import uk.co.drnaylor.quickstart.holders.DiscoveryModuleHolder;
+import uk.co.drnaylor.quickstart.holders.discoverystrategies.Strategy;
+import uk.co.drnaylor.quickstart.loaders.ModuleEnablerBuilder;
+import uk.co.drnaylor.quickstart.loaders.PhasedModuleEnabler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -152,7 +155,7 @@ public class NucleusPlugin extends Nucleus {
     private final EconHelper econHelper = new EconHelper();
     private final PermissionRegistry permissionRegistry = new PermissionRegistry();
 
-    private DiscoveryModuleContainer moduleContainer;
+    private DiscoveryModuleHolder<StandardModule, StandardModule> moduleContainer;
 
     private final Map<String, TextFileController> textFileControllers = Maps.newHashMap();
 
@@ -340,7 +343,8 @@ public class NucleusPlugin extends Nucleus {
         try {
             final String he = this.messageProvider.getMessageWithFormat("config.main-header", PluginInfo.VERSION);
             Optional<Asset> optionalAsset = Sponge.getAssetManager().getAsset(Nucleus.getNucleus(), "classes.json");
-            DiscoveryModuleContainer.Builder db = DiscoveryModuleContainer.builder();
+            DiscoveryModuleHolder.Builder<StandardModule, StandardModule> db =
+                    DiscoveryModuleHolder.builder(StandardModule.class, StandardModule.class);
             if (optionalAsset.isPresent()) {
                 Map<String, Map<String, List<String>>> m = new Gson().fromJson(
                         optionalAsset.get().readString(),
@@ -358,17 +362,38 @@ public class NucleusPlugin extends Nucleus {
                 db.setConstructor(new QuickStartModuleConstructor(null))
                         .setStrategy(Strategy.DEFAULT);
             }
+
+            PhasedModuleEnabler<StandardModule, StandardModule> enabler =
+                    new ModuleEnablerBuilder<>(StandardModule.class, StandardModule.class)
+                        .createPreEnablePhase("preenable", holder -> {
+                            initDocGenIfApplicable();
+                            Sponge.getEventManager().post(new BaseModuleEvent.AboutToEnable(this));
+                        })
+                        .createEnablePhase("reg", (module, holder) -> module.loadRegistries())
+                        .createEnablePhase("services", (module, holder) -> module.loadServices())
+                        .createEnablePhase("pre-tasks", (module, holder) -> module.performPreTasks())
+                        .createEnablePhase("commandinterceptors", (module, holder) -> module.registerCommandInterceptors())
+                        .createPreEnablePhase("enable", holder -> Sponge.getEventManager().post(new BaseModuleEvent.PreEnable(this)))
+                        .createEnablePhase("commands", (module, holder) -> module.loadCommands())
+                        .createEnablePhase("events", (module, holder) -> module.loadEvents())
+                        .createEnablePhase("runnables", (module, holder) -> module.loadRunnables())
+                        .createEnablePhase("prefKeys", (module, holder) -> module.loadUserPrefKeys())
+                        .createEnablePhase("aliasedCommands", (module, holder) -> module.prepareAliasedCommands())
+                        .createEnablePhase("enableTasks", (module, holder) -> module.performEnableTasks())
+                        .createPreEnablePhase("postenable", holder -> Sponge.getEventManager().post(new BaseModuleEvent.Enabled(this)))
+                        .createEnablePhase("tokens", (module, holder) -> module.loadTokens())
+                        .createEnablePhase("permissionPredicates", (module, holder) -> module.setPermissionPredicates())
+                        .createEnablePhase("config", (module, holder) -> module.configTasks())
+                        .createEnablePhase("postTasks", (module, holder) -> module.performPostTasks())
+                        .build();
+
             this.moduleContainer = db
                     .setConfigurationLoader(builder.setDefaultOptions(ConfigurateHelper.setOptions(builder.getDefaultOptions()).setHeader(he)).build())
                     .setPackageToScan(getClass().getPackage().getName() + ".modules")
                     .setLoggerProxy(new NucleusLoggerProxy(this.logger))
                     .setConfigurationOptionsTransformer(x -> ConfigurateHelper.setOptions(x).setHeader(he))
-                    .setOnPreEnable(() -> {
-                        initDocGenIfApplicable();
-                        Sponge.getEventManager().post(new BaseModuleEvent.AboutToEnable(this));
-                    })
-                    .setOnEnable(() -> Sponge.getEventManager().post(new BaseModuleEvent.PreEnable(this)))
-                    .setOnPostEnable(() -> Sponge.getEventManager().post(new BaseModuleEvent.Enabled(this)))
+                    .setAllowDisable(false)
+                    .setModuleEnabler(enabler)
                     .setRequireModuleDataAnnotation(true)
                     .setNoMergeIfPresent(true)
                     .setModuleConfigurationHeader(m -> {
@@ -814,13 +839,13 @@ public class NucleusPlugin extends Nucleus {
     }
 
     @Override
-    public DiscoveryModuleContainer getModuleContainer() {
+    public DiscoveryModuleHolder<StandardModule, StandardModule> getModuleHolder() {
         return this.moduleContainer;
     }
 
     @Override public boolean isModuleLoaded(String moduleId) {
         try {
-            return getModuleContainer().isModuleLoaded(moduleId);
+            return getModuleHolder().isModuleLoaded(moduleId);
         } catch (NoModuleException e) {
             return false;
         }
@@ -829,7 +854,7 @@ public class NucleusPlugin extends Nucleus {
     @Override
     public <R extends NucleusConfigAdapter<?>> Optional<R> getConfigAdapter(String id, Class<R> configAdapterClass) {
         try {
-            return Optional.of(getModuleContainer().getConfigAdapterForModule(id, configAdapterClass));
+            return Optional.of(getModuleHolder().getConfigAdapterForModule(id, configAdapterClass));
         } catch (NoModuleException | IncorrectAdapterTypeException e) {
             return Optional.empty();
         }

@@ -84,7 +84,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
 
     @Override
     public void onReload() throws Exception {
-        this.config = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
+        this.config = Nucleus.getNucleus().getModuleHolder().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
             .getNodeOrDefault();
         this.listIsEmpty = this.config.getCommands().isEmpty();
         this.toSpy = this.config.getCommands().stream().map(String::toLowerCase).collect(ImmutableSet.toImmutableSet());

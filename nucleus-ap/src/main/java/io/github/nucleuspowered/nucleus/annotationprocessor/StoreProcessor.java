@@ -55,6 +55,15 @@ public class StoreProcessor extends AbstractProcessor {
             }
         }
 
+        elements = new HashSet<>(roundEnv.getElementsAnnotatedWith(RegisterPermissions.class));
+        for (Element element : elements) {
+            // Only storing classes.
+            if (element.getKind().isClass()) {
+                RegisterPermissions s = element.getAnnotation(RegisterPermissions.class);
+                classes.put(element, "permission");
+            }
+        }
+
         for (Map.Entry<TypeMirror, String> entry : store.entrySet()) {
             roundEnv.getRootElements()
                     .stream()

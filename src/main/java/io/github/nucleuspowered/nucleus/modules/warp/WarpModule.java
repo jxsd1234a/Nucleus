@@ -18,7 +18,7 @@ public class WarpModule extends ConfigurableModule<WarpConfigAdapter> {
         return new WarpConfigAdapter();
     }
 
-    @Override protected void setPermissionPredicates() {
+    @Override public void setPermissionPredicates() {
         PermissionResolverImpl.INSTANCE.registerPermissionPredicate(
                 perm -> perm.toLowerCase().startsWith("nucleus.warps."), SuggestedLevel.ADMIN);
     }

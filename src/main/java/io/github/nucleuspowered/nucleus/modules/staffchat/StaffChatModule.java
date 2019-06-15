@@ -18,8 +18,7 @@ public class StaffChatModule extends ConfigurableModule<StaffChatConfigAdapter> 
         return new StaffChatConfigAdapter();
     }
 
-    @Override
-    protected void performPreTasks() throws Exception {
+    @Override public void performPreTasks() throws Exception {
         super.performPreTasks();
 
         // Registers itself.

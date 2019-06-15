@@ -21,8 +21,7 @@ public class InfoModule extends ConfigurableModule<InfoConfigAdapter> {
         return new InfoConfigAdapter();
     }
 
-    @Override
-    protected void performPreTasks() throws Exception {
+    @Override public void performPreTasks() throws Exception {
         super.performPreTasks();
 
         Nucleus.getNucleus().addTextFileController(

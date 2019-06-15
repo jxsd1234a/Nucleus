@@ -10,7 +10,6 @@ import io.github.nucleuspowered.nucleus.PluginInfo;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.PermissionsFrom;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
-import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,10 +51,6 @@ public class PermissionRegistry {
         }
 
         this.otherPermissions.put(otherPermission, pi);
-    }
-
-    public void registerOtherPermission(String otherPermission, String description, SuggestedLevel level) {
-        this.registerOtherPermission(otherPermission, new PermissionInformation(description, level));
     }
 
     public Map<String, PermissionInformation> getPermissions() {

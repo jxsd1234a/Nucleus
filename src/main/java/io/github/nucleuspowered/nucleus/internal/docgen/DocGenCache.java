@@ -225,6 +225,8 @@ public class DocGenCache {
         perm.setDescription(v.plainDescription);
         perm.setPermission(k);
         perm.setDefaultLevel(v.level.name());
+        perm.setR(v.r);
+        perm.setKey(v.key);
         perm.setOre(v.isOre).setNormal(v.isNormal);
         return perm;
     }

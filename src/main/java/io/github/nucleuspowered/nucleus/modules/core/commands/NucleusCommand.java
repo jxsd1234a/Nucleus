@@ -22,7 +22,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import uk.co.drnaylor.quickstart.ModuleContainer;
+import uk.co.drnaylor.quickstart.ModuleHolder;
 
 import java.util.Set;
 
@@ -45,8 +45,8 @@ public class NucleusCommand extends AbstractCommand<CommandSource> {
             Text.Builder tb = Text.builder("Modules: ").color(TextColors.GREEN);
 
             boolean addComma = false;
-            Set<String> enabled = Nucleus.getNucleus().getModuleContainer().getModules();
-            for (String module : Nucleus.getNucleus().getModuleContainer().getModules(ModuleContainer.ModuleStatusTristate.ALL)) {
+            Set<String> enabled = Nucleus.getNucleus().getModuleHolder().getModules(ModuleHolder.ModuleStatusTristate.ENABLE);
+            for (String module : Nucleus.getNucleus().getModuleHolder().getModules(ModuleHolder.ModuleStatusTristate.ALL)) {
                 if (addComma) {
                     tb.append(Text.of(TextColors.GREEN, ", "));
                 }

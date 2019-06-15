@@ -13,7 +13,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
-import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
@@ -53,10 +52,9 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
 
     @Override protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         return new HashMap<String, PermissionInformation>() {{
-            MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
-            put("damage", new PermissionInformation(provider.getMessageWithFormat("permission.kittycannon.damage"), SuggestedLevel.ADMIN));
-            put("break", new PermissionInformation(provider.getMessageWithFormat("permission.kittycannon.break"), SuggestedLevel.ADMIN));
-            put("fire", new PermissionInformation(provider.getMessageWithFormat("permission.kittycannon.fire"), SuggestedLevel.ADMIN));
+            put("damage", PermissionInformation.getWithTranslation("permission.kittycannon.damage", SuggestedLevel.ADMIN));
+            put("break", PermissionInformation.getWithTranslation("permission.kittycannon.break", SuggestedLevel.ADMIN));
+            put("fire", PermissionInformation.getWithTranslation("permission.kittycannon.fire", SuggestedLevel.ADMIN));
         }};
     }
 

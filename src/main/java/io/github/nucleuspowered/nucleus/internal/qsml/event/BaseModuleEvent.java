@@ -43,7 +43,7 @@ public abstract class BaseModuleEvent extends AbstractEvent implements NucleusMo
     }
 
     Map<String, ModuleEnableState> getState() {
-        return this.plugin.getModuleContainer().getModulesWithLoadingState()
+        return this.plugin.getModuleHolder().getModulesWithLoadingState()
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> getFromLoadingStatus(v.getValue())));
     }
 

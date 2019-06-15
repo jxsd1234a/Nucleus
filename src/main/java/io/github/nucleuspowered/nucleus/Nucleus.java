@@ -19,6 +19,7 @@ import io.github.nucleuspowered.nucleus.internal.docgen.DocGenCache;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
+import io.github.nucleuspowered.nucleus.internal.qsml.module.StandardModule;
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
@@ -28,7 +29,7 @@ import org.slf4j.Logger;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
-import uk.co.drnaylor.quickstart.modulecontainers.DiscoveryModuleContainer;
+import uk.co.drnaylor.quickstart.holders.DiscoveryModuleHolder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -75,7 +76,7 @@ public abstract class Nucleus {
 
     public abstract PermissionRegistry getPermissionRegistry();
 
-    public abstract DiscoveryModuleContainer getModuleContainer();
+    public abstract DiscoveryModuleHolder<StandardModule, StandardModule> getModuleHolder();
 
     public abstract boolean isModuleLoaded(String moduleId);
 

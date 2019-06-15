@@ -36,9 +36,11 @@ public class ConnectionMessagesListener implements Reloadable, ListenerBase, IDa
     @Override
     public Map<String, PermissionInformation> getPermissions() {
         return new HashMap<String, PermissionInformation>() {{
-            put(ConnectionMessagesListener.this.disablePermission, new PermissionInformation(
-                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.connectionmesssages.disable"),
-                SuggestedLevel.NONE));
+            put(ConnectionMessagesListener.this.disablePermission,
+                    PermissionInformation.getWithTranslation(
+                            "permission.connectionmesssages.disable",
+                            SuggestedLevel.NONE
+                    ));
         }};
     }
 

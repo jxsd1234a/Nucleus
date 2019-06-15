@@ -21,6 +21,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.messages.ResourceMessageProvider;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
+import io.github.nucleuspowered.nucleus.internal.qsml.module.StandardModule;
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
@@ -44,7 +45,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.FormattingCodeTextSerializer;
 import org.spongepowered.api.text.serializer.SafeTextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
-import uk.co.drnaylor.quickstart.modulecontainers.DiscoveryModuleContainer;
+import uk.co.drnaylor.quickstart.holders.DiscoveryModuleHolder;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -177,7 +178,7 @@ public abstract class TestBase {
         }
 
         @Override
-        public DiscoveryModuleContainer getModuleContainer() {
+        public DiscoveryModuleHolder<StandardModule, StandardModule> getModuleHolder() {
             return null;
         }
 

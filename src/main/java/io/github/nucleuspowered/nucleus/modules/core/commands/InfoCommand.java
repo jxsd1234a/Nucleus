@@ -25,7 +25,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.TextMessageException;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import uk.co.drnaylor.quickstart.ModuleContainer;
+import uk.co.drnaylor.quickstart.ModuleHolder;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -118,9 +118,9 @@ public class InfoCommand extends AbstractCommand<CommandSource> {
         information.add("Nucleus: Enabled Modules");
         information.add(separator);
 
-        Nucleus.getNucleus().getModuleContainer().getModules().stream().sorted().forEach(information::add);
+        Nucleus.getNucleus().getModuleHolder().getModules(ModuleHolder.ModuleStatusTristate.ENABLE).stream().sorted().forEach(information::add);
 
-        Set<String> disabled = Nucleus.getNucleus().getModuleContainer().getModules(ModuleContainer.ModuleStatusTristate.DISABLE);
+        Set<String> disabled = Nucleus.getNucleus().getModuleHolder().getModules(ModuleHolder.ModuleStatusTristate.DISABLE);
         if (!disabled.isEmpty()) {
             information.add(separator);
             information.add("Nucleus: Disabled Modules");

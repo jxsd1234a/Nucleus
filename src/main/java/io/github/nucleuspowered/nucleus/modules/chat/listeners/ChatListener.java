@@ -56,7 +56,7 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
     private static final String prefix = PermissionRegistry.PERMISSIONS_PREFIX + "chat.";
 
     // Order is important here!
-    private static final Map<String, String> permissionToDesc = Maps.newHashMap();
+    private static final Map<String, PermissionInformation> permissionToDesc = Maps.newHashMap();
     private static final Map<String, Tuple<String[], Function<String, String>>> replacements = createReplacements();
 
     private static Map<String, Tuple<String[], Function<String, String>>> createReplacements() {
@@ -70,15 +70,23 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
                 new String[]{ prefix + "colour." + value.getName(), prefix + "color." + value.getName() },
                 s -> fss.apply(key.toString(), s)));
 
-            permissionToDesc.put(prefix + "colour." + value.getName(), mp.getMessageWithFormat("permission.chat.colourspec", value.getName().toLowerCase(), key.toString()));
-            permissionToDesc.put(prefix + "color." + value.getName(), mp.getMessageWithFormat("permission.chat.colorspec", value.getName().toLowerCase(), key.toString()));
+            permissionToDesc.put(prefix + "colour." + value.getName(),
+                    PermissionInformation.getWithTranslation("permission.chat.colourspec",
+                            SuggestedLevel.ADMIN,
+                            value.getName().toLowerCase(), key.toString()));
+            permissionToDesc.put(prefix + "color." + value.getName(),
+                    PermissionInformation.getWithTranslation("permission.chat.colorspec",
+                            SuggestedLevel.ADMIN,
+                            value.getName().toLowerCase(), key.toString()));
         });
 
         NameUtil.getStyleKeys().entrySet().stream().filter(x -> x.getKey() != 'k').forEach((k) -> {
             t.put("&" + k.getKey(), Tuple.of(new String[] { prefix + "style." + k.getValue().toLowerCase() },
                     s -> fss.apply(k.getKey().toString(), s)));
             permissionToDesc.put(prefix + "style." + k.getValue().toLowerCase(),
-                mp.getMessageWithFormat("permission.chat.stylespec", k.getValue().toLowerCase(), k.getKey().toString()));
+                    PermissionInformation.getWithTranslation("permission.chat.stylespec",
+                            SuggestedLevel.ADMIN,
+                            k.getValue().toLowerCase(), k.toString()));
         });
 
         t.put("&k", Tuple.of(new String[] { prefix + "magic" }, s -> s.replaceAll("[&]+[kK]", "")));
@@ -108,13 +116,10 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
     public Map<String, PermissionInformation> getPermissions() {
         Map<String, PermissionInformation> mp = new HashMap<>();
         mp.put(prefix + "color", PermissionInformation.getWithTranslation("permission.chat.color", SuggestedLevel.ADMIN));
-        mp.put(prefix + "color.<color>", PermissionInformation.getWithTranslation("permission.chat.colorsingle", SuggestedLevel.ADMIN, false, true));
-        mp.put(prefix + "colour", PermissionInformation.getWithTranslation("permission.chat.colour", SuggestedLevel.ADMIN, true, false));
         mp.put(prefix + "style", PermissionInformation.getWithTranslation("permission.chat.style", SuggestedLevel.ADMIN));
-        mp.put(prefix + "style.<style>", PermissionInformation.getWithTranslation("permission.chat.stylesingle", SuggestedLevel.ADMIN, false, true));
         mp.put(prefix + "magic", PermissionInformation.getWithTranslation("permission.chat.magic", SuggestedLevel.ADMIN));
         mp.put(prefix + "url", PermissionInformation.getWithTranslation("permission.chat.urls", SuggestedLevel.ADMIN));
-        permissionToDesc.forEach((k, v) -> mp.put(k, new PermissionInformation(v, SuggestedLevel.ADMIN, true, false)));
+        permissionToDesc.putAll(mp);
         return mp;
     }
 

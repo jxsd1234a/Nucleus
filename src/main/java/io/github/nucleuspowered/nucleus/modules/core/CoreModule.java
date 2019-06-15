@@ -26,8 +26,7 @@ public class CoreModule extends ConfigurableModule<CoreConfigAdapter> {
         return new CoreConfigAdapter();
     }
 
-    @Override
-    protected void performPreTasks() throws Exception {
+    @Override public void performPreTasks() throws Exception {
         super.performPreTasks();
 
         CatalogTypeFinalStaticProcessor.setFinalStaticFields(
@@ -41,8 +40,7 @@ public class CoreModule extends ConfigurableModule<CoreConfigAdapter> {
         Nucleus.getNucleus().reloadMessages();
     }
 
-    @Override
-    protected void performPostTasks() {
+    @Override public void performPostTasks() {
         super.performPostTasks();
 
         Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(UserPreferenceService.class).postInit();

@@ -22,6 +22,9 @@ public class PermissionDoc {
     @Setting
     private String module;
 
+    private String key;
+    private String[] r = {};
+
     private boolean isOre = true;
     private boolean isNormal = true;
 
@@ -32,6 +35,22 @@ public class PermissionDoc {
     public PermissionDoc setPermission(String permission) {
         this.permission = permission;
         return this;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String[] getR() {
+        return r;
+    }
+
+    public void setR(String[] r) {
+        this.r = r;
     }
 
     public String getDescription() {

@@ -20,8 +20,7 @@ public class RulesModule extends ConfigurableModule<RulesConfigAdapter> {
         return new RulesConfigAdapter();
     }
 
-    @Override
-    protected void performPreTasks() throws Exception {
+    @Override public void performPreTasks() throws Exception {
         super.performPreTasks();
 
         Nucleus.getNucleus().addTextFileController(

@@ -141,29 +141,27 @@ public class CommandPermissionHandler implements PermissionTrait {
         this.others = this.prefix + "others";
 
         if (!cab.isAnnotationPresent(NoDocumentation.class)) {
-            this.mssl.put(this.base,
-                new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.base", command), c.suggestedLevel()));
+            this.mssl.put(this.base, PermissionInformation.getWithTranslation("permission.base", c.suggestedLevel(), command));
 
             if (c.supportsOthers()) {
-                this.mssl.put(this.others, new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.others", co.value()[0]),
-                    SuggestedLevel.ADMIN));
+                this.mssl.put(this.others,
+                        PermissionInformation.getWithTranslation("permission.others", SuggestedLevel.ADMIN, co.value()[0]));
             }
 
             if (!cab.isAnnotationPresent(NoModifiers.class)) {
                 if (!cab.isAnnotationPresent(NoWarmup.class) || cab.getAnnotation(NoWarmup.class).generatePermissionDocs()) {
-                    this.mssl.put(this.warmup, new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.exempt.warmup", command),
-                            SuggestedLevel.ADMIN));
+                    this.mssl.put(this.warmup,
+                            PermissionInformation.getWithTranslation("permission.exempt.warmup", SuggestedLevel.ADMIN, command));
                 }
 
                 if (!cab.isAnnotationPresent(NoCooldown.class)) {
                     this.mssl.put(this.cooldown,
-                            new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.exempt.cooldown", command),
-                                    SuggestedLevel.ADMIN));
+                            PermissionInformation.getWithTranslation("permission.exempt.cooldown", SuggestedLevel.ADMIN, command));
                 }
 
                 if (!cab.isAnnotationPresent(NoCost.class)) {
-                    this.mssl.put(this.cost, new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.exempt.cost", command),
-                            SuggestedLevel.ADMIN));
+                    this.mssl.put(this.cost,
+                            PermissionInformation.getWithTranslation("permission.exempt.cost", SuggestedLevel.ADMIN, command));
                 }
             }
         }

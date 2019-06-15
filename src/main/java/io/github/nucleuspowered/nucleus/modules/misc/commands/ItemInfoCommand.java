@@ -124,7 +124,7 @@ public class ItemInfoCommand extends AbstractCommand<Player> {
         ItemDataNode itemDataNode = this.itemDataService.getDataForItem(id);
 
         // /buy and /sell prices
-        if (this.econHelper.economyServiceExists() && Nucleus.getNucleus().getModuleContainer().isModuleLoaded(ServerShopModule.ID)) {
+        if (this.econHelper.economyServiceExists() && Nucleus.getNucleus().getModuleHolder().isModuleLoaded(ServerShopModule.ID)) {
             boolean space = false;
             double buyPrice = itemDataNode.getServerBuyPrice();
             if (buyPrice >= 0) {

@@ -20,8 +20,7 @@ public class MobModule extends ConfigurableModule<MobConfigAdapter> {
         return new MobConfigAdapter();
     }
 
-    @Override
-    protected void setPermissionPredicates() {
+    @Override public void setPermissionPredicates() {
         PermissionResolverImpl.INSTANCE.registerPermissionPredicate(perm -> perm.toLowerCase().startsWith("nucleus.spawnmob.mobs."), SuggestedLevel.ADMIN);
     }
 }

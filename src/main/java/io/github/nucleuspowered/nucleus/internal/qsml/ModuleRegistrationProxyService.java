@@ -12,8 +12,9 @@ import io.github.nucleuspowered.nucleus.api.exceptions.NoModuleException;
 import io.github.nucleuspowered.nucleus.api.exceptions.UnremovableModuleException;
 import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
 import org.spongepowered.api.plugin.Plugin;
-import uk.co.drnaylor.quickstart.ModuleContainer;
+import uk.co.drnaylor.quickstart.ModuleHolder;
 import uk.co.drnaylor.quickstart.enums.ConstructionPhase;
+import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleLoaderException;
 import uk.co.drnaylor.quickstart.exceptions.UndisableableModuleException;
 
 import java.util.Set;
@@ -22,12 +23,12 @@ public class ModuleRegistrationProxyService implements NucleusModuleService {
 
     @Override
     public Set<String> getModulesToLoad() {
-        return Nucleus.getNucleus().getModuleContainer().getModules(ModuleContainer.ModuleStatusTristate.ENABLE);
+        return Nucleus.getNucleus().getModuleHolder().getModules(ModuleHolder.ModuleStatusTristate.ENABLE);
     }
 
     @Override
     public boolean canDisableModules() {
-        return Nucleus.getNucleus().getModuleContainer().getCurrentPhase() == ConstructionPhase.DISCOVERED;
+        return Nucleus.getNucleus().getModuleHolder().getCurrentPhase() == ConstructionPhase.DISCOVERED;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class ModuleRegistrationProxyService implements NucleusModuleService {
         }
 
         try {
-            Nucleus.getNucleus().getModuleContainer().disableModule(module);
+            Nucleus.getNucleus().getModuleHolder().disableModule(module);
             Nucleus.getNucleus().getLogger().info(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("nucleus.module.disabled.modulerequest", pluginAnnotation.name(), pluginAnnotation.id(), module));
         } catch (IllegalStateException e) {
             throw new ModulesLoadedException();
@@ -54,6 +55,8 @@ public class ModuleRegistrationProxyService implements NucleusModuleService {
             throw new UnremovableModuleException();
         } catch (uk.co.drnaylor.quickstart.exceptions.NoModuleException e) {
             throw new NoModuleException();
+        } catch (QuickStartModuleLoaderException e) {
+            e.printStackTrace();
         }
     }
 }

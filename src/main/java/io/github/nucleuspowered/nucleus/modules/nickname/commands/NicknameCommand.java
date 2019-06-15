@@ -72,11 +72,8 @@ public class NicknameCommand extends AbstractCommand<CommandSource> {
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
         m.put("others", PermissionInformation.getWithTranslation("permission.nick.others", SuggestedLevel.ADMIN));
-        m.put("colour", PermissionInformation.getWithTranslation("permission.nick.colour", SuggestedLevel.ADMIN, true, false));
         m.put("color", PermissionInformation.getWithTranslation("permission.nick.color", SuggestedLevel.ADMIN));
-        m.put("color.<color>", PermissionInformation.getWithTranslation("permission.nick.colorsingle", SuggestedLevel.ADMIN, false, true));
         m.put("style", PermissionInformation.getWithTranslation("permission.nick.style", SuggestedLevel.ADMIN));
-        m.put("style.<style>", PermissionInformation.getWithTranslation("permission.nick.stylesingle", SuggestedLevel.ADMIN, false, true));
         m.put("magic", PermissionInformation.getWithTranslation("permission.nick.magic", SuggestedLevel.ADMIN));
         return m;
     }
@@ -84,7 +81,7 @@ public class NicknameCommand extends AbstractCommand<CommandSource> {
     @Override
     protected Map<String, PermissionInformation> permissionsToRegister() {
         return this.permissionToDesc.entrySet().stream().collect(Collectors.toMap(
-            Map.Entry::getKey, v -> new PermissionInformation(v.getValue(), SuggestedLevel.ADMIN, true, false)));
+            Map.Entry::getKey, v -> PermissionInformation.getWithTranslation(v.getValue(), SuggestedLevel.ADMIN)));
     }
 
     @Override

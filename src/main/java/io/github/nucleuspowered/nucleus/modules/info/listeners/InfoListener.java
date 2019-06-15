@@ -76,7 +76,7 @@ public class InfoListener implements Reloadable, ListenerBase.Conditional {
 
     @Override public boolean shouldEnable() {
         try {
-            return Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(InfoModule.ID, InfoConfigAdapter.class)
+            return Nucleus.getNucleus().getModuleHolder().getConfigAdapterForModule(InfoModule.ID, InfoConfigAdapter.class)
                 .getNodeOrDefault().isShowMotdOnJoin();
         } catch (NoModuleException | IncorrectAdapterTypeException e) {
             if (Nucleus.getNucleus().isDebugMode()) {

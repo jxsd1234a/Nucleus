@@ -51,7 +51,7 @@ public class VanishModule extends ConfigurableModule<VanishConfigAdapter> {
     }
 
     @Override
-    protected void performPostTasks() {
+    public void performPostTasks() {
         super.performPostTasks();
         createSeenModule(CAN_SEE_PERMISSION, (source, target) -> Lists.newArrayList(getMessageFor(source, "seen.vanish",
                 getMessageFor(source, "standard.yesno." + Boolean.toString(target.get(Keys.VANISH).orElse(false)).toLowerCase()))));

@@ -39,11 +39,18 @@ import org.spongepowered.api.util.Identifiable;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 @APIService(NucleusPrivateMessagingService.class)
 public class MessageHandler implements NucleusPrivateMessagingService, Reloadable, PermissionTrait, ServiceBase {
@@ -71,7 +78,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, Reloadabl
     public MessageHandler() throws Exception {
         Nucleus nucleus = Nucleus.getNucleus();
         this.textParsingUtils = nucleus.getTextParsingUtils();
-        this.mca = nucleus.getModuleContainer().getConfigAdapterForModule(MessageModule.ID, MessageConfigAdapter.class);
+        this.mca = nucleus.getModuleHolder().getConfigAdapterForModule(MessageModule.ID, MessageConfigAdapter.class);
         this.messagepermissions = nucleus.getPermissionRegistry().getPermissionsForNucleusCommand(MessageCommand.class);
         this.socialspypermissions = nucleus.getPermissionRegistry().getPermissionsForNucleusCommand(SocialSpyCommand.class);
         onReload();

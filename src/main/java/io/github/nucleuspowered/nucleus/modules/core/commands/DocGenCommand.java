@@ -29,7 +29,15 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.yaml.snakeyaml.DumperOptions;
+import uk.co.drnaylor.quickstart.ModuleHolder;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -121,6 +129,19 @@ public class DocGenCommand extends AbstractCommand<CommandSource> {
 
         configurationConfigurationLoader.save(configurationConfigurationNode);
 
+        // create class files.
+        Path cl = Nucleus.getNucleus().getDataPath().resolve("classes");
+        Files.createDirectories(Nucleus.getNucleus().getDataPath().resolve("classes"));
+
+        // get modules
+        for (String module : Nucleus.getNucleus().getModuleHolder().getModules(ModuleHolder.ModuleStatusTristate.ENABLE)) {
+            Path n = cl.resolve(module + ".txt");
+            Files.deleteIfExists(n);
+            try (BufferedWriter bw = Files.newBufferedWriter(n, StandardOpenOption.CREATE_NEW)) {
+                createClass(bw, module, lpd);
+            }
+
+        }
 
         src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.docgen.complete"));
         return CommandResult.success();
@@ -129,5 +150,59 @@ public class DocGenCommand extends AbstractCommand<CommandSource> {
     private <T> List<T> getAndSort(List<T> list, Comparator<T> comparator) {
         list.sort(comparator);
         return list;
+    }
+
+    private final String NEW_LINE = System.lineSeparator();
+
+    private void createClass(BufferedWriter writer, String module, Collection<PermissionDoc> permissionDocCollection) throws IOException {
+        StringWriter sw = new StringWriter();
+        String m = module.substring(0, 1).toUpperCase() + module.substring(1);
+        sw.append("@RegisterPermissions").append(NEW_LINE);
+        sw.append("public class ").append(m).append("Permissions {").append(NEW_LINE);
+
+        sw.append("private ").append(m).append("Permissions() {").append(NEW_LINE)
+                .append("throw new AssertionError(\"Nope\");").append(NEW_LINE)
+                .append("}").append(NEW_LINE).append(NEW_LINE);
+
+        permissionDocCollection.stream().filter(x -> x.getModule().equalsIgnoreCase(module))
+                .forEach(permissionDoc -> {
+                    boolean rr = permissionDoc.getR().length > 0;
+                    // write the permission
+                    // @PermissionMetadata(descriptionKey = "key", replacements = {"r"}, isPrefix = false, level = SuggestedLevel.ADMIN)
+                    sw.append("@PermissionMetadata(descriptionKey = \"")
+                        .append(permissionDoc.getKey())
+                        .append("\", ");
+                    if (rr) {
+                        sw.append("replacements = { \"")
+                                .append(String.join("\", \"", permissionDoc.getR()))
+                                .append("\" }, ");
+                    }
+                    sw.append("level = SuggestedLevel.")
+                        .append(permissionDoc.getDefaultLevel().toUpperCase())
+                        .append(")")
+                        .append(NEW_LINE)
+                        .append("public static final String ");
+
+                    String s;
+                    try {
+                        s = permissionDoc.getKey()
+                                .replace("permission.", "")
+                                .replace('.', '_');
+                    } catch (NullPointerException e) {
+                        Nucleus.getNucleus().getLogger()
+                                .info("{} - {}", permissionDoc.getPermission(), permissionDoc.getKey());
+                        throw e;
+                    }
+
+                    if (rr) {
+                        s += "_" + String.join("_", permissionDoc.getR());
+                    }
+                    sw.append(s.toUpperCase().replace(" ", "_")).append(" = \"")
+                            .append(permissionDoc.getPermission().replaceAll("^nucleus\\.", ""))
+                            .append("\";").append(NEW_LINE).append(NEW_LINE);
+                });
+
+        sw.append("}");
+        writer.write(sw.toString());
     }
 }

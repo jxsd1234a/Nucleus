@@ -41,10 +41,7 @@ public class GetPosCommand extends AbstractCommand<CommandSource> {
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> mspi = super.permissionSuffixesToRegister();
-        mspi.put("others", new PermissionInformation(
-                Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.getpos.others"),
-                SuggestedLevel.MOD
-        ));
+        mspi.put("others", PermissionInformation.getWithTranslation("permission.getpos.others", SuggestedLevel.MOD));
         return mspi;
     }
 
