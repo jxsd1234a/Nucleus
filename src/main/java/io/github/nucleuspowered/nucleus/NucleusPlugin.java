@@ -489,7 +489,7 @@ public class NucleusPlugin extends Nucleus {
             try {
                 this.logger.info(this.messageProvider.getMessageWithFormat("startup.loaddata", PluginInfo.NAME));
                 allChange();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 this.isErrored = e;
                 disable();
                 e.printStackTrace();
@@ -497,7 +497,7 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    private void allChange() throws IOException {
+    private void allChange() throws Exception {
         resetDataPath(true);
         this.generalService.changeFile();
         this.kitService.changeFile();
@@ -506,6 +506,8 @@ public class NucleusPlugin extends Nucleus {
 
         this.userCacheService.load();
         this.nameBanService.load();
+        this.generalService.loadInternal();
+        this.kitService.loadInternal();
     }
 
     @Listener
@@ -529,7 +531,7 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    @Listener
+    @Listener(order = Order.PRE)
     public void onGameStarted(GameStartedServerEvent event) {
         if (this.isErrored == null) {
             this.generalService.getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
