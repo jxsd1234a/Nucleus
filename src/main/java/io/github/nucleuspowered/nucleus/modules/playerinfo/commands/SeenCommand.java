@@ -36,7 +36,6 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
@@ -266,8 +265,7 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
         // Add the extra module information.
         messages.addAll(this.seenHandler.buildInformation(src, user));
 
-        PaginationService ps = Sponge.getServiceManager().provideUnchecked(PaginationService.class);
-        ps.builder().contents(messages).padding(Text.of(TextColors.GREEN, "-"))
+        Util.getPaginationBuilder(src).contents(messages).padding(Text.of(TextColors.GREEN, "-"))
                 .title(messageProvider.getTextMessageWithFormat("command.seen.title", user.getName())).sendTo(src);
         return CommandResult.success();
     }

@@ -54,6 +54,9 @@ public class VanishListener implements Reloadable, ListenerBase {
                 player.sendMessage(getMessageFor(player, "vanish.onlogin.prefs").toBuilder()
                         .onClick(TextActions.runCommand("/nuserprefs vanish-on-login false")).build());
             }
+        } else if (this.vanishConfig.isForceNucleusVanish()) {
+            // unvanish
+            this.service.unvanishPlayer(player);
         }
     }
 
