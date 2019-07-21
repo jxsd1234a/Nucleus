@@ -97,7 +97,7 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
                     .put(WALKING_SPEED_PERMISSION, this::getWalkingSpeed)
                     .put(FLYING_SPEED_PERMISSION, this::getFlyingSpeed)
                     .put(LOCATION_PERMISSION, this::getLocation)
-                    .put(FLYING_PERMISSION, this::getFlyingSpeed)
+                    .put(FLYING_PERMISSION, this::getIsFlying)
                     .put(CANFLY_FLYING_PERMISSION, this::getCanFly)
                     .put(ISFLYING_FLYING_PERMISSION, this::getIsFlying)
                     .put(GAMEMODE_PERMISSION, this::getGameMode)
