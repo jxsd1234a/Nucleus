@@ -53,6 +53,7 @@ import io.github.nucleuspowered.nucleus.internal.qsml.QuickStartModuleConstructo
 import io.github.nucleuspowered.nucleus.internal.qsml.event.BaseModuleEvent;
 import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService;
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
+import io.github.nucleuspowered.nucleus.internal.services.PlayerOnlineService;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTokenServiceImpl;
@@ -340,6 +341,7 @@ public class NucleusPlugin extends Nucleus {
         this.serviceManager.registerService(NucleusTokenServiceImpl.class, this.nucleusChatService);
         Sponge.getServiceManager().setProvider(this, NucleusMessageTokenService.class, this.nucleusChatService);
         this.serviceManager.registerService(CommandRemapperService.class, new CommandRemapperService());
+        this.serviceManager.registerService(PlayerOnlineService.class, PlayerOnlineService.DEFAULT);
 
         try {
             final String he = this.messageProvider.getMessageWithFormat("config.main-header", PluginInfo.VERSION);

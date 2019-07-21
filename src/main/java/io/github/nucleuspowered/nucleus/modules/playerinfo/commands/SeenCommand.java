@@ -20,6 +20,7 @@ import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEq
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.internal.services.PlayerOnlineService;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.CoreUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.misc.commands.SpeedCommand;
@@ -239,13 +240,14 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
         final MessageProvider messageProvider = Nucleus.getNucleus().getMessageProvider();
 
         // Everyone gets the last online time.
-        if (user.isOnline()) {
+        PlayerOnlineService playerOnlineService = getServiceManager().getServiceUnchecked(PlayerOnlineService.class);
+        if (playerOnlineService.isOnline(src, user)) {
             messages.add(messageProvider.getTextMessageWithFormat("command.seen.iscurrently.online", user.getName()));
             coreUserDataModule.getLastLogin().ifPresent(x -> messages.add(
                     messageProvider.getTextMessageWithFormat("command.seen.loggedon", Util.getTimeToNow(x))));
         } else {
             messages.add(messageProvider.getTextMessageWithFormat("command.seen.iscurrently.offline", user.getName()));
-            coreUserDataModule.getLastLogout().ifPresent(x -> messages.add(
+            playerOnlineService.lastSeen(src, user).ifPresent(x -> messages.add(
                     messageProvider.getTextMessageWithFormat("command.seen.loggedoff", Util.getTimeToNow(x))));
         }
 

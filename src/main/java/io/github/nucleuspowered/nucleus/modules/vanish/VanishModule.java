@@ -53,7 +53,6 @@ public class VanishModule extends ConfigurableModule<VanishConfigAdapter> {
     @Override
     protected void performPostTasks() {
         super.performPostTasks();
-        VanishService service = getServiceUnchecked(VanishService.class);
         createSeenModule(CAN_SEE_PERMISSION, (source, target) -> Lists.newArrayList(getMessageFor(source, "seen.vanish",
                 getMessageFor(source, "standard.yesno." + Boolean.toString(target.get(Keys.VANISH).orElse(false)).toLowerCase()))));
     }

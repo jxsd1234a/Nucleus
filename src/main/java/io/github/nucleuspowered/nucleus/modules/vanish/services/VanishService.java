@@ -19,9 +19,16 @@ import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 public class VanishService implements Reloadable, PermissionTrait, ServiceBase {
 
     private boolean isAlter = false;
+    private final Map<UUID, Instant> lastVanish = new HashMap<>();
 
     @Override
     public void onReload() {
@@ -34,7 +41,6 @@ public class VanishService implements Reloadable, PermissionTrait, ServiceBase {
         return Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(VanishUserDataModule.class).isVanished();
     }
 
-
     public void vanishPlayer(User player) {
         vanishPlayer(player, false);
     }
@@ -46,6 +52,7 @@ public class VanishService implements Reloadable, PermissionTrait, ServiceBase {
         if (delay) {
             Task.builder().execute(() -> vanishPlayerInternal(player)).delayTicks(0).name("Nucleus Vanish runnable").submit(Nucleus.getNucleus());
         } else {
+            this.lastVanish.put(player.getUniqueId(), Instant.now());
             vanishPlayerInternal(player);
         }
     }
@@ -84,6 +91,18 @@ public class VanishService implements Reloadable, PermissionTrait, ServiceBase {
                 }
             });
         }
+    }
+
+    public void setLastVanishedTime(UUID pl, Instant instant) {
+        this.lastVanish.put(pl, instant);
+    }
+
+    Optional<Instant> getLastVanishTime(UUID pl) {
+        return Optional.ofNullable(this.lastVanish.get(pl));
+    }
+
+    public void clearLastVanishTime(UUID pl) {
+        this.lastVanish.remove(pl);
     }
 
 }

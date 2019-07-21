@@ -23,6 +23,9 @@ public class VanishConfig {
     @Setting(value = "workaround-sponge-vanish-issue", comment = "config.vanish.sponge")
     private boolean attemptSpongeWorkaroundVanish = true;
 
+    @Setting(value = "try-hide-players-in-seen", comment = "config.vanish.hideseen")
+    private boolean tryHidePlayers = true;
+
     public boolean isSuppressMessagesOnVanish() {
         return this.suppressMessagesOnVanish;
     }
@@ -37,5 +40,9 @@ public class VanishConfig {
 
     public boolean isAttemptSpongeWorkaroundVanish() {
         return this.attemptSpongeWorkaroundVanish;
+    }
+
+    public boolean isTryHidePlayers() {
+        return this.tryHidePlayers;
     }
 }
