@@ -20,6 +20,9 @@ public class VanishConfig {
     @Setting(value = "force-nucleus-vanish", comment = "config.vanish.force")
     private boolean forceNucleusVanish = true;
 
+    @Setting(value = "workaround-sponge-vanish-issue", comment = "config.vanish.sponge")
+    private boolean attemptSpongeWorkaroundVanish = true;
+
     public boolean isSuppressMessagesOnVanish() {
         return this.suppressMessagesOnVanish;
     }
@@ -30,5 +33,9 @@ public class VanishConfig {
 
     public boolean isForceNucleusVanish() {
         return this.forceNucleusVanish;
+    }
+
+    public boolean isAttemptSpongeWorkaroundVanish() {
+        return this.attemptSpongeWorkaroundVanish;
     }
 }
