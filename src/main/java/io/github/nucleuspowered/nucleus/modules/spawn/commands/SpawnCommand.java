@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.spawn.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -17,6 +18,7 @@ import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler
 import io.github.nucleuspowered.nucleus.modules.spawn.config.GlobalSpawnConfig;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfig;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfigAdapter;
+import io.github.nucleuspowered.nucleus.modules.spawn.events.RedirectableSpawnEvent;
 import io.github.nucleuspowered.nucleus.modules.spawn.events.SendToSpawnEvent;
 import io.github.nucleuspowered.nucleus.modules.spawn.helpers.SpawnHelper;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
@@ -28,6 +30,7 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
@@ -86,6 +89,18 @@ public class SpawnCommand extends AbstractCommand<Player> implements Reloadable 
 
         Transform<World> worldTransform = SpawnHelper.getSpawn(wp, src);
 
+        // Allow this spawn to be redirected before firing the SendToSpawnEvent
+        EventContext context = EventContext.builder().add(EventContexts.SPAWN_EVENT_TYPE, RedirectableSpawnEvent.Type.COMMAND).build();
+        RedirectableSpawnEvent rEvent = new RedirectableSpawnEvent(SpawnHelper.getSpawn(ow.get().getProperties(), src), src, CauseStackHelper.createCause(context, src));
+        if (Sponge.getEventManager().post(rEvent)) {
+            if (rEvent.getCancelReason().isPresent()) {
+                throw new ReturnMessageException(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.self.failed.reason", rEvent.getCancelReason().get()));
+            }
+
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.self.failed.noreason"));
+        }
+
         SendToSpawnEvent event = new SendToSpawnEvent(worldTransform, src, CauseStackHelper.createCause(src));
         if (Sponge.getEventManager().post(event)) {
             if (event.getCancelReason().isPresent()) {
@@ -99,7 +114,7 @@ public class SpawnCommand extends AbstractCommand<Player> implements Reloadable 
         // If we don't have a rotation, then use the current rotation
         NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler()
                 .teleportPlayer(src,
-                    SpawnHelper.getSpawn(ow.get().getProperties(), src),
+                    rEvent.getTransformTo(),
                     !force && this.sc.isSafeTeleport(), true);
         if (result.isSuccess()) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawn.success", wp.getWorldName()));

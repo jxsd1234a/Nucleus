@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.spawn.listeners;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
@@ -20,12 +21,15 @@ import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfig;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.spawn.datamodules.SpawnGeneralDataModule;
 import io.github.nucleuspowered.nucleus.modules.spawn.datamodules.SpawnWorldDataModule;
+import io.github.nucleuspowered.nucleus.modules.spawn.events.RedirectableSpawnEvent;
+import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -161,9 +165,14 @@ public class SpawnListener implements Reloadable, ListenerBase, MessageProviderT
         Location<World> spawn = world.getSpawnLocation().add(0.5, 0, 0.5);
         Transform<World> to = new Transform<>(spawn);
 
+        // Allow this spawn to be redirected before setting the final location
+        EventContext context = EventContext.builder().add(EventContexts.SPAWN_EVENT_TYPE,RedirectableSpawnEvent.Type.DEATH).build();
+        RedirectableSpawnEvent rEvent = new RedirectableSpawnEvent(to, event.getTargetEntity(), CauseStackHelper.createCause(context, event.getTargetEntity()));
+        Sponge.getEventManager().post(rEvent);
+
         // Compare current transform to spawn - set rotation.
         Nucleus.getNucleus().getWorldDataManager().getWorld(world).ifPresent(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation()
-            .ifPresent(y -> event.setToTransform(to.setRotation(y))));
+            .ifPresent(y -> event.setToTransform(rEvent.isRedirected() ? rEvent.getTransformTo() : to.setRotation(y))));
     }
 
     @Override public void onReload() {
