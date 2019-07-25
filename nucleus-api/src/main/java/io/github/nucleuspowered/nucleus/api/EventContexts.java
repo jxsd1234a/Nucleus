@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.api;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusRedirectableSpawnEvent;
+import io.github.nucleuspowered.nucleus.api.events.NucleusSendToSpawnEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.util.generator.dummy.DummyObjectProvider;
@@ -33,8 +33,8 @@ public class EventContexts {
      *     For the ID, see {@link Identifiers#SPAWN_EVENT_TYPE}
      * </p>
      */
-    public static final EventContextKey<NucleusRedirectableSpawnEvent.Type> SPAWN_EVENT_TYPE =
-            EventContextKey.builder(NucleusRedirectableSpawnEvent.Type.class).id(Identifiers.SPAWN_EVENT_TYPE).name("SPAWN_EVENT_TYPE").build();
+    public static final EventContextKey<NucleusSendToSpawnEvent.Type> SPAWN_EVENT_TYPE =
+            EventContextKey.builder(NucleusSendToSpawnEvent.Type.class).id(Identifiers.SPAWN_EVENT_TYPE).name("SPAWN_EVENT_TYPE").build();
 
     public static class Identifiers {
 

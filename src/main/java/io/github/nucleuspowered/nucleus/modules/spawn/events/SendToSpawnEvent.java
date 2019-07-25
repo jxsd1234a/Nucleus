@@ -19,16 +19,19 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 public class SendToSpawnEvent extends AbstractEvent implements NucleusSendToSpawnEvent {
 
-    private final Transform<World> transform;
+    private Transform<World> transform;
+    private Transform<World> originalTransform;
     private final User targetUser;
     private final Cause cause;
 
     @Nullable
     private String cancelReason = null;
     private boolean isCancelled = false;
+    private boolean isRedirected = false;
 
     public SendToSpawnEvent(Transform<World> transform, User targetUser, Cause cause) {
         this.transform = transform;
+        this.originalTransform = transform;
         this.targetUser = targetUser;
         this.cause = cause;
     }
@@ -37,6 +40,19 @@ public class SendToSpawnEvent extends AbstractEvent implements NucleusSendToSpaw
         // Copy!
         return new Transform<>(this.transform.getExtent(), this.transform.getPosition(), this.transform.getRotation());
     }
+
+    @Override public Transform<World> getOriginalTransformTo() {
+        // Copy!
+        return new Transform<>(this.originalTransform.getExtent(), this.originalTransform.getPosition(), this.originalTransform.getRotation());
+    }
+
+    @Override public void setTransformTo(Transform<World> transform) {
+        // Copy!
+        this.transform = new Transform<>(transform.getExtent(), transform.getPosition(), transform.getRotation());
+        isRedirected = true;
+    }
+
+    public boolean isRedirected() { return this.isRedirected; }
 
     @Override public void setCancelReason(String reason) {
         this.cancelReason = reason;

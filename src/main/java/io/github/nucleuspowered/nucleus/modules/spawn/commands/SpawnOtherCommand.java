@@ -19,7 +19,6 @@ import io.github.nucleuspowered.nucleus.modules.core.datamodules.CoreUserDataMod
 import io.github.nucleuspowered.nucleus.modules.spawn.config.GlobalSpawnConfig;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfig;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.spawn.events.RedirectableSpawnEvent;
 import io.github.nucleuspowered.nucleus.modules.spawn.events.SendToSpawnEvent;
 import io.github.nucleuspowered.nucleus.modules.spawn.helpers.SpawnHelper;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
@@ -80,19 +79,8 @@ public class SpawnOtherCommand extends AbstractCommand<CommandSource> implements
 
         Transform<World> worldTransform = SpawnHelper.getSpawn(world, target.getPlayer().orElse(null));
 
-        // Allow this spawn to be redirected before firing the SendToSpawnEvent
-        EventContext context = EventContext.builder().add(EventContexts.SPAWN_EVENT_TYPE, RedirectableSpawnEvent.Type.COMMAND).build();
-        RedirectableSpawnEvent rEvent = new RedirectableSpawnEvent(worldTransform, target, CauseStackHelper.createCause(context, src));
-        if (Sponge.getEventManager().post(rEvent)) {
-            if (rEvent.getCancelReason().isPresent()) {
-                throw new ReturnMessageException(Nucleus
-                        .getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.other.failed.reason", target.getName(), rEvent.getCancelReason().get()));
-            }
-
-            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.other.failed.noreason", target.getName()));
-        }
-
-        SendToSpawnEvent event = new SendToSpawnEvent(worldTransform, target, CauseStackHelper.createCause(src));
+        EventContext context = EventContext.builder().add(EventContexts.SPAWN_EVENT_TYPE, SendToSpawnEvent.Type.COMMAND).build();
+        SendToSpawnEvent event = new SendToSpawnEvent(worldTransform, target, CauseStackHelper.createCause(context, src));
         if (Sponge.getEventManager().post(event)) {
             if (event.getCancelReason().isPresent()) {
                 throw new ReturnMessageException(Nucleus
@@ -103,12 +91,12 @@ public class SpawnOtherCommand extends AbstractCommand<CommandSource> implements
         }
 
         if (!target.isOnline()) {
-            return isOffline(src, target, rEvent.getTransformTo());
+            return isOffline(src, target, event.getTransformTo());
         }
 
         // If we don't have a rotation, then use the current rotation
         Player player = target.getPlayer().get();
-        NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, rEvent.getTransformTo(), this
+        NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, event.getTransformTo(), this
                 .safeTeleport, true);
         if (result.isSuccess()) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.success.source", target.getName(), world.getWorldName()));
