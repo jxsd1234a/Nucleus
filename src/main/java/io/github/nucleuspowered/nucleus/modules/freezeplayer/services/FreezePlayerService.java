@@ -30,17 +30,21 @@ public class FreezePlayerService implements ServiceBase, NucleusFreezePlayerServ
     @Override
     public boolean isFrozen(UUID uuid) {
         return this.cache.computeIfAbsent(uuid, key ->
-                Nucleus.getNucleus().getUserDataManager().getUnchecked(uuid)
-                    .get(FreezePlayerUserDataModule.class)
-                    .isFrozen());
+                Nucleus.getNucleus().getUserDataManager().get(uuid)
+                        .map(x ->
+                            x.get(FreezePlayerUserDataModule.class)
+                            .isFrozen())
+                        .orElse(false));
     }
 
     @Override
     public void setFrozen(UUID uuid, boolean freeze) {
-        FreezePlayerUserDataModule nu = Nucleus.getNucleus().getUserDataManager().getUnchecked(uuid)
-                .get(FreezePlayerUserDataModule.class);
-        nu.setFrozen(freeze);
-        this.cache.put(uuid, freeze);
+        Nucleus.getNucleus().getUserDataManager()
+                .get(uuid)
+                .ifPresent(x -> {
+                    x.get(FreezePlayerUserDataModule.class).setFrozen(freeze);
+                    this.cache.put(uuid, freeze);
+                });
     }
 
 }
