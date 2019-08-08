@@ -24,6 +24,7 @@ import io.github.nucleuspowered.nucleus.modules.jail.datamodules.JailUserDataMod
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.teleport.commands.TeleportAcceptCommand;
 import io.github.nucleuspowered.nucleus.modules.teleport.commands.TeleportDenyCommand;
+import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfig;
 import io.github.nucleuspowered.nucleus.modules.teleport.config.TeleportConfigAdapter;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
@@ -50,6 +51,8 @@ import javax.annotation.Nullable;
 
 public class TeleportHandler implements MessageProviderTrait, InternalServiceManagerTrait, PermissionTrait, ServiceBase, Reloadable {
 
+    private boolean useCommandsOnClickAcceptDeny = false;
+    private boolean showAcceptDeny = true;
     private boolean refundOnDeny;
     private static boolean isOnlySameDimension;
     private final Map<UUID, TeleportPrep> ask = new HashMap<>();
@@ -167,36 +170,48 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
         return true;
     }
 
-    public Text getAcceptDenyMessage(Player forPlayer, TeleportPrep target) {
-        return Text.builder()
-                .append(
-                        Text.builder().append(
-                                getMessageFor(forPlayer.getLocale(), "standard.accept"))
-                                .style(TextStyles.UNDERLINE)
-                                .onHover(TextActions.showText(
-                                        getMessageFor(forPlayer.getLocale(), "teleport.accept.hover")))
-                                .onClick(TextActions.executeCallback(src -> {
-                                    if (target.isExpired() || !hasPermission(src, this.acceptPerm) || !(src instanceof Player)) {
-                                        sendMessageTo(src, "command.tpaccept.nothing");
-                                        return;
-                                    }
-                                    accept((Player) src, target);
-                                })).build()
-                )
-                .append(Text.of(" - "))
-                .append(
-                        Text.builder().append(
-                                getMessageFor(forPlayer.getLocale(), "standard.deny"))
-                                .style(TextStyles.UNDERLINE)
-                                .onHover(TextActions.showText(getMessageFor(forPlayer.getLocale(), "teleport.deny.hover")))
-                                .onClick(TextActions.executeCallback(src -> {
-                                    if (target.isExpired() || !hasPermission(src, this.denyPerm) || !(src instanceof Player)) {
-                                        sendMessageTo(src, "command.tpdeny.fail");
-                                        return;
-                                    }
-                                    deny((Player) src, target);
-                                })).build()
-                ).build();
+    public Optional<Text> getAcceptDenyMessage(Player forPlayer, TeleportPrep target) {
+        if (this.showAcceptDeny) {
+            return Optional.of(Text.builder()
+                    .append(
+                            Text.builder().append(
+                                    getMessageFor(forPlayer.getLocale(), "standard.accept"))
+                                    .style(TextStyles.UNDERLINE)
+                                    .onHover(TextActions.showText(
+                                            getMessageFor(forPlayer.getLocale(), "teleport.accept.hover")))
+                                    .onClick(TextActions.executeCallback(src -> {
+                                        if (target.isExpired() || !hasPermission(src, this.acceptPerm) || !(src instanceof Player)) {
+                                            sendMessageTo(src, "command.tpaccept.nothing");
+                                            return;
+                                        }
+                                        if (this.useCommandsOnClickAcceptDeny) {
+                                            Sponge.getCommandManager().process(src, "nucleus:tpaccept");
+                                        } else {
+                                            accept((Player) src, target);
+                                        }
+                                    })).build()
+                    )
+                    .append(Text.of(" - "))
+                    .append(
+                            Text.builder().append(
+                                    getMessageFor(forPlayer.getLocale(), "standard.deny"))
+                                    .style(TextStyles.UNDERLINE)
+                                    .onHover(TextActions.showText(getMessageFor(forPlayer.getLocale(), "teleport.deny.hover")))
+                                    .onClick(TextActions.executeCallback(src -> {
+                                        if (target.isExpired() || !hasPermission(src, this.denyPerm) || !(src instanceof Player)) {
+                                            sendMessageTo(src, "command.tpdeny.fail");
+                                            return;
+                                        }
+                                        if (this.useCommandsOnClickAcceptDeny) {
+                                            Sponge.getCommandManager().process(src, "nucleus:tpdeny");
+                                        } else {
+                                            deny((Player) src, target);
+                                        }
+                                    })).build()
+                    ).build());
+        }
+
+        return Optional.empty();
     }
 
     private void cancel(@Nullable TeleportPrep prep, boolean refund) {
@@ -218,8 +233,11 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
 
     @Override
     public void onReload() {
-        this.refundOnDeny = getServiceUnchecked(TeleportConfigAdapter.class).getNodeOrDefault().isRefundOnDeny();
-        isOnlySameDimension = getServiceUnchecked(TeleportConfigAdapter.class).getNodeOrDefault().isOnlySameDimension();
+        TeleportConfig config = getServiceUnchecked(TeleportConfigAdapter.class).getNodeOrDefault();
+        this.useCommandsOnClickAcceptDeny = config.isUseCommandsOnClickAcceptOrDeny();
+        this.showAcceptDeny = config.isShowClickableAcceptDeny();
+        this.refundOnDeny = config.isRefundOnDeny();
+        isOnlySameDimension = config.isOnlySameDimension();
     }
 
     private static class TeleportTask implements CancellableTask {
