@@ -28,7 +28,15 @@ public class VanishPlayerOnlineService implements PlayerOnlineService, ServiceBa
 
     @Override
     public boolean isOnline(CommandSource src, User player) {
-        return player.isOnline() && (this.allCanSee || hasPermission(src, VanishModule.CAN_SEE_PERMISSION));
+        if (player.isOnline()) {
+            if (getServiceUnchecked(VanishService.class).isVanished(player)) {
+                return this.allCanSee || hasPermission(src, VanishModule.CAN_SEE_PERMISSION);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
