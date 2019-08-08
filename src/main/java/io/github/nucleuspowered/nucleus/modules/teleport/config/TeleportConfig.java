@@ -31,6 +31,9 @@ public class TeleportConfig {
     @Setting(value = "use-commands-when-clicking-tpa-accept-deny", comment = "config.teleport.useCommandOnClick")
     private boolean useCommandOnClickAcceptOrDeny = false;
 
+    @Setting(value = "use-request-location-on-tp-requests", comment = "config.teleport.useRequestLocation")
+    private boolean useRequestLocation = false;
+
     public boolean isDefaultQuiet() {
         return this.defaultQuiet;
     }
@@ -56,6 +59,10 @@ public class TeleportConfig {
     }
 
     public boolean isShowClickableAcceptDeny() {
-        return showClickableAcceptDeny;
+        return this.showClickableAcceptDeny;
+    }
+
+    public boolean isUseRequestLocation() {
+        return this.useRequestLocation;
     }
 }

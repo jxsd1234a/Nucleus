@@ -30,6 +30,7 @@ import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.scheduler.Task;
@@ -37,6 +38,7 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.world.World;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -54,6 +56,8 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
     private boolean useCommandsOnClickAcceptDeny = false;
     private boolean showAcceptDeny = true;
     private boolean refundOnDeny;
+    private boolean useSafeTeleport;
+    private boolean useRequestLocation;
     private static boolean isOnlySameDimension;
     private final Map<UUID, TeleportPrep> ask = new HashMap<>();
     private final String acceptPerm = getPermissionHandlerFor(TeleportAcceptCommand.class).getBase();
@@ -62,7 +66,7 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
     private static final String tptoggleBypassPermission = PermissionRegistry.PERMISSIONS_PREFIX + "teleport.tptoggle.exempt";
 
     public TeleportBuilder getBuilder() {
-        return new TeleportBuilder();
+        return new TeleportBuilder().setSafe(this.useSafeTeleport).setUseRequestLocation(this.useRequestLocation);
     }
 
     private static boolean canBypassTpToggle(Subject from) {
@@ -237,6 +241,8 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
         this.useCommandsOnClickAcceptDeny = config.isUseCommandsOnClickAcceptOrDeny();
         this.showAcceptDeny = config.isShowClickableAcceptDeny();
         this.refundOnDeny = config.isRefundOnDeny();
+        this.useSafeTeleport = config.isUseSafeTeleport();
+        this.useRequestLocation = config.isUseRequestLocation();
         isOnlySameDimension = config.isOnlySameDimension();
     }
 
@@ -251,13 +257,23 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
         private final boolean silentSource;
         private final boolean silentTarget;
         @Nullable private final Consumer<Player> successCallback;
+        private final Transform<World> locationOverride;
 
-        private TeleportTask(CommandSource source, Player playerToTeleport, Player playerToTeleportTo, User charged, double cost, boolean safe,
-                boolean silentSource, boolean silentTarget, @Nullable Consumer<Player> successCallback) {
+        private TeleportTask(CommandSource source,
+                Player playerToTeleport,
+                Player playerToTeleportTo,
+                @Nullable Transform<World> locationOverride,
+                User charged,
+                double cost,
+                boolean safe,
+                boolean silentSource,
+                boolean silentTarget,
+                @Nullable Consumer<Player> successCallback) {
             this.source = source;
             this.playerToTeleport = playerToTeleport;
             this.playerToTeleportTo = playerToTeleportTo;
             this.cost = cost;
+            this.locationOverride = locationOverride;
             this.charged = charged;
             this.safe = safe;
             this.silentSource = silentSource;
@@ -277,9 +293,9 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
                     mode = NucleusTeleportHandler.StandardTeleportMode.NO_CHECK;
                 }
 
+                Transform<World> transform = this.locationOverride == null ? this.playerToTeleportTo.getTransform() : this.locationOverride;
                 NucleusTeleportHandler.TeleportResult result =
-                        tpHandler.teleportPlayer(this.playerToTeleport, this.playerToTeleportTo.getTransform(), mode,
-                                CauseStackHelper.createCause(this.source));
+                        tpHandler.teleportPlayer(this.playerToTeleport, transform, mode, CauseStackHelper.createCause(this.source));
                 if (!result.isSuccess()) {
                     if (!this.silentSource) {
                         this.source.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat(result ==
@@ -334,6 +350,7 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
         private UUID source;
         private UUID from;
         private UUID to;
+        private Transform<World> toLocation;
         private UUID charge;
         private double cost;
         private int warmupTime = 0;
@@ -342,9 +359,20 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
         private boolean silentSource = false;
         private boolean silentTarget = false;
         @Nullable private Consumer<Player> successCallback;
+        private boolean locationOverride;
 
-        private TeleportBuilder() {
-            this.safe = getService(TeleportConfigAdapter.class).map(x -> x.getNodeOrDefault().isUseSafeTeleport()).orElse(true);
+        private TeleportBuilder() { }
+
+        /**
+         * Sets whether to take the player location at the time of the request,
+         * rather than the time of teleporting.
+         *
+         * @param override true for position at time of request, false for time of teleport
+         * @return this, for chaining
+         */
+        public TeleportBuilder setUseRequestLocation(boolean override) {
+            this.locationOverride = override;
+            return this;
         }
 
         public TeleportBuilder setSafe(boolean safe) {
@@ -367,6 +395,9 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
         }
 
         public TeleportBuilder setTo(Player to) {
+            if (this.locationOverride) {
+                this.toLocation = to.getTransform();
+            }
             this.to = to.getUniqueId();
             return this;
         }
@@ -460,6 +491,7 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
                 tt = new TeleportTask(source,
                         fromPlayer.getPlayer().get(),
                         toPlayer.getPlayer().get(),
+                        this.toLocation,
                         Util.getUserFromUUID(this.charge).get(),
                         this.cost,
                         this.safe,
@@ -471,6 +503,7 @@ public class TeleportHandler implements MessageProviderTrait, InternalServiceMan
                 tt = new TeleportTask(source,
                         fromPlayer.getPlayer().get(),
                         toPlayer.getPlayer().get(),
+                        this.toLocation,
                         null,
                         0,
                         this.safe,
