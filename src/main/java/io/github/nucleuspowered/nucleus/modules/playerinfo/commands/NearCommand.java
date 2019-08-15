@@ -103,7 +103,7 @@ public class NearCommand extends AbstractCommand.SimpleTargetOtherUser implement
                         .filter(Player.class::isInstance)
                         .map(Player.class::cast)
                         .filter(e -> e.getUniqueId() != user.getUniqueId() && playerOnlineService.isOnline(src, e))
-                        .map(x -> Tuple.of(x, location.getPosition().distance(x.getPosition())))
+                        .map(x -> Tuple.of(x, position.distance(x.getPosition())))
                         .sorted(Comparator.comparingDouble(Tuple::getSecond))
                         .map(tuple -> createPlayerLine(src, tuple))
                         .collect(Collectors.toList());
