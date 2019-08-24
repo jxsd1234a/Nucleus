@@ -133,32 +133,40 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
         Instant timeOfLastUse = user.getLastRedeemedTime(kit.getName());
         Instant now = Instant.now();
 
-        // If the kit was used before...
-        if ((checkOneTime || checkCooldown) && timeOfLastUse != null) {
-
-            // if it's one time only and the user does not have an exemption...
-            if (checkOneTime && !checkOneTime(kit, player)) {
-                throw new KitRedeemException("Already redeemed", KitRedeemException.Reason.ALREADY_REDEEMED);
-            }
-
-            // If we have a cooldown for the kit, and we don't have permission to
-            // bypass it...
-            if (checkCooldown) {
-                Optional<Duration> duration = checkCooldown(kit, player, timeOfLastUse);
-                if (duration.isPresent()) {
-                    throw new KitRedeemException.Cooldown("Cooldown not expired", duration.get());
-                }
-            }
-        }
-
-        // Get original list
-        Collection<ItemStackSnapshot> original = getItems(kit, this.isProcessTokens, player);
-
-        // Kit pre redeem
         try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
             frame.pushCause(player);
+
+            // If the kit was used before...
+            // Get original list
+            Collection<ItemStackSnapshot> original = getItems(kit, this.isProcessTokens, player);
+            if ((checkOneTime || checkCooldown) && timeOfLastUse != null) {
+
+                // if it's one time only and the user does not have an exemption...
+                if (checkOneTime && !checkOneTime(kit, player)) {
+                    Sponge.getEventManager().post(
+                            new KitEvent.FailedRedeem(frame.getCurrentCause(), timeOfLastUse, kit, player, original, null, KitRedeemException.Reason.ALREADY_REDEEMED));
+                    throw new KitRedeemException("Already redeemed", KitRedeemException.Reason.ALREADY_REDEEMED);
+                }
+
+                // If we have a cooldown for the kit, and we don't have permission to
+                // bypass it...
+                if (checkCooldown) {
+                    Optional<Duration> duration = checkCooldown(kit, player, timeOfLastUse);
+                    if (duration.isPresent()) {
+                        Sponge.getEventManager().post(
+                                new KitEvent.FailedRedeem(frame.getCurrentCause(), timeOfLastUse, kit, player, original, null,
+                                        KitRedeemException.Reason.COOLDOWN_NOT_EXPIRED));
+                        throw new KitRedeemException.Cooldown("Cooldown not expired", duration.get());
+                    }
+                }
+            }
+
             NucleusKitEvent.Redeem.Pre preEvent = new KitEvent.PreRedeem(frame.getCurrentCause(), timeOfLastUse, kit, player, original);
             if (Sponge.getEventManager().post(preEvent)) {
+                Sponge.getEventManager().post(
+                        new KitEvent.FailedRedeem(frame.getCurrentCause(), timeOfLastUse, kit, player, original,
+                                preEvent.getStacksToRedeem().orElseGet(preEvent::getOriginalStacksToRedeem),
+                                KitRedeemException.Reason.PRE_EVENT_CANCELLED));
                 throw new KitRedeemException.PreCancelled(preEvent.getCancelMessage().orElse(null));
             }
 
