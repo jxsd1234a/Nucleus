@@ -31,13 +31,16 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         @Nullable private final Instant lastTime;
         private final Player targetPlayer;
         private final Collection<ItemStackSnapshot> original;
+        private final Collection<String> commands;
 
-        public Redeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer, Collection<ItemStackSnapshot> original) {
+        public Redeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer, Collection<ItemStackSnapshot> original,
+                Collection<String> commands) {
             this.cause = cause;
             this.kit = kit;
             this.targetPlayer = targetPlayer;
             this.lastTime = lastTime;
             this.original = original;
+            this.commands = commands;
         }
 
         @Override public Optional<Instant> getLastRedeemedTime() {
@@ -63,6 +66,10 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         @Override public Cause getCause() {
             return this.cause;
         }
+
+        @Override public Collection<String> getOriginalCommandsToExecute() {
+            return this.commands;
+        }
     }
 
     public static class PreRedeem extends Redeem implements NucleusKitEvent.Redeem.Pre {
@@ -70,9 +77,11 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         @Nullable private Text cancelMessage = null;
         private boolean isCancelled;
         @Nullable private Collection<ItemStackSnapshot> toRedeem = null;
+        @Nullable private Collection<String> commandRedeem = null;
 
-        public PreRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer, Collection<ItemStackSnapshot> original) {
-            super(cause, lastTime, kit, targetPlayer, original);
+        public PreRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer, Collection<ItemStackSnapshot> original,
+                Collection<String> originalCommands) {
+            super(cause, lastTime, kit, targetPlayer, original, originalCommands);
         }
 
         @Override public boolean isCancelled() {
@@ -102,37 +111,62 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
                 this.toRedeem = ImmutableList.copyOf(stacksToRedeem);
             }
         }
+
+        @Override public Optional<Collection<String>> getCommandsToExecute() {
+            return Optional.ofNullable(this.commandRedeem);
+        }
+
+        @Override public void setCommandsToExecute(@Nullable Collection<String> commandsToExecute) {
+            if (commandsToExecute == null) {
+                this.commandRedeem = null;
+            } else {
+                this.commandRedeem = ImmutableList.copyOf(commandsToExecute);
+            }
+        }
     }
 
     public static class PostRedeem extends Redeem implements NucleusKitEvent.Redeem.Post {
 
         @Nullable private final Collection<ItemStackSnapshot> redeemed;
+        @Nullable private final Collection<String> commands;
 
         public PostRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer, Collection<ItemStackSnapshot> original,
-                @Nullable Collection<ItemStackSnapshot> redeemed) {
-            super(cause, lastTime, kit, targetPlayer, original);
+                @Nullable Collection<ItemStackSnapshot> redeemed, Collection<String> originalCommands, @Nullable Collection<String> commands) {
+            super(cause, lastTime, kit, targetPlayer, original, originalCommands);
             this.redeemed = redeemed;
+            this.commands = commands;
         }
 
         @Override public Optional<Collection<ItemStackSnapshot>> getStacksToRedeem() {
             return Optional.ofNullable(this.redeemed);
+        }
+
+        @Override public Optional<Collection<String>> getCommandsToExecute() {
+            return Optional.ofNullable(this.commands);
         }
     }
 
     public static class FailedRedeem extends Redeem implements NucleusKitEvent.Redeem.Failed {
 
         @Nullable private final Collection<ItemStackSnapshot> redeemed;
+        @Nullable private final Collection<String> commands;
         private final KitRedeemException.Reason ex;
 
         public FailedRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer, Collection<ItemStackSnapshot> original,
-                @Nullable Collection<ItemStackSnapshot> redeemed, KitRedeemException.Reason ex) {
-            super(cause, lastTime, kit, targetPlayer, original);
+                @Nullable Collection<ItemStackSnapshot> redeemed, Collection<String> originalCommands, @Nullable Collection<String> commands,
+                KitRedeemException.Reason ex) {
+            super(cause, lastTime, kit, targetPlayer, original, originalCommands);
             this.redeemed = redeemed;
+            this.commands = commands;
             this.ex = ex;
         }
 
         @Override public Optional<Collection<ItemStackSnapshot>> getStacksToRedeem() {
             return Optional.ofNullable(this.redeemed);
+        }
+
+        @Override public Optional<Collection<String>> getCommandsToExecute() {
+            return Optional.ofNullable(this.commands);
         }
 
         @Override public KitRedeemException.Reason getReason() {

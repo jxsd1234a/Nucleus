@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.api.events;
 
 import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
@@ -88,6 +89,39 @@ public interface NucleusKitEvent extends Event {
         Optional<Collection<ItemStackSnapshot>> getStacksToRedeem();
 
         /**
+         * Gets the commands that the kit will run.
+         *
+         * <p>Note that other plugins <em>might</em> alter what is finally
+         * redeemed by the kit, see {@link #getCommandsToExecute()}</p>
+         *
+         * <p>If {@link #getCommandsToExecute()} ()} is <code>null</code>, this
+         * is what will be executed. Note that these are run by the {@link ConsoleSource}.</p>
+         *
+         * <p>The token that represents the player in commands is <code>{{player}}</code></p>
+         *
+         * @return The commands to run.
+         */
+        Collection<String> getOriginalCommandsToExecute();
+
+
+        /**
+         * Gets the commands that the kit will run, if a plugin has set them.
+         *
+         * <p>This might not represent what the kit might actually contain. See
+         * {@link #getOriginalCommandsToExecute()} for that.</p>
+         *
+         * <p>If this is {@link Optional#empty()}, then {@link #getOriginalCommandsToExecute()}
+         * will be used.</p>
+         *
+         * <p>The token that represents the player in commands is <code>{{player}}</code></p>
+         *
+         * <p>Note that these are run by the {@link ConsoleSource}.</p>
+         *
+         * @return The commands to run.
+         */
+        Optional<Collection<String>> getCommandsToExecute();
+
+        /**
          * Fired when a player is redeeming a kit.
          */
         interface Pre extends Redeem, CancelMessage {
@@ -99,6 +133,16 @@ public interface NucleusKitEvent extends Event {
              *                       redeemed. Set to null to return to original behaviour
              */
             void setStacksToRedeem(@Nullable Collection<ItemStackSnapshot> stacksToRedeem);
+
+            /**
+             * Override the commands run by this kit for this redemption only. Note that these
+             * are run by the {@link ConsoleSource}.
+             *
+             * @param commandsToExecute the commands that should be redeemed, using
+             *                          <code>{{player}}</code> as the player key.
+             *                          Set to null to return to original behaviour.
+             */
+            void setCommandsToExecute(@Nullable Collection<String> commandsToExecute);
         }
 
         /**
