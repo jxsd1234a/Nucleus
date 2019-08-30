@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.environment.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.WorldTimeArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -21,21 +20,18 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.storage.WorldProperties;
 
-import java.util.function.LongFunction;
-
 @Permissions(prefix = "time")
-@RegisterCommand(value = "set", subcommandOf = TimeCommand.class, rootAliasRegister = { "settime", "timeset" })
-@EssentialsEquivalent(value = {"time", "day", "night"}, isExact = false, notes = "A time MUST be specified.")
+@RegisterCommand(value = "remove", subcommandOf = TimeCommand.class, rootAliasRegister = { "removetime", "timeremove"})
 @NonnullByDefault
-public class SetTimeCommand extends AbstractCommand<CommandSource> {
+public class RemoveTimeCommand extends AbstractCommand<CommandSource> {
     private final String time = "time";
     private final String world = "world";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.world(Text.of(this.world)))),
-            GenericArguments.onlyOne(new WorldTimeArgument(Text.of(this.time)))
+                GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.world(Text.of(this.world)))),
+                GenericArguments.onlyOne(GenericArguments.longNum(Text.of(this.time)))
         };
     }
 
@@ -43,12 +39,13 @@ public class SetTimeCommand extends AbstractCommand<CommandSource> {
     public CommandResult executeCommand(CommandSource src, CommandContext args, Cause cause) {
         WorldProperties pr = getWorldPropertiesOrDefault(src, this.world, args);
 
-        LongFunction<Long> tick = args.<LongFunction<Long>>getOne(this.time).get();
-        long time = tick.apply(pr.getWorldTime());
+        long tick = args.<Long>getOne(this.time).get();
+        long time = pr.getWorldTime() - tick;
         pr.setWorldTime(time);
-        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.settime.done",
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.removetime.done",
                 pr.getWorldName(),
-                String.valueOf(Util.getTimeFromTicks(time))));
+                tick,
+                Util.getTimeFromTicks(time)));
         return CommandResult.success();
     }
 }
