@@ -26,7 +26,7 @@ public class TeleportConfig {
     private boolean cooldownOnAsk = false;
 
     @Setting(value = "show-clickable-tpa-accept-deny", comment = "config.teleport.clickableAcceptDeny")
-    private boolean showClickableAcceptDeny = false;
+    private boolean showClickableAcceptDeny = true;
 
     @Setting(value = "use-commands-when-clicking-tpa-accept-deny", comment = "config.teleport.useCommandOnClick")
     private boolean useCommandOnClickAcceptOrDeny = false;
