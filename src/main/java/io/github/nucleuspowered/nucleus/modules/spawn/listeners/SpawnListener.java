@@ -138,15 +138,15 @@ public class SpawnListener implements Reloadable, ListenerBase, MessageProviderT
             Transform<World> to = event.getToTransform();
             if (to.getLocation().getBlockPosition().equals(to.getExtent().getSpawnLocation().getBlockPosition())) {
                 Nucleus.getNucleus().getWorldDataManager()
-                        .getWorld(to.getExtent()).ifPresent(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation()
-                        .ifPresent(y -> event.setToTransform(to.setRotation(y))));
+                        .getWorld(to.getExtent()).flatMap(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation())
+                        .ifPresent(y -> event.setToTransform(to.setRotation(y)));
             }
         }
     }
 
     @Listener(order = Order.EARLY)
     public void onRespawn(RespawnPlayerEvent event) {
-        if (event.isBedSpawn() && !this.spawnConfig.isRedirectBedSpawn()) {
+        if (!this.spawnConfig.isHandleOnRespawn() || (event.isBedSpawn() && !this.spawnConfig.isRedirectBedSpawn())) {
             // Nope, we don't care.
             return;
         }
@@ -177,9 +177,18 @@ public class SpawnListener implements Reloadable, ListenerBase, MessageProviderT
             return;
         }
 
-        // Compare current transform to spawn - set rotation.
-        Nucleus.getNucleus().getWorldDataManager().getWorld(world).ifPresent(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation()
-            .ifPresent(y -> event.setToTransform(sEvent.isRedirected() ? sEvent.getTransformTo() : to.setRotation(y))));
+        if (sEvent.isRedirected()) {
+            to = sEvent.getTransformTo();
+        } else {
+            // Compare current transform to spawn - set rotation.
+            Optional<Vector3d> rotation = Nucleus.getNucleus().getWorldDataManager().getWorld(world)
+                    .flatMap(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation());
+            if (rotation.isPresent()) {
+                to = to.setRotation(rotation.get());
+            }
+        }
+
+        event.setToTransform(to);
     }
 
     @Override public void onReload() {
