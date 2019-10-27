@@ -5,17 +5,23 @@
 package io.github.nucleuspowered.nucleus.configurate.typeserialisers;
 
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
-import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 
 public class NucleusTextTemplateTypeSerialiser implements TypeSerializer<NucleusTextTemplateImpl> {
 
+    private final INucleusTextTemplateFactory factory;
+
+    public NucleusTextTemplateTypeSerialiser(INucleusTextTemplateFactory factory) {
+        this.factory = factory;
+    }
+
     @Override public NucleusTextTemplateImpl deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
         try {
-            return NucleusTextTemplateFactory.createFromString(value.getString());
+            return this.factory.createFromString(value.getString());
         } catch (Throwable throwable) {
             if (throwable instanceof ObjectMappingException) {
                 throw (ObjectMappingException)throwable;

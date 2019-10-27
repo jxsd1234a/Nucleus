@@ -11,8 +11,6 @@ import java.lang.annotation.Target;
 
 /**
  * Indicates to the system that these permissions should be registered.
- *
- * <p>Permissions do not have the `nucleus` prefix.</p>
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)

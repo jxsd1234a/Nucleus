@@ -16,6 +16,10 @@ public class NucleusItemStackSnapshot {
         this.snapshot = snapshot;
     }
 
+    public NucleusItemStackSnapshot() {
+
+    }
+
     public ItemStackSnapshot getSnapshot() {
         return this.snapshot;
     }

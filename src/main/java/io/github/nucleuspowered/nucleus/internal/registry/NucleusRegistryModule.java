@@ -23,8 +23,7 @@ import java.util.Optional;
 
 @Store(Constants.REGISTRY)
 @NonnullByDefault
-public abstract class NucleusRegistryModule<T extends CatalogType>
-        implements AdditionalCatalogRegistryModule<T> {
+public abstract class NucleusRegistryModule<T extends CatalogType> implements AdditionalCatalogRegistryModule<T> {
 
     private boolean registered = false;
     private final Map<String, T> entries = new HashMap<>();
@@ -34,25 +33,24 @@ public abstract class NucleusRegistryModule<T extends CatalogType>
     public abstract void registerModuleDefaults();
 
     public final void registerDefaults() {
-        // no-op, I'll do it myself and not rely on the current impl that's being used.
-        // API 8 will rely on impl.
-    }
-
-    protected boolean allowsAdditional() {
-        return true;
-    }
-
-    public final void init() throws Exception {
         if (!this.registered) {
             registerModuleDefaults();
             this.registered = true;
             if (getClass().isAnnotationPresent(Registry.class)) {
                 for (Class<?> clazz : getClass().getAnnotation(Registry.class).value()) {
-                    CatalogTypeFinalStaticProcessor.setFinalStaticFields(clazz, this.entries);
+                    try {
+                        CatalogTypeFinalStaticProcessor.setFinalStaticFields(clazz, this.entries);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             Sponge.getRegistry().registerModule(catalogClass(), this);
         }
+    }
+
+    protected boolean allowsAdditional() {
+        return true;
     }
 
     @Override
@@ -70,9 +68,9 @@ public abstract class NucleusRegistryModule<T extends CatalogType>
 
         if (!this.registered || allowsAdditional()) {
             this.entries.put(entry.getId().toLowerCase(Locale.ENGLISH), entry);
+        } else {
+            throw new IllegalArgumentException("Cannot register additional types for this catalog");
         }
-
-        throw new IllegalArgumentException("Cannot register additional types for this catalog");
     }
 
     @Override

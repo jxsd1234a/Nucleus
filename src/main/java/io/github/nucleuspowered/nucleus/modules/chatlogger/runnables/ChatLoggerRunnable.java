@@ -4,12 +4,11 @@
  */
 package io.github.nucleuspowered.nucleus.modules.chatlogger.runnables;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.interfaces.TaskBase;
 import io.github.nucleuspowered.nucleus.modules.chatlogger.config.ChatLoggingConfig;
-import io.github.nucleuspowered.nucleus.modules.chatlogger.config.ChatLoggingConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.chatlogger.services.ChatLoggerHandler;
+import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
@@ -18,11 +17,18 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-@NonnullByDefault
-public class ChatLoggerRunnable implements TaskBase, Reloadable {
+import javax.inject.Inject;
 
-    private final ChatLoggerHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatLoggerHandler.class);
+@NonnullByDefault
+public class ChatLoggerRunnable implements TaskBase, IReloadableService.Reloadable {
+
+    private final ChatLoggerHandler handler;
     private ChatLoggingConfig config = new ChatLoggingConfig();
+
+    @Inject
+    public ChatLoggerRunnable(INucleusServiceCollection serviceCollection) {
+        this.handler = serviceCollection.getServiceUnchecked(ChatLoggerHandler.class);
+    }
 
     @Override
     public boolean isAsync() {
@@ -46,7 +52,7 @@ public class ChatLoggerRunnable implements TaskBase, Reloadable {
         }
     }
 
-    @Override public void onReload() {
-        this.config = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatLoggingConfigAdapter.class).getNodeOrDefault();
+    @Override public void onReload(INucleusServiceCollection serviceCollection) {
+        this.config = serviceCollection.moduleDataProvider().getModuleConfig(ChatLoggingConfig.class);
     }
 }

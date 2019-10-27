@@ -4,11 +4,11 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.listeners;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.world.WorldKeys;
 import io.github.nucleuspowered.nucleus.modules.world.services.WorldHelper;
-import io.github.nucleuspowered.nucleus.storage.dataobjects.modular.IWorldDataObject;
+import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IWorldDataObject;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
@@ -21,24 +21,33 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 public class WorldGenListener implements ListenerBase {
+
+    private final INucleusServiceCollection serviceCollection;
+
+    @Inject
+    public WorldGenListener(INucleusServiceCollection serviceCollection) {
+        this.serviceCollection = serviceCollection;
+    }
 
     @Listener
     public void onStart(GameStartedServerEvent event) {
-        Task.builder().execute(() -> Sponge.getServer().getWorlds().forEach(this::onWorldLoad)).delay(1, TimeUnit.SECONDS).submit(Nucleus.getNucleus());
+        Task.builder().execute(() -> Sponge.getServer().getWorlds().forEach(this::onWorldLoad)).delay(1, TimeUnit.SECONDS).submit(this.serviceCollection.pluginContainer());
     }
 
     @Listener
     public void onWorldLoad(LoadWorldEvent event) {
         if (Sponge.getGame().getState() == GameState.SERVER_STARTED) {
-            Task.builder().execute(() -> onWorldLoad(event.getTargetWorld())).delay(1, TimeUnit.SECONDS).submit(Nucleus.getNucleus());
+            Task.builder().execute(() -> onWorldLoad(event.getTargetWorld())).delay(1, TimeUnit.SECONDS).submit(this.serviceCollection.pluginContainer());
         }
     }
 
     private void onWorldLoad(final World world) {
-        WorldHelper worldHelper = getServiceUnchecked(WorldHelper.class);
+        WorldHelper worldHelper = this.serviceCollection.getServiceUnchecked(WorldHelper.class);
         final CompletableFuture<Optional<IWorldDataObject>> cfo =
-                Nucleus.getNucleus().getStorageManager().getWorldService().get(world.getUniqueId());
+                this.serviceCollection.storageManager().getWorldService().get(world.getUniqueId());
 
         // avoiding main thread loading
         Task.builder()
@@ -62,17 +71,18 @@ public class WorldGenListener implements ListenerBase {
                                             worldDataObject.getOrDefault(WorldKeys.WORLD_PREGEN_TICK_FREQUENCY),
                                             true
                                     )) {
-                                        sendMessageTo(Sponge.getServer().getConsole(), "command.world.gen.started", world.getName());
+                                        this.serviceCollection.messageProvider()
+                                                .sendMessageTo(Sponge.getServer().getConsole(), "command.world.gen.started", world.getName());
                                     }
                                 }
                             }
                         }
                     } catch (IllegalStateException e) {
-                        Nucleus.getNucleus().getLogger().error(
+                        this.serviceCollection.logger().error(
                                 "Could not determine World Generation restart status for world {}, WorldProperties could not be loaded from the Sponge "
                                         + "World Manager (Sponge.getServer().getWorldProperties({}) returned empty.)", world.getName(), world.getUniqueId());
                         e.printStackTrace();
                     }
-                }).submit(Nucleus.getNucleus());
+                }).submit(this.serviceCollection.pluginContainer());
     }
 }

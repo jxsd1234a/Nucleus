@@ -7,18 +7,15 @@ package io.github.nucleuspowered.nucleus.modules.kit.misc;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.configurate.datatypes.KitDataNode;
-import io.github.nucleuspowered.nucleus.configurate.wrappers.NucleusItemStackSnapshot;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.source.ConsoleSource;
-import org.spongepowered.api.data.value.ValueContainer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +26,7 @@ public class SingleKit implements Kit {
 
     private final String name;
     private final List<ItemStackSnapshot> stacks = Lists.newArrayList();
-    private final List<String> commands = Lists.newArrayList();
+    private final List<String> commands = new ArrayList<>();
     @Nullable private Duration interval;
     private double cost = 0;
     private boolean autoRedeem = false;
@@ -43,18 +40,21 @@ public class SingleKit implements Kit {
         this.name = name;
     }
 
-    public SingleKit(String key, KitDataNode value) {
-        this(key);
-        value.stacks.stream().map(NucleusItemStackSnapshot::getSnapshot).map(ValueContainer::copy).forEach(this.stacks::add);
-        this.commands.addAll(value.commands);
-        this.cost = value.cost;
-        this.interval = value.interval > 0 ? Duration.of(value.interval, ChronoUnit.SECONDS) : null;
-        this.autoRedeem = value.autoRedeem;
-        this.oneTime = value.oneTime;
-        this.ignoresPermission = value.ignoresPermission;
-        this.hidden = value.hidden;
-        this.displayOnRedeem = value.displayMessage;
-        this.firstJoin = value.firstJoin;
+    public SingleKit(String name,
+            List<ItemStackSnapshot> itemStackSnapshots,
+            @Nullable Duration interval, double cost, boolean autoRedeem, boolean oneTime, boolean displayOnRedeem,
+            boolean ignoresPermission, boolean hidden, List<String> commands, boolean firstJoin) {
+        this(name);
+        this.stacks.addAll(itemStackSnapshots);
+        this.interval = interval;
+        this.cost = cost;
+        this.autoRedeem = autoRedeem;
+        this.oneTime = oneTime;
+        this.displayOnRedeem = displayOnRedeem;
+        this.ignoresPermission = ignoresPermission;
+        this.hidden = hidden;
+        this.firstJoin = firstJoin;
+        this.commands.addAll(commands);
     }
 
     public String getName() {

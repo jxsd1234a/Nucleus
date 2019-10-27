@@ -4,12 +4,11 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core.runnables;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
+import com.google.inject.Inject;
 import io.github.nucleuspowered.nucleus.internal.interfaces.TaskBase;
-import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
-import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
+import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -20,9 +19,16 @@ import java.time.temporal.ChronoUnit;
  * Core tasks. No module, must always run.
  */
 @NonnullByDefault
-public class CoreTask implements TaskBase, Reloadable {
+public class CoreTask implements TaskBase, IReloadableService.Reloadable {
 
     private boolean printSave = false;
+    private final INucleusServiceCollection serviceCollection;
+
+    @Inject
+    public CoreTask(INucleusServiceCollection serviceCollection) {
+        this.serviceCollection = serviceCollection;
+    }
+
 
     @Override
     public boolean isAsync() {
@@ -36,23 +42,22 @@ public class CoreTask implements TaskBase, Reloadable {
 
     @Override
     public void accept(Task task) {
-        Nucleus plugin = Nucleus.getNucleus();
-        plugin.getStorageManager().getUserService().clearCache();
+        this.serviceCollection.storageManager().getUserService().clearCache();
 
-        if (this.printSave || Nucleus.getNucleus().isDebugMode()) {
-            plugin.getLogger().info(plugin.getMessageProvider().getMessageWithFormat("core.savetask.starting"));
+        if (this.printSave) {
+            this.serviceCollection.logger().info(this.serviceCollection.messageProvider().getMessageString("core.savetask.starting"));
         }
 
-        plugin.saveData();
+        this.serviceCollection.storageManager().saveAll();
 
-        if (this.printSave || Nucleus.getNucleus().isDebugMode()) {
-            plugin.getLogger().info(plugin.getMessageProvider().getMessageWithFormat("core.savetask.complete"));
+        if (this.printSave) {
+            this.serviceCollection.logger().info(this.serviceCollection.messageProvider().getMessageString("core.savetask.complete"));
         }
     }
 
     @Override
-    public void onReload() {
-        this.printSave = Nucleus.getNucleus().getConfigValue(CoreModule.ID, CoreConfigAdapter.class, CoreConfig::isPrintOnAutosave)
-                .orElse(false);
+    public void onReload(INucleusServiceCollection serviceCollection) {
+        this.printSave = serviceCollection.moduleDataProvider().getModuleConfig(CoreConfig.class).isPrintOnAutosave();
     }
+
 }

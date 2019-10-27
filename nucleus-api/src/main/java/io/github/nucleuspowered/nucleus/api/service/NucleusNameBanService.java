@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.api.service;
 
-import io.github.nucleuspowered.nucleus.api.exceptions.NucleusException;
+import io.github.nucleuspowered.nucleus.api.exceptions.NameBanException;
 import org.spongepowered.api.event.cause.Cause;
 
 import java.util.Optional;
@@ -14,9 +14,9 @@ import java.util.Optional;
  */
 public interface NucleusNameBanService {
 
-    boolean addName(String name, String reason, Cause cause) throws NucleusException;
+    void addName(String name, String reason, Cause cause) throws NameBanException;
 
     Optional<String> getReasonForBan(String name);
 
-    boolean removeName(String name, Cause cause) throws NucleusException;
+    void removeName(String name, Cause cause) throws NameBanException;
 }

@@ -5,10 +5,7 @@
 package io.github.nucleuspowered.nucleus.tests.util;
 
 import com.google.inject.AbstractModule;
-import io.github.nucleuspowered.nucleus.NucleusPlugin;
-import io.github.nucleuspowered.nucleus.config.CommandsConfig;
-import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
-import io.github.nucleuspowered.nucleus.internal.messages.ResourceMessageProvider;
+import io.github.nucleuspowered.nucleus.NucleusBootstrap;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import org.mockito.Mockito;
@@ -47,30 +44,14 @@ public class TestModule extends AbstractModule {
         this.bind(CoreConfigAdapter.class).toInstance(mock);
 
         try {
-            NucleusPlugin plugin = getMockPlugin();
-            this.bind(NucleusPlugin.class).toInstance(plugin);
+            NucleusBootstrap plugin = getMockPlugin();
+            this.bind(NucleusBootstrap.class).toInstance(plugin);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private NucleusPlugin getMockPlugin() {
-        NucleusPlugin plugin = Mockito.mock(NucleusPlugin.class);
-        PermissionRegistry pr = new PermissionRegistry();
-        Mockito.when(plugin.getMessageProvider()).thenReturn(new ResourceMessageProvider(ResourceMessageProvider.messagesBundle));
-        Mockito.when(plugin.getPermissionRegistry()).thenReturn(pr);
-/*
-        Field f = Nucleus.class.getDeclaredField("nucleus");
-        f.setAccessible(true);
-        f.set(null, plugin);
-*/
-        try {
-            Path file = Files.createTempFile("quickstartcmdtest", "conf");
-            CommandsConfig cc = new CommandsConfig(file);
-            Mockito.when(plugin.getCommandsConfig()).thenReturn(cc);
-            return plugin;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private NucleusBootstrap getMockPlugin() {
+        return Mockito.mock(NucleusBootstrap.class);
     }
 }

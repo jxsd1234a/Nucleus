@@ -47,4 +47,5 @@ public class RTPRegistryModule extends NucleusRegistryModule<RTPKernel> {
         this.registerAdditionalCatalog(new AroundPlayerKernel());
         this.registerAdditionalCatalog(new SurfaceKernel());
     }
+
 }

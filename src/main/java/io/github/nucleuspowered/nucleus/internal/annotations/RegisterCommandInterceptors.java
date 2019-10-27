@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.internal.annotations;
 
-import io.github.nucleuspowered.nucleus.internal.command.ICommandInterceptor;
+import io.github.nucleuspowered.nucleus.command.ICommandInterceptor;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

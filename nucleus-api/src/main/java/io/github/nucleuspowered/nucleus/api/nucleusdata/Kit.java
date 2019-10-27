@@ -48,7 +48,6 @@ public interface Kit {
      */
     Kit setStacks(List<ItemStackSnapshot> stacks);
 
-
     /**
      * Gets the cooldown time for the kit, or {@link Duration#ZERO}
      * if there is no cooldown.

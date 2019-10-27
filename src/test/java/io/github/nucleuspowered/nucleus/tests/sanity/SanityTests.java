@@ -6,10 +6,10 @@ package io.github.nucleuspowered.nucleus.tests.sanity;
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
-import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
-import io.github.nucleuspowered.nucleus.internal.qsml.module.StandardModule;
+import io.github.nucleuspowered.nucleus.quickstart.NucleusConfigAdapter;
+import io.github.nucleuspowered.nucleus.quickstart.module.StandardModule;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongepowered.api.util.Tuple;
@@ -19,7 +19,6 @@ import uk.co.drnaylor.quickstart.config.AbstractConfigAdapter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +51,7 @@ public class SanityTests {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testThatAnyServicesHaveANoArgsCtor() throws IOException {
+    public void testThatAnyServicesHaveANoArgsOrInjectableCtor() throws IOException {
         Set<ClassPath.ClassInfo> ci = ClassPath.from(this.getClass().getClassLoader())
                 .getTopLevelClassesRecursive("io.github.nucleuspowered.nucleus.modules");
         List<Class<?>> fails = Lists.newArrayList();
@@ -60,6 +59,14 @@ public class SanityTests {
                 .filter(ServiceBase.class::isAssignableFrom)
                 .map(x -> (Class<? extends ServiceBase>)x)
                 .forEach(x -> {
+                    Constructor<?>[] constructors = x.getDeclaredConstructors();
+                    for (Constructor<?> constructor : constructors) {
+                        if (constructor.getAnnotation(Inject.class) != null || constructor.getAnnotation(com.google.inject.Inject.class) != null) {
+                            return;
+                        }
+                    }
+
+                    // if not, then if we have a no-args, that's okay too.
                     try {
                         Constructor<?> ctor = x.getConstructor();
                     } catch (NoSuchMethodException e) {
@@ -69,7 +76,7 @@ public class SanityTests {
                 });
 
         if (!fails.isEmpty()) {
-            StringBuilder stringBuilder = new StringBuilder("Some services do not have no-args ctors:")
+            StringBuilder stringBuilder = new StringBuilder("Some services do not have no-args or injectable ctors:")
                     .append(System.lineSeparator());
             for (Class<?> fail : fails) {
                 stringBuilder.append(fail.getName()).append(System.lineSeparator());
@@ -101,16 +108,16 @@ public class SanityTests {
     public void testThatAnyConstructorInCommandsThatIsNotTheDefaultConstructorIsInjected() throws Exception {
         Set<ClassPath.ClassInfo> ci = ClassPath.from(this.getClass().getClassLoader())
                 .getTopLevelClassesRecursive("io.github.nucleuspowered.nucleus.modules");
-        Set<Class<? extends AbstractCommand<?>>> sc = ci.stream().map(ClassPath.ClassInfo::load)
-                .filter(AbstractCommand.class::isAssignableFrom)
+        Set<Class<? extends ICommandExecutor<?>>> sc = ci.stream().map(ClassPath.ClassInfo::load)
+                .filter(ICommandExecutor.class::isAssignableFrom)
                 .filter(x -> !Modifier.isAbstract(x.getModifiers()))
-                .map(x -> (Class<? extends AbstractCommand<?>>)x)
+                .map(x -> (Class<? extends ICommandExecutor<?>>)x)
                 .filter(x -> {
                     boolean isDefault = true;
                     for (Constructor t : x.getDeclaredConstructors()) {
                         if (t.getParameterCount() > 0) {
                             isDefault = false;
-                            if (t.isAnnotationPresent(Inject.class)) {
+                            if (t.isAnnotationPresent(Inject.class) || t.isAnnotationPresent(com.google.inject.Inject.class)) {
                                 return false;
                             }
                         }
@@ -132,16 +139,8 @@ public class SanityTests {
     @Test
     public void testThatNoResourceKeyIsAParentOfAnother() throws Exception {
         // Get the resource
-        testKeysAreNotParents("assets.nucleus.messages");
-    }
+        String bundle = "assets.nucleus.messages";
 
-    @Test
-    public void testThatNoCommandResourceKeyIsAParentOfAnother() throws Exception {
-        // Get the resource
-        testKeysAreNotParents("assets.nucleus.commands");
-    }
-
-    private void testKeysAreNotParents(String bundle) throws Exception {
         // Get the resource
         ResourceBundle rb = ResourceBundle.getBundle(bundle, Locale.getDefault());
         Enumeration<String> keys = rb.getKeys();
@@ -155,7 +154,6 @@ public class SanityTests {
                 .map(x -> Tuple.of(x.toLowerCase(),
                         s.stream().filter(y -> x.toLowerCase().startsWith(y.toLowerCase() + ".") && !x.equalsIgnoreCase(y)).collect(Collectors.toList())))
                 .filter(x -> !x.getSecond().isEmpty())
-                .sorted(Comparator.comparing(Tuple::getFirst))
                 .collect(Collectors.toMap(Tuple::getFirst, Tuple::getSecond));
         if (!filter.isEmpty()) {
             StringBuilder sb = new StringBuilder("Some keys are parents of others!").append(System.lineSeparator());

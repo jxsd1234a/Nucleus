@@ -86,18 +86,6 @@ public interface NucleusKitService {
     void renameKit(String kitName, String newKitName) throws IllegalArgumentException;
 
     /**
-     * Saves a kit with the requested name.
-     *
-     * @param kitName The name of the kit to save.
-     * @param kit The kit to save.
-     * @deprecated kitName is now ignored.
-     */
-    @Deprecated
-    default void saveKit(String kitName, Kit kit) {
-        saveKit(kit);
-    }
-
-    /**
      * Saves a kit.
      *
      * @param kit The kit.

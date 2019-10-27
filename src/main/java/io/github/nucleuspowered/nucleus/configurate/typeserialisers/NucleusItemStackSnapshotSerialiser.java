@@ -6,13 +6,14 @@ package io.github.nucleuspowered.nucleus.configurate.typeserialisers;
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.configurate.wrappers.NucleusItemStackSnapshot;
+import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.util.PrettyPrinter;
 import io.github.nucleuspowered.nucleus.util.TypeHelper;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
@@ -34,7 +35,11 @@ import java.util.stream.Collectors;
 
 public class NucleusItemStackSnapshotSerialiser implements TypeSerializer<NucleusItemStackSnapshot> {
 
-    private final TypeToken<ItemStackSnapshot> iss = TypeToken.of(ItemStackSnapshot.class);
+    private final Logger logger;
+
+    public NucleusItemStackSnapshotSerialiser(INucleusServiceCollection serviceCollection) {
+        this.logger = serviceCollection.logger();
+    }
 
     @Override
     public NucleusItemStackSnapshot deserialize(TypeToken<?> type, ConfigurationNode value) {
@@ -121,7 +126,7 @@ public class NucleusItemStackSnapshotSerialiser implements TypeSerializer<Nucleu
             } catch (IOException e) {
                 printer.add("Unable to write info");
             }
-            printer.log(Nucleus.getNucleus().getLogger(), Level.WARN);
+            printer.log(this.logger, Level.WARN);
             return NucleusItemStackSnapshot.NONE;
         }
 
@@ -162,7 +167,7 @@ public class NucleusItemStackSnapshotSerialiser implements TypeSerializer<Nucleu
             printer.hr();
             printer.add("Stack trace:");
             printer.add(ex);
-            printer.log(Nucleus.getNucleus().getLogger(), Level.WARN);
+            printer.log(this.logger, Level.WARN);
             return;
         }
         Map<DataQuery, Object> dataQueryObjectMap = view.getValues(true);

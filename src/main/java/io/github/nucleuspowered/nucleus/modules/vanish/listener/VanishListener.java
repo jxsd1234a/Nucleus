@@ -4,22 +4,25 @@
  */
 package io.github.nucleuspowered.nucleus.modules.vanish.listener;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
-import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
-import io.github.nucleuspowered.nucleus.internal.userprefs.UserPreferenceService;
 import io.github.nucleuspowered.nucleus.modules.vanish.VanishKeys;
+import io.github.nucleuspowered.nucleus.modules.vanish.VanishPermissions;
 import io.github.nucleuspowered.nucleus.modules.vanish.VanishUserPrefKeys;
-import io.github.nucleuspowered.nucleus.modules.vanish.commands.VanishCommand;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfig;
-import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.vanish.services.VanishService;
+import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
+import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.action.TextActions;
@@ -27,13 +30,27 @@ import org.spongepowered.api.text.action.TextActions;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class VanishListener implements Reloadable, ListenerBase {
+import javax.inject.Inject;
+
+public class VanishListener implements IReloadableService.Reloadable, ListenerBase {
 
     private VanishConfig vanishConfig = new VanishConfig();
-    private VanishService service = getServiceUnchecked(VanishService.class);
+    private final PluginContainer pluginContainer;
+    private final VanishService service;
+    private final IPermissionService permissionService;
+    private final IMessageProviderService messageProviderService;
+    private final IUserPreferenceService userPreferenceService;
+    private final IStorageManager storageManager;
 
-    private final String permission = getPermissionHandlerFor(VanishCommand.class).getPermissionWithSuffix("persist");
-    public static final String LOGIN_VANISH_PERMISSION = "nucleus.vanish.onlogin";
+    @Inject
+    public VanishListener(INucleusServiceCollection serviceCollection) {
+        this.pluginContainer = serviceCollection.pluginContainer();
+        this.service = serviceCollection.getServiceUnchecked(VanishService.class);
+        this.permissionService = serviceCollection.permissionService();
+        this.messageProviderService = serviceCollection.messageProvider();
+        this.userPreferenceService = serviceCollection.userPreferenceService();
+        this.storageManager = serviceCollection.storageManager();
+    }
 
     @Listener
     public void onAuth(ClientConnectionEvent.Auth auth) {
@@ -45,11 +62,11 @@ public class VanishListener implements Reloadable, ListenerBase {
                         Sponge.getServiceManager()
                                 .provideUnchecked(UserStorageService.class)
                                 .get(uuid)
-                                .map(x -> x.get(Keys.LAST_DATE_PLAYED))
-                                .ifPresent(x -> x.ifPresent(y -> this.service.setLastVanishedTime(uuid, y)));
+                                .flatMap(x -> x.get(Keys.LAST_DATE_PLAYED))
+                                .ifPresent(y -> this.service.setLastVanishedTime(uuid, y));
                         future.complete(null);
                     }
-            ).submit(Nucleus.getNucleus());
+            ).submit(this.pluginContainer);
 
             future.join();
         }
@@ -59,12 +76,12 @@ public class VanishListener implements Reloadable, ListenerBase {
     public void onLogin(ClientConnectionEvent.Join event, @Getter("getTargetEntity") Player player) {
         boolean persist = this.service.isVanished(player);
 
-        boolean shouldVanish = (hasPermission(player, LOGIN_VANISH_PERMISSION)
-                && getServiceUnchecked(UserPreferenceService.class).get(player.getUniqueId(), VanishUserPrefKeys.VANISH_ON_LOGIN).orElse(false))
+        boolean shouldVanish = (this.permissionService.hasPermission(player, VanishPermissions.VANISH_ONLOGIN)
+                && this.userPreferenceService.get(player.getUniqueId(), VanishUserPrefKeys.VANISH_ON_LOGIN).orElse(false))
                 || persist;
 
         if (shouldVanish) {
-            if (!hasPermission(player, this.permission)) {
+            if (!this.permissionService.hasPermission(player, VanishPermissions.VANISH_PERSIST)) {
                 // No permission, no vanish.
                 this.service.unvanishPlayer(player);
                 return;
@@ -73,11 +90,11 @@ public class VanishListener implements Reloadable, ListenerBase {
             }
 
             this.service.vanishPlayer(player, true);
-            sendMessageTo(player, "vanish.login");
+            this.messageProviderService.sendMessageTo(player, "vanish.login");
 
             if (!persist) {
                 // on login
-                player.sendMessage(getMessageFor(player, "vanish.onlogin.prefs").toBuilder()
+                player.sendMessage(this.messageProviderService.getMessageFor(player, "vanish.onlogin.prefs").toBuilder()
                         .onClick(TextActions.runCommand("/nuserprefs vanish-on-login false")).build());
             }
         } else if (this.vanishConfig.isForceNucleusVanish()) {
@@ -89,7 +106,7 @@ public class VanishListener implements Reloadable, ListenerBase {
     @Listener
     public void onQuit(ClientConnectionEvent.Disconnect event, @Getter("getTargetEntity") Player player) {
         if (player.get(Keys.VANISH).orElse(false)) {
-            Nucleus.getNucleus().getStorageManager().getUserService().get(player.getUniqueId())
+            this.storageManager.getUserService().get(player.getUniqueId())
                     .thenAccept(x -> x.ifPresent(t -> t.set(VanishKeys.VANISH_STATUS, false)));
             if (this.vanishConfig.isSuppressMessagesOnVanish()) {
                 event.setMessageCancelled(true);
@@ -100,7 +117,7 @@ public class VanishListener implements Reloadable, ListenerBase {
     }
 
     @Override
-    public void onReload() {
-        this.vanishConfig = getServiceUnchecked(VanishConfigAdapter.class).getNodeOrDefault();
+    public void onReload(INucleusServiceCollection serviceCollection) {
+        this.vanishConfig = serviceCollection.moduleDataProvider().getModuleConfig(VanishConfig.class);
     }
 }

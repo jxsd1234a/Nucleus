@@ -15,6 +15,7 @@ import io.github.nucleuspowered.storage.queryobjects.IQueryObject;
 import io.github.nucleuspowered.storage.util.KeyedObject;
 import io.github.nucleuspowered.storage.util.ThrownBiConsumer;
 import io.github.nucleuspowered.storage.util.ThrownFunction;
+import org.spongepowered.api.plugin.PluginContainer;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -39,10 +40,12 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
     private final ThrownFunction<Q, Map<UUID, D>, Exception> getAll;
     private final ThrownFunction<Q, Optional<KeyedObject<UUID, D>>, Exception> getQuery;
     private final ThrownFunction<UUID, Optional<D>, Exception> get;
+    private final PluginContainer pluginContainer;
 
     public <O> AbstractKeyedService(
         Supplier<IDataTranslator<D, O>> dts,
-        Supplier<IStorageRepository.Keyed<UUID, Q, O>> srs
+        Supplier<IStorageRepository.Keyed<UUID, Q, O>> srs,
+        PluginContainer pluginContainer
     ) {
         this(
                 () -> dts.get().createNew(),
@@ -50,25 +53,20 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
                         key,
                         dts.get().toDataAccessObject(udo)
                 ),
-                query -> {
-                    Map<UUID, D> m = srs.get()
-                            .getAll(query)
-                            .entrySet().stream()
-                            .filter(x -> x.getValue() != null)
-                            .collect(
-                                    ImmutableMap.toImmutableMap(
-                                            Map.Entry::getKey,
-                                            x -> dts.get().fromDataAccessObject(x.getValue())
-                                    )
-                            );
-                    return m;
-                },
+                query -> srs.get()
+                        .getAll(query)
+                        .entrySet().stream()
+                        .filter(x -> x.getValue() != null)
+                        .collect(
+                                ImmutableMap.toImmutableMap(
+                                        Map.Entry::getKey,
+                                        x -> dts.get().fromDataAccessObject(x.getValue())
+                                )
+                        ),
                 uuid -> srs.get().get(uuid).map(dts.get()::fromDataAccessObject),
-                query -> {
-                    Optional<KeyedObject<UUID, O>> k = srs.get().get(query);
-                    return k.map(x -> x.mapValue(dts.get()::fromDataAccessObject));
-                },
-                srs::get);
+                query -> srs.get().get(query).map(x -> x.mapValue(dts.get()::fromDataAccessObject)),
+                srs::get,
+                pluginContainer);
     }
 
     private AbstractKeyedService(
@@ -77,8 +75,10 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
             ThrownFunction<Q, Map<UUID, D>, Exception> getAll,
             ThrownFunction<UUID, Optional<D>, Exception> get,
             ThrownFunction<Q, Optional<KeyedObject<UUID, D>>, Exception> getQuery,
-            Supplier<IStorageRepository.Keyed<UUID, Q, ?>> storageRepositorySupplier
+            Supplier<IStorageRepository.Keyed<UUID, Q, ?>> storageRepositorySupplier,
+            PluginContainer pluginContainer
     ) {
+        this.pluginContainer = pluginContainer;
         this.createNew = createNew;
         this.save = save;
         this.getAll = getAll;
@@ -96,7 +96,7 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
         return ServicesUtil.run(() -> {
             this.storageRepositorySupplier.get().clearCache();
             return null;
-        });
+        }, this.pluginContainer);
     }
 
     @Override public CompletableFuture<Optional<D>> get(@Nonnull final UUID key) {
@@ -106,7 +106,7 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
             return CompletableFuture.completedFuture(Optional.of(result));
         }
 
-        return ServicesUtil.run(() -> getFromRepo(key));
+        return ServicesUtil.run(() -> getFromRepo(key), this.pluginContainer);
     }
 
     @Override
@@ -142,7 +142,7 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
                 }
             });
             return r;
-        });
+        }, this.pluginContainer);
     }
 
     @Override public CompletableFuture<Map<UUID, D>> getAll(@Nonnull Q query) {
@@ -156,15 +156,15 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
                 this.dirty.add(k);
             });
             return res;
-        });
+        }, this.pluginContainer);
     }
 
     @Override public CompletableFuture<Boolean> exists(@Nonnull UUID key) {
-        return ServicesUtil.run(() -> this.storageRepositorySupplier.get().exists(key));
+        return ServicesUtil.run(() -> this.storageRepositorySupplier.get().exists(key), this.pluginContainer);
     }
 
     @Override public CompletableFuture<Integer> count(@Nonnull Q query) {
-        return ServicesUtil.run(() -> this.storageRepositorySupplier.get().count(query));
+        return ServicesUtil.run(() -> this.storageRepositorySupplier.get().count(query), this.pluginContainer);
     }
 
     @Override public CompletableFuture<Void> save(@Nonnull final UUID key, @Nonnull final D value) {
@@ -173,7 +173,7 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
             this.cache.put(key, value);
             this.dirty.remove(key);
             return null;
-        });
+        }, this.pluginContainer);
     }
 
     @Override public CompletableFuture<Void> delete(@Nonnull UUID key) {
@@ -181,7 +181,7 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
             this.storageRepositorySupplier.get().delete(key);
             this.cache.invalidate(key);
             return null;
-        });
+        }, this.pluginContainer);
     }
 
     @Override
@@ -196,6 +196,6 @@ public abstract class AbstractKeyedService<Q extends IQueryObject<UUID, Q>, D ex
                 }
             }
             return null;
-        });
+        }, this.pluginContainer);
     }
 }

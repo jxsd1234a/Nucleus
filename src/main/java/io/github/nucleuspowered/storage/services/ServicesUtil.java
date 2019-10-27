@@ -4,20 +4,20 @@
  */
 package io.github.nucleuspowered.storage.services;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.util.ThrownSupplier;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ServicesUtil {
 
-    public static <R> CompletableFuture<R> run(ThrownSupplier<R, Exception> taskConsumer) {
+    public static <R> CompletableFuture<R> run(ThrownSupplier<R, Exception> taskConsumer, PluginContainer pluginContainer) {
         CompletableFuture<R> future = new CompletableFuture<>();
 
         if (Sponge.getServer().isMainThread()) {
-            Task.builder().async().execute(t -> runInternal(future, taskConsumer)).submit(Nucleus.getNucleus());
+            Task.builder().async().execute(t -> runInternal(future, taskConsumer)).submit(pluginContainer);
         } else {
             runInternal(future, taskConsumer);
         }

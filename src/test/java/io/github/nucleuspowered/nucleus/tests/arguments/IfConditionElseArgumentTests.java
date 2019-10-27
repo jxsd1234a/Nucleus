@@ -5,7 +5,8 @@
 package io.github.nucleuspowered.nucleus.tests.arguments;
 
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.argumentparsers.IfConditionElseArgument;
+import io.github.nucleuspowered.nucleus.command.parameter.IfConditionElseArgument;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.tests.TestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.List;
-import java.util.function.BiPredicate;
 
 import javax.annotation.Nullable;
 
@@ -27,20 +27,20 @@ public class IfConditionElseArgumentTests extends TestBase {
 
     @Test
     public void testTrueOutcomeReturnsTrueInArgument() throws Exception {
-        Assert.assertTrue(process((c, s) -> true));
+        Assert.assertTrue(process((p, c, s) -> true));
     }
 
     @Test
     public void testFalseOutcomeReturnsFalseInArgument() throws Exception {
-        Assert.assertFalse(process((c, s) -> false));
+        Assert.assertFalse(process((p, c, s) -> false));
     }
 
-    private boolean process(BiPredicate<CommandSource, CommandContext> cond) throws Exception {
+    private boolean process(IfConditionElseArgument.Condition cond) throws Exception {
         // Get the element
         CommandSource source = Mockito.mock(CommandSource.class);
         CommandArgs args = new CommandArgs("", Lists.newArrayList());
         CommandContext context = new CommandContext();
-        new IfConditionElseArgument(new TrueArgument(), new FalseArgument(), cond).parse(source, args, context);
+        new IfConditionElseArgument(Mockito.mock(IPermissionService.class), new TrueArgument(), new FalseArgument(), cond).parse(source, args, context);
         return context.<Boolean>getOne("key").orElseThrow(NullPointerException::new);
     }
 

@@ -83,6 +83,10 @@ public interface NucleusRTPService {
         return getDefaultKernel().getLocation(currentLocation, world, options);
     }
 
+    RTPKernel getKernel(WorldProperties world);
+
+    RTPKernel getKernel(String world);
+
     /**
      * Registers a kernel for use in Nucleus.
      *

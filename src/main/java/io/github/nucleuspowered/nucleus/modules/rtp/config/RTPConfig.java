@@ -8,9 +8,6 @@ import com.flowpowered.math.GenericMath;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import io.github.nucleuspowered.neutrino.annotations.ProcessSetting;
-import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernel;
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernels;
 import io.github.nucleuspowered.nucleus.configurate.settingprocessor.LowercaseMapKeySettingProcessor;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -49,8 +46,6 @@ public class RTPConfig {
     @Setting(value = "default-method", comment = "config.rtp.defaultmethod")
     private String defaultRTPKernel = "nucleus:default";
 
-    private RTPKernel lazyLoadedKernel;
-
     @Setting(value = "per-world-permissions", comment = "config.rtp.perworldperms")
     private boolean perWorldPermissions = false;
 
@@ -77,7 +72,7 @@ public class RTPConfig {
         return this.noOfAttempts;
     }
 
-    private Optional<PerWorldRTPConfig> get(@Nullable String worldName) {
+    public Optional<PerWorldRTPConfig> get(@Nullable String worldName) {
         if (worldName == null) {
             return Optional.empty();
         }
@@ -126,41 +121,8 @@ public class RTPConfig {
         return this.lazyLoadProhbitedBiomes;
     }
 
-    public RTPKernel getKernel() {
-        if (this.lazyLoadedKernel == null) {
-            // does the kernel exist?
-            String kernelId = this.defaultRTPKernel;
-            kernelId = kernelId.contains(":") ? kernelId : "nucleus:" + kernelId;
-            Optional<RTPKernel> rtpKernel = Sponge.getRegistry().getType(RTPKernel.class, kernelId);
-            if (!rtpKernel.isPresent()) {
-                Nucleus.getNucleus().getLogger().warn("Kernel with ID {} could not be found. Falling back to the default.", this.defaultRTPKernel);
-                this.lazyLoadedKernel = RTPKernels.DEFAULT;
-            } else {
-                this.lazyLoadedKernel = rtpKernel.get();
-            }
-        }
-
-        return this.lazyLoadedKernel;
-    }
-
-    public RTPKernel getKernel(String world) {
-        return get(world).map(x -> {
-            if (x.lazyLoadedKernel == null) {
-                // does the kernel exist?
-                String kernelId = x.defaultRTPKernel;
-                kernelId = kernelId.contains(":") ? kernelId : "nucleus:" + kernelId;
-                Optional<RTPKernel> rtpKernel = Sponge.getRegistry().getType(RTPKernel.class, kernelId);
-                if (!rtpKernel.isPresent()) {
-                    Nucleus.getNucleus().getLogger().warn("Kernel with ID {} for world {} could not be found. Falling back to the default.",
-                            x.defaultRTPKernel, world);
-                    x.lazyLoadedKernel = RTPKernels.DEFAULT;
-                } else {
-                    x.lazyLoadedKernel = rtpKernel.get();
-                }
-            }
-
-            return x.lazyLoadedKernel;
-        }).orElseGet(this::getKernel);
+    public String getDefaultRTPKernel() {
+        return this.defaultRTPKernel;
     }
 
     @ConfigSerializable
@@ -180,6 +142,8 @@ public class RTPConfig {
         @Setting(value = "default-method", comment = "config.rtp.defaultmethod")
         private String defaultRTPKernel = "nucleus:default";
 
-        private RTPKernel lazyLoadedKernel;
+        public String getDefaultRTPKernel() {
+            return this.defaultRTPKernel;
+        }
     }
 }

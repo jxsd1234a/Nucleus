@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.internal;
 
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.NucleusPlugin;
+import io.github.nucleuspowered.nucleus.NucleusBootstrap;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 
@@ -19,7 +19,7 @@ public abstract class PreloadTasks {
     private PreloadTasks() {}
 
     @SuppressWarnings("unchecked")
-    public static List<Consumer<NucleusPlugin>> getPreloadTasks() {
+    public static List<Consumer<NucleusBootstrap>> getPreloadTasks() {
         return Lists.newArrayList(
                 // Move the misc.require-god-permission-on-login to invulnerability.require-invulnerbility-permission-on-login
                 plugin -> {
@@ -50,7 +50,7 @@ public abstract class PreloadTasks {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Consumer<NucleusPlugin>> getPreloadTasks2() {
+    public static List<Consumer<NucleusBootstrap>> getPreloadTasks2() {
         return Lists.newArrayList();
     }
 }

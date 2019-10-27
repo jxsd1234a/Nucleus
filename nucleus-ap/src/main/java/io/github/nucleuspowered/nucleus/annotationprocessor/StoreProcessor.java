@@ -59,7 +59,6 @@ public class StoreProcessor extends AbstractProcessor {
         for (Element element : elements) {
             // Only storing classes.
             if (element.getKind().isClass()) {
-                RegisterPermissions s = element.getAnnotation(RegisterPermissions.class);
                 classes.put(element, "permission");
             }
         }
@@ -152,7 +151,8 @@ public class StoreProcessor extends AbstractProcessor {
     }
 
     private boolean implementsInterface (Element myTypeElement, TypeMirror desiredInterface) {
-        return this.processingEnv.getTypeUtils().isAssignable(myTypeElement.asType(), desiredInterface);
+        return this.processingEnv.getTypeUtils().isAssignable(myTypeElement.asType(),
+                this.processingEnv.getTypeUtils().erasure(desiredInterface));
     }
 
     static class StringTuple {

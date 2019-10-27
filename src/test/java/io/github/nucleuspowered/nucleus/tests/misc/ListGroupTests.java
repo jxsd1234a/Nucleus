@@ -6,11 +6,12 @@ package io.github.nucleuspowered.nucleus.tests.misc;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.commands.ListPlayerCommand;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,8 @@ public class ListGroupTests {
 
         List<Subject> subjects = Lists.newArrayList(subject2, subject1, subject3);
 
-        List<Subject> sorted = subjects.stream().sorted((x, y) -> ListPlayerCommand.groupComparison(f -> 0, x, y)).collect(Collectors.toList());
+        List<Subject> sorted =
+                subjects.stream().sorted((x, y) -> ListPlayerCommand.groupComparison((c, f) -> 0, permissionService(), x, y)).collect(Collectors.toList());
 
         Assert.assertEquals(subject3, sorted.get(0));
         Assert.assertEquals(subject2, sorted.get(1));
@@ -52,7 +55,8 @@ public class ListGroupTests {
 
         List<Subject> subjects = Lists.newArrayList(subject1, subject2, subject2a, subject3, subject4, subject5);
 
-        List<Subject> sorted = subjects.stream().sorted((x, y) -> ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, x, y))
+        List<Subject> sorted = subjects.stream().sorted((x, y) ->
+                ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, permissionService(), x, y))
             .collect(Collectors.toList());
 
         Assert.assertEquals(subject5, sorted.get(0));
@@ -74,7 +78,9 @@ public class ListGroupTests {
 
         List<Subject> subjects = Lists.newArrayList(subject1, subject2, subject2a, subject3, subject4, subject5);
 
-        List<Subject> sorted = printWeights(subjects.stream().sorted((x, y) -> ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, x, y))
+        List<Subject> sorted =
+                printWeights(subjects.stream().sorted((x, y) -> ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction,
+                        permissionService(), x, y))
             .collect(Collectors.toList()));
 
         List<Subject> expectedOrder = Lists.newArrayList(subject3, subject2, subject5, subject4, subject1, subject2a);
@@ -120,10 +126,12 @@ public class ListGroupTests {
         subjects.add(dep);
         subjects.add(mod);
 
-        List<Subject> sorted = printWeights(subjects.stream().sorted((x, y) -> ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, x, y))
+        List<Subject> sorted = printWeights(subjects.stream().sorted((x, y) ->
+                ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, permissionService(), x, y))
             .collect(Collectors.toList()));
 
-        List<Integer> integers = sorted.stream().map(x -> Util.getIntOptionFromSubject(x, "nucleus.list.weight").orElse(0)).collect(Collectors.toList());
+        List<Integer> integers =
+                sorted.stream().map(x -> permissionService().getIntOptionFromSubject(x, ListPlayerCommand.WEIGHT_OPTION).orElse(0)).collect(Collectors.toList());
         for (int i = 1; i < integers.size(); i++) {
             Assert.assertTrue(integers.get(i-1) >= integers.get(i));
         }
@@ -209,7 +217,7 @@ public class ListGroupTests {
     public void testTwoGroupsWithWeights() {
         Subject admin = createSubjectWithWeight("admin", 1);
         Subject ace = createSubjectWithWeight("ace", 0);
-        Assert.assertEquals(-1, ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, admin, ace));
+        Assert.assertEquals(-1, ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, permissionService(), admin, ace));
     }
 
     @Test
@@ -217,7 +225,7 @@ public class ListGroupTests {
         Subject admin = createSubjectWithWeight("admin", 1);
         Subject ace = createSubjectWithWeight("ace", 0);
         List<Subject> ls = Lists.newArrayList(ace, admin);
-        ls.sort((x, y) -> ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, x, y));
+        ls.sort((x, y) -> ListPlayerCommand.groupComparison(ListPlayerCommand.weightingFunction, permissionService(), x, y));
         Assert.assertEquals(admin, ls.get(0));
         Assert.assertEquals(ace, ls.get(1));
     }
@@ -295,7 +303,8 @@ public class ListGroupTests {
     }
 
     private static List<Subject> printWeights(List<Subject> subjects) {
-        subjects.forEach(x -> System.out.println(x.getIdentifier() + " - " + Util.getIntOptionFromSubject(x, "nucleus.list.weight")));
+        subjects.forEach(x -> System.out.println(x.getIdentifier() + " - " +
+                permissionService().getIntOptionFromSubject(x, ListPlayerCommand.WEIGHT_OPTION)));
         return subjects;
     }
 
@@ -312,10 +321,10 @@ public class ListGroupTests {
         Subject subject = Mockito.mock(Subject.class);
         List<Subject> ls = Arrays.asList(parents);
         Mockito.when(subject.getIdentifier()).thenReturn(name);
-        Mockito.when(subject.getOption(Mockito.anySetOf(Context.class), Mockito.eq("nucleus.list.weight")))
-            .then(x -> ls.stream().map(y -> y.getOption("nucleus.list.weight")).filter(Optional::isPresent).findFirst().orElse(Optional.empty()));
-        Mockito.when(subject.getOption(Mockito.eq("nucleus.list.weight")))
-            .then(x -> ls.stream().map(y -> y.getOption("nucleus.list.weight")).filter(Optional::isPresent).findFirst().orElse(Optional.empty()));
+        Mockito.when(subject.getOption(Mockito.anySetOf(Context.class), Mockito.eq(ListPlayerCommand.WEIGHT_OPTION)))
+            .then(x -> ls.stream().map(y -> y.getOption(ListPlayerCommand.WEIGHT_OPTION)).filter(Optional::isPresent).findFirst().orElse(Optional.empty()));
+        Mockito.when(subject.getOption(Mockito.eq(ListPlayerCommand.WEIGHT_OPTION)))
+            .then(x -> ls.stream().map(y -> y.getOption(ListPlayerCommand.WEIGHT_OPTION)).filter(Optional::isPresent).findFirst().orElse(Optional.empty()));
         List<SubjectReference> lsr = getSubjectReferences(Arrays.asList(parents));
         Mockito.when(subject.getParents()).thenReturn(lsr);
         Mockito.when(subject.getParents(Mockito.anySetOf(Context.class))).thenReturn(lsr);
@@ -325,9 +334,9 @@ public class ListGroupTests {
     private static Subject createSubjectWithWeight(String name, int weight, Subject... parents) {
         Subject subject = Mockito.mock(Subject.class);
         Mockito.when(subject.getIdentifier()).thenReturn(name);
-        Mockito.when(subject.getOption(Mockito.anySetOf(Context.class), Mockito.eq("nucleus.list.weight")))
+        Mockito.when(subject.getOption(Mockito.anySetOf(Context.class), Mockito.eq(ListPlayerCommand.WEIGHT_OPTION)))
             .thenReturn(Optional.of(String.valueOf(weight)));
-        Mockito.when(subject.getOption(Mockito.eq("nucleus.list.weight"))).thenReturn(Optional.of(String.valueOf(weight)));
+        Mockito.when(subject.getOption(Mockito.eq(ListPlayerCommand.WEIGHT_OPTION))).thenReturn(Optional.of(String.valueOf(weight)));
         List<SubjectReference> lsr = getSubjectReferences(Arrays.asList(parents));
         Mockito.when(subject.getParents()).thenReturn(lsr);
         Mockito.when(subject.getParents(Mockito.anySetOf(Context.class))).thenReturn(lsr);
@@ -346,4 +355,16 @@ public class ListGroupTests {
             return srmock;
         }).collect(Collectors.toList());
     }
+
+
+    private static IPermissionService permissionService() {
+        IPermissionService permissionService = Mockito.mock(IPermissionService.class);
+        Mockito.when(permissionService.getIntOptionFromSubject(Mockito.any(Subject.class), Mockito.eq(ListPlayerCommand.WEIGHT_OPTION)))
+                .thenAnswer((Answer<OptionalInt>) invocation -> OptionalInt.of(Integer.parseInt(
+                        invocation.getArgumentAt(0, Subject.class)
+                                .getOption(ListPlayerCommand.WEIGHT_OPTION)
+                                .orElse("0"))));
+        return permissionService;
+    }
+
 }
