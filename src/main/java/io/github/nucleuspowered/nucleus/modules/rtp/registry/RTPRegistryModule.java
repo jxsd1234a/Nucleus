@@ -6,12 +6,12 @@ package io.github.nucleuspowered.nucleus.modules.rtp.registry;
 
 import io.github.nucleuspowered.nucleus.api.rtp.RTPKernel;
 import io.github.nucleuspowered.nucleus.api.rtp.RTPKernels;
-import io.github.nucleuspowered.nucleus.internal.annotations.Registry;
-import io.github.nucleuspowered.nucleus.internal.registry.NucleusRegistryModule;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.AroundPlayerAndSurfaceKernel;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.AroundPlayerKernel;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.DefaultKernel;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.SurfaceKernel;
+import io.github.nucleuspowered.nucleus.scaffold.registry.NucleusRegistryModule;
+import io.github.nucleuspowered.nucleus.scaffold.registry.Registry;
 
 import javax.inject.Singleton;
 

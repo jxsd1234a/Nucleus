@@ -4,9 +4,9 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.runnables;
 
-import io.github.nucleuspowered.nucleus.internal.data.EndTimestamp;
-import io.github.nucleuspowered.nucleus.internal.interfaces.TaskBase;
+import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import io.github.nucleuspowered.nucleus.modules.mute.services.MuteHandler;
+import io.github.nucleuspowered.nucleus.scaffold.task.TaskBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;

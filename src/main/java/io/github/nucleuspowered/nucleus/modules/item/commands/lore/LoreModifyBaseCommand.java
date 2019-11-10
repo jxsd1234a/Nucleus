@@ -4,11 +4,11 @@
  */
 package io.github.nucleuspowered.nucleus.modules.item.commands.lore;
 
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
-import io.github.nucleuspowered.nucleus.command.NucleusParameters;
-import io.github.nucleuspowered.nucleus.command.parameter.PositiveIntegerArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
+import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;

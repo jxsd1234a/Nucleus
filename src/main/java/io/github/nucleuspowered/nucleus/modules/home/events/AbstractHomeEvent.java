@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.home.events;
 
 import io.github.nucleuspowered.nucleus.api.events.NucleusHomeEvent;
-import io.github.nucleuspowered.nucleus.internal.event.AbstractCancelMessageEvent;
+import io.github.nucleuspowered.nucleus.scaffold.event.AbstractCancelMessageEvent;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.Location;

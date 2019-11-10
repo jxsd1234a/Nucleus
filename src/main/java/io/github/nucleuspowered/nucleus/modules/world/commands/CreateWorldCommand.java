@@ -4,14 +4,14 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
-import io.github.nucleuspowered.nucleus.command.parameter.ImprovedCatalogTypeArgument;
-import io.github.nucleuspowered.nucleus.command.parameter.ImprovedGameModeArgument;
 import io.github.nucleuspowered.nucleus.modules.world.WorldPermissions;
 import io.github.nucleuspowered.nucleus.modules.world.config.WorldConfig;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.ImprovedCatalogTypeArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.ImprovedGameModeArgument;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;

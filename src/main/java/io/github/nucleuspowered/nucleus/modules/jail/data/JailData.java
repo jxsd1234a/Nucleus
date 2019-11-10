@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.jail.data;
 
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Inmate;
-import io.github.nucleuspowered.nucleus.internal.data.EndTimestamp;
+import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.Sponge;

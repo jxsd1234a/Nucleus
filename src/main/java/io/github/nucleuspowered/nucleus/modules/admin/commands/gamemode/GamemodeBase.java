@@ -4,10 +4,10 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.commands.gamemode;
 
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.modules.admin.AdminPermissions;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.DataTransactionResult;

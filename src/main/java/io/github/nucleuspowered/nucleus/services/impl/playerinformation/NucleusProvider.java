@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.services.impl.playerinformation;
 
+import io.github.nucleuspowered.nucleus.Constants;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
-import io.github.nucleuspowered.nucleus.internal.Constants;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerInformationService;
 import org.spongepowered.api.command.CommandSource;

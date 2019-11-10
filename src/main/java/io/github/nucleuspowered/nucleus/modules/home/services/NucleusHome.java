@@ -7,7 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.home.services;
 import com.flowpowered.math.vector.Vector3d;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
 import io.github.nucleuspowered.nucleus.configurate.datatypes.LocationNode;
-import io.github.nucleuspowered.nucleus.internal.LocationData;
+import io.github.nucleuspowered.nucleus.datatypes.LocationData;
 
 import java.util.UUID;
 

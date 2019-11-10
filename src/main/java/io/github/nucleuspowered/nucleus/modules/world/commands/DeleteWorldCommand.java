@@ -6,12 +6,12 @@ package io.github.nucleuspowered.nucleus.modules.world.commands;
 
 import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
-import io.github.nucleuspowered.nucleus.command.NucleusParameters;
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.modules.world.WorldPermissions;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
+import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.util.Tuples;
 import org.spongepowered.api.Sponge;

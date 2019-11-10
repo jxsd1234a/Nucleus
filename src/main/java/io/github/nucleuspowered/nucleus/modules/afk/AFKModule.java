@@ -5,10 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.afk;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.nucleuspowered.nucleus.internal.annotations.RegisterCommandInterceptors;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfig;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.afk.interceptors.AFKCommandInterceptor;
 import io.github.nucleuspowered.nucleus.modules.afk.services.AFKHandler;
 import io.github.nucleuspowered.nucleus.quickstart.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -26,7 +24,6 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-@RegisterCommandInterceptors(AFKCommandInterceptor.class)
 @ModuleData(id = AFKModule.ID, name = "AFK")
 public class AFKModule extends ConfigurableModule<AFKConfig, AFKConfigAdapter> {
 

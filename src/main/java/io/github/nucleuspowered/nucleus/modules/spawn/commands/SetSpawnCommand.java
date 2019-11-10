@@ -5,13 +5,13 @@
 package io.github.nucleuspowered.nucleus.modules.spawn.commands;
 
 import com.flowpowered.math.vector.Vector3d;
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
-import io.github.nucleuspowered.nucleus.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.modules.spawn.SpawnKeys;
 import io.github.nucleuspowered.nucleus.modules.spawn.SpawnPermissions;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.jail;
 
-import io.github.nucleuspowered.nucleus.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.modules.jail.parameter.JailArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;

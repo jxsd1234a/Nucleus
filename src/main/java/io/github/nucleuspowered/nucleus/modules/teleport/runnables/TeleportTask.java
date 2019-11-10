@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.runnables;
 
-import io.github.nucleuspowered.nucleus.internal.interfaces.TaskBase;
 import io.github.nucleuspowered.nucleus.modules.teleport.services.PlayerTeleporterService;
+import io.github.nucleuspowered.nucleus.scaffold.task.TaskBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.scheduler.Task;
 

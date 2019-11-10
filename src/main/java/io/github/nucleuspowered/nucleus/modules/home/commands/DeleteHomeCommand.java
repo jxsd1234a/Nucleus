@@ -5,14 +5,14 @@
 package io.github.nucleuspowered.nucleus.modules.home.commands;
 
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
-import io.github.nucleuspowered.nucleus.modules.home.parameters.HomeArgument;
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
-import io.github.nucleuspowered.nucleus.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.modules.home.HomePermissions;
+import io.github.nucleuspowered.nucleus.modules.home.parameters.HomeArgument;
 import io.github.nucleuspowered.nucleus.modules.home.services.HomeService;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;

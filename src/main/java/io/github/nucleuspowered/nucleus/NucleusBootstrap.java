@@ -22,11 +22,7 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusSafeTeleportService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
-import io.github.nucleuspowered.nucleus.config.CommandsConfig;
 import io.github.nucleuspowered.nucleus.guice.NucleusInjectorModule;
-import io.github.nucleuspowered.nucleus.internal.CatalogTypeFinalStaticProcessor;
-import io.github.nucleuspowered.nucleus.internal.PreloadTasks;
-import io.github.nucleuspowered.nucleus.internal.client.ClientMessageReciever;
 import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
@@ -46,6 +42,8 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderServ
 import io.github.nucleuspowered.nucleus.services.interfaces.IModuleDataProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
+import io.github.nucleuspowered.nucleus.util.CatalogTypeFinalStaticProcessor;
+import io.github.nucleuspowered.nucleus.util.ClientMessageReciever;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import org.slf4j.Logger;
@@ -109,7 +107,6 @@ public class NucleusBootstrap {
 
     private boolean hasStarted = false;
     private Throwable isErrored = null;
-    private CommandsConfig commandsConfig;
     private final List<Text> startupMessages = Lists.newArrayList();
 
     private DiscoveryModuleHolder<StandardModule, StandardModule> moduleContainer;
@@ -262,12 +259,6 @@ public class NucleusBootstrap {
             if (this.isServer) {
                 Files.createDirectories(this.dataDir.get());
             }
-            this.commandsConfig = new CommandsConfig(Paths.get(this.configDir.toString(), "commands.conf"));
-            // registerReloadable(this.textParsingUtils);
-
-          /*  if (this.isServer) {
-                allChange();
-            } */
         } catch (Exception e) {
             this.isErrored = e;
             disable();
@@ -314,7 +305,6 @@ public class NucleusBootstrap {
                             .createEnablePhase("reg", (module, holder) -> module.loadRegistries())
                             .createEnablePhase("services", (module, holder) -> module.loadServices())
                             .createEnablePhase("pre-tasks", (module, holder) -> module.performPreTasks(this.serviceCollection))
-                            .createEnablePhase("command-interceptors", (module, holder) -> module.registerCommandInterceptors())
                             .createPreEnablePhase("enable", holder -> Sponge.getEventManager().post(new BaseModuleEvent.PreEnable(this)))
                             .createEnablePhase("command-discovery", (module, holder) -> module.loadCommands())
                             .createEnablePhase("aliased-commands", (module, holder) -> module.prepareAliasedCommands())
@@ -373,13 +363,6 @@ public class NucleusBootstrap {
                 try {
                     this.moduleContainer.reloadSystemConfig();
                 } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            this.serviceCollection.reloadableService().registerReloadable(serviceCollection -> {
-                try {
-                    this.commandsConfig.load();
-                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });

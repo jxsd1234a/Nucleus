@@ -5,9 +5,9 @@
 package io.github.nucleuspowered.nucleus.modules.world.listeners;
 
 import com.google.common.collect.Sets;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.world.WorldPermissions;
 import io.github.nucleuspowered.nucleus.modules.world.config.WorldConfig;
+import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Transform;

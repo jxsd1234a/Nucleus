@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.sign.listeners;
 
-import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.sign.SignPermissions;
+import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;

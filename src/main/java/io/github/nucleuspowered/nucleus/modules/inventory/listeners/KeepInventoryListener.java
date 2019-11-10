@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.inventory.listeners;
 
-import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.inventory.InventoryPermissions;
+import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import org.spongepowered.api.entity.living.player.Player;

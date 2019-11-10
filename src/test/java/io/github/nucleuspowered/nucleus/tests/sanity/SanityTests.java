@@ -6,10 +6,10 @@ package io.github.nucleuspowered.nucleus.tests.sanity;
 
 import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
 import io.github.nucleuspowered.nucleus.quickstart.NucleusConfigAdapter;
 import io.github.nucleuspowered.nucleus.quickstart.module.StandardModule;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongepowered.api.util.Tuple;

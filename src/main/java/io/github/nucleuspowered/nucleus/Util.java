@@ -7,7 +7,7 @@ package io.github.nucleuspowered.nucleus;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.util.PaginationBuilderWrapper;
 import org.spongepowered.api.CatalogType;

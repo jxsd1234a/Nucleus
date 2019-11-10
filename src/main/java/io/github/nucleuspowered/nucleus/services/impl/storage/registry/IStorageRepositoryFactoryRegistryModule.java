@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.services.impl.storage.registry;
 
-import io.github.nucleuspowered.nucleus.internal.registry.NucleusRegistryModule;
+import io.github.nucleuspowered.nucleus.scaffold.registry.NucleusRegistryModule;
 import io.github.nucleuspowered.nucleus.services.impl.storage.persistence.FlatFileStorageRepositoryFactory;
 import io.github.nucleuspowered.storage.persistence.IStorageRepositoryFactory;
 

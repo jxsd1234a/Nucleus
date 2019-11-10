@@ -5,9 +5,9 @@
 package io.github.nucleuspowered.nucleus.modules.back.services;
 
 import io.github.nucleuspowered.nucleus.api.service.NucleusBackService;
-import io.github.nucleuspowered.nucleus.internal.annotations.APIService;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
-import io.github.nucleuspowered.nucleus.internal.pojo.UUIDTransform;
+import io.github.nucleuspowered.nucleus.datatypes.UUIDTransform;
+import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
+import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.world.World;

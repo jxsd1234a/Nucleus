@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.command.parameter.NucleusRequirePermissionArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.NucleusRequirePermissionArgument;
 import io.github.nucleuspowered.nucleus.services.impl.permission.NucleusPermissionService;
 import io.github.nucleuspowered.nucleus.services.impl.permission.PermissionMetadata;
 import io.github.nucleuspowered.nucleus.services.impl.permission.SuggestedLevel;

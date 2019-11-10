@@ -4,9 +4,9 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands.lists;
 
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.modules.world.WorldPermissions;
 import io.github.nucleuspowered.nucleus.modules.world.commands.WorldCommand;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 

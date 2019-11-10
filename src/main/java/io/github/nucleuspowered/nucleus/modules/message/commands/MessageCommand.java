@@ -4,20 +4,20 @@
  */
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandResult;
-import io.github.nucleuspowered.nucleus.command.NucleusParameters;
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
-import io.github.nucleuspowered.nucleus.command.annotation.CommandModifier;
-import io.github.nucleuspowered.nucleus.command.annotation.EssentialsEquivalent;
-import io.github.nucleuspowered.nucleus.command.annotation.NotifyIfAFK;
-import io.github.nucleuspowered.nucleus.command.parameter.DisplayNameArgument;
-import io.github.nucleuspowered.nucleus.command.parameter.SelectorArgument;
-import io.github.nucleuspowered.nucleus.command.requirements.CommandModifiers;
 import io.github.nucleuspowered.nucleus.modules.message.MessagePermissions;
 import io.github.nucleuspowered.nucleus.modules.message.parameter.MessageTargetArgument;
 import io.github.nucleuspowered.nucleus.modules.message.services.MessageHandler;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
+import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.NotifyIfAFK;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.DisplayNameArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.SelectorArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;

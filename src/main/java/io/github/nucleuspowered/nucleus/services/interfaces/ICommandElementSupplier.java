@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
-import io.github.nucleuspowered.nucleus.command.parameter.NucleusRequirePermissionArgument;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
+import io.github.nucleuspowered.nucleus.scaffold.command.parameter.NucleusRequirePermissionArgument;
 import io.github.nucleuspowered.nucleus.services.impl.commandelement.CommandElementSupplier;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;

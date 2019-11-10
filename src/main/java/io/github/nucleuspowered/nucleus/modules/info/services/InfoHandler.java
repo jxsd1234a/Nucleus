@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.info.services;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
 import io.github.nucleuspowered.nucleus.io.TextFileController;
+import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.Sponge;

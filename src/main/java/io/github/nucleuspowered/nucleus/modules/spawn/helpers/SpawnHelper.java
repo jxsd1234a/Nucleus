@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.spawn.helpers;
 
 import com.flowpowered.math.vector.Vector3d;
-import io.github.nucleuspowered.nucleus.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.modules.spawn.SpawnKeys;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;

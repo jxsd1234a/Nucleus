@@ -5,24 +5,21 @@
 package io.github.nucleuspowered.nucleus.quickstart.module;
 
 import com.google.common.collect.ImmutableMap;
+import io.github.nucleuspowered.nucleus.Constants;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
 import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
-import io.github.nucleuspowered.nucleus.command.ICommandExecutor;
-import io.github.nucleuspowered.nucleus.command.ICommandInterceptor;
-import io.github.nucleuspowered.nucleus.command.annotation.Command;
-import io.github.nucleuspowered.nucleus.command.control.CommandMetadata;
-import io.github.nucleuspowered.nucleus.internal.Constants;
-import io.github.nucleuspowered.nucleus.internal.annotations.APIService;
-import io.github.nucleuspowered.nucleus.internal.annotations.RegisterCommandInterceptors;
-import io.github.nucleuspowered.nucleus.internal.annotations.RequireExistenceOf;
-import io.github.nucleuspowered.nucleus.internal.annotations.RequiresPlatform;
-import io.github.nucleuspowered.nucleus.internal.annotations.ReregisterService;
-import io.github.nucleuspowered.nucleus.internal.annotations.ServerOnly;
-import io.github.nucleuspowered.nucleus.internal.annotations.SkipOnError;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ServiceBase;
-import io.github.nucleuspowered.nucleus.internal.interfaces.TaskBase;
-import io.github.nucleuspowered.nucleus.internal.registry.NucleusRegistryModule;
+import io.github.nucleuspowered.nucleus.quickstart.annotation.RequireExistenceOf;
+import io.github.nucleuspowered.nucleus.quickstart.annotation.RequiresPlatform;
+import io.github.nucleuspowered.nucleus.quickstart.annotation.ServerOnly;
+import io.github.nucleuspowered.nucleus.quickstart.annotation.SkipOnError;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
+import io.github.nucleuspowered.nucleus.scaffold.command.ICommandInterceptor;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
+import io.github.nucleuspowered.nucleus.scaffold.registry.NucleusRegistryModule;
+import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
+import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
+import io.github.nucleuspowered.nucleus.scaffold.task.TaskBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.messagetoken.Tokens;
 import io.github.nucleuspowered.nucleus.services.impl.permission.PermissionMetadata;
@@ -51,7 +48,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +72,6 @@ public abstract class StandardModule implements Module {
     private final Logger logger;
     private String packageName;
     @Nullable private Map<String, List<String>> objectTypesToClassListMap;
-    // private final String message = NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("config.enabled");
 
     @Inject
     public StandardModule(Supplier<DiscoveryModuleHolder<?, ?>> moduleHolder, INucleusServiceCollection collection) {
@@ -150,20 +145,7 @@ public abstract class StandardModule implements Module {
                 throw new IllegalStateException(error);
             }
         } else {
-            ReregisterService reregisterService = serviceClass.getAnnotation(ReregisterService.class);
-            if (reregisterService != null) {
-                Class<?> apiInterface = reregisterService.value();
-                if (apiInterface.isInstance(serviceImpl)) {
-                    // OK
-                    register((Class) apiInterface, serviceClass, serviceImpl, true);
-                } else {
-                    String error = "ERROR: " + apiInterface.getName() + " does not inherit from " + serviceClass.getName();
-                    this.logger.error(error);
-                    throw new IllegalStateException(error);
-                }
-            } else {
-                register(serviceClass, serviceImpl);
-            }
+            register(serviceClass, serviceImpl);
         }
 
         if (serviceImpl instanceof IReloadableService.Reloadable) {
@@ -192,10 +174,16 @@ public abstract class StandardModule implements Module {
     }
 
     public void registerCommandInterceptors() {
-        RegisterCommandInterceptors annotation = getClass().getAnnotation(RegisterCommandInterceptors.class);
-        if (annotation != null) {
+        Set<Class<? extends ICommandInterceptor>> interceptors;
+        if (this.objectTypesToClassListMap != null) {
+            interceptors = getClassesFromList(Constants.INTERCEPTOR);
+        } else {
+            interceptors = getStreamForModule(ICommandInterceptor.class).collect(Collectors.toSet());
+        }
+
+        if (!interceptors.isEmpty()) {
             // for each annotation, attempt to register the service.
-            for (Class<? extends ICommandInterceptor> service : annotation.value()) {
+            for (Class<? extends ICommandInterceptor> service : interceptors) {
 
                 // create the impl
                 ICommandInterceptor impl;
@@ -226,7 +214,6 @@ public abstract class StandardModule implements Module {
     @SuppressWarnings("unchecked")
     public final void loadCommands() {
 
-        HashMap<CommandMetadata, Class<? extends ICommandExecutor<?>>> commandExecutorHashMap = new HashMap<>();
         Set<Class<? extends ICommandExecutor<?>>> cmds;
         if (this.objectTypesToClassListMap != null) {
             cmds = getClassesFromList(Constants.COMMAND);

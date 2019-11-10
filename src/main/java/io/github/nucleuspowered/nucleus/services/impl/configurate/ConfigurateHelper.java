@@ -21,7 +21,6 @@ import io.github.nucleuspowered.nucleus.configurate.typeserialisers.Vector3dType
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.WarpCategorySerialiser;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.WarpSerialiser;
 import io.github.nucleuspowered.nucleus.configurate.wrappers.NucleusItemStackSnapshot;
-import io.github.nucleuspowered.nucleus.internal.TypeTokens;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.storage.DataObjectTranslator;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.configurate.AbstractConfigurateBackedDataObject;
@@ -29,6 +28,7 @@ import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.Nucleu
 import io.github.nucleuspowered.nucleus.services.interfaces.IConfigurateHelper;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
+import io.github.nucleuspowered.nucleus.util.TypeTokens;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 

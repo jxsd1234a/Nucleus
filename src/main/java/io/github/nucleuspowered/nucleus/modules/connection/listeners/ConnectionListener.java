@@ -4,9 +4,9 @@
  */
 package io.github.nucleuspowered.nucleus.modules.connection.listeners;
 
-import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.connection.ConnectionPermissions;
 import io.github.nucleuspowered.nucleus.modules.connection.config.ConnectionConfig;
+import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;

@@ -5,9 +5,9 @@
 package io.github.nucleuspowered.nucleus.modules.afk.listeners;
 
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfig;
 import io.github.nucleuspowered.nucleus.modules.afk.services.AFKHandler;
+import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
