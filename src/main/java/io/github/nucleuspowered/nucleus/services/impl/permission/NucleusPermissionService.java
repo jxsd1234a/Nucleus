@@ -211,7 +211,7 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
                 if (result != null) { // check the "parent" perm
                     String perm = result.getSuggestedLevel().getPermission();
                     if (perm == null) {
-                        return false;
+                        return subject.hasPermission(permission);
                     } else {
                         return subject.hasPermission(perm);
                     }
@@ -221,7 +221,7 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
                     if (permission.startsWith(entry.getKey())) {
                         String perm = entry.getValue().getSuggestedLevel().getPermission();
                         if (perm == null) {
-                            return false;
+                            return subject.hasPermission(permission);
                         } else {
                             return subject.hasPermission(perm);
                         }

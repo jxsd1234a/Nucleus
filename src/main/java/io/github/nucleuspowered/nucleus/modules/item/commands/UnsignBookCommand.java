@@ -35,7 +35,7 @@ import java.util.Optional;
 @Command(
         aliases = {"unsignbook", "unsign"},
         basePermission = ItemPermissions.BASE_UNSIGNBOOK,
-        commandDescriptionKey = "unsignbox",
+        commandDescriptionKey = "unsignbook",
         modifiers = {
                 @CommandModifier(value = CommandModifiers.HAS_COOLDOWN, exemptPermission = ItemPermissions.EXEMPT_COOLDOWN_UNSIGNBOOK),
                 @CommandModifier(value = CommandModifiers.HAS_WARMUP, exemptPermission = ItemPermissions.EXEMPT_WARMUP_UNSIGNBOOK),

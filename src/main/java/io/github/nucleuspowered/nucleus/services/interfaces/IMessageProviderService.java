@@ -129,4 +129,5 @@ public interface IMessageProviderService {
     String getTimeString(Locale locale, Duration duration);
 
     String getTimeString(Locale locale, long time);
+
 }

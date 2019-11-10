@@ -10,9 +10,13 @@ import io.github.nucleuspowered.nucleus.services.impl.permission.SuggestedLevel;
 
 @RegisterPermissions
 public class CorePermissions {
+
     private CorePermissions() {
         throw new AssertionError("Nope");
     }
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "nucleus debug verify-cmds" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_NUCLEUS_DEBUG_VERIFY = "nucleus.nucleus.debug.verifycmds";
 
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "commandinfo" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_COMMANDINFO = "nucleus.commandinfo.base";

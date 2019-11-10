@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.core.commands.nucleus;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import io.github.nucleuspowered.nucleus.guice.DataDirectory;
 import io.github.nucleuspowered.nucleus.modules.core.CorePermissions;
 import io.github.nucleuspowered.nucleus.modules.core.commands.NucleusCommand;
@@ -55,6 +56,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -92,7 +94,7 @@ public class DocGenCommand implements ICommandExecutor<CommandSource> {
         ICommandMetadataService commandMetadataService = serviceCollection.commandMetadataService();
         IPermissionService permissionService = serviceCollection.permissionService();
 
-        Path dataPath = serviceCollection.injector().getInstance(Key.get(Path.class, DataDirectory.class));
+        Path dataPath = serviceCollection.injector().getInstance(Key.get(new TypeLiteral<Supplier<Path>>() {}, DataDirectory.class)).get();
 
         Collection<CommandControl> commands = commandMetadataService.getCommands();
 
@@ -161,9 +163,10 @@ public class DocGenCommand implements ICommandExecutor<CommandSource> {
                         }
                     }
 
-                    commandDoc.setOneLineDescription(control.getShortDescription(Sponge.getServer().getConsole()).toString());
-                    commandDoc.setExtendedDescription(control.getHelp(Sponge.getServer().getConsole()).toString());
-                    commandDoc.setUsageString(control.getUsage(Sponge.getServer().getConsole()).toString());
+                    commandDoc.setOneLineDescription(control.getShortDescription(Sponge.getServer().getConsole())
+                            .map(Text::toPlain).orElse("No description provided"));
+                    commandDoc.setExtendedDescription(control.getHelp(Sponge.getServer().getConsole()).map(Text::toPlain).orElse(null));
+                    commandDoc.setUsageString(control.getUsage(Sponge.getServer().getConsole()).toPlain());
                     commandDoc.setPermissions(new ArrayList<>(permissionDocs));
                     commandDoc.setSimpleUsage(control.getUsageText(Sponge.getServer().getConsole()).toPlain());
 
@@ -173,6 +176,7 @@ public class DocGenCommand implements ICommandExecutor<CommandSource> {
         List<PermissionDoc> permdocs = permissionService.getAllMetadata()
                 .stream()
                 .map(this::getFor)
+                .filter(x -> x.getPermission() != null)
                 .sorted(Comparator.comparing(PermissionDoc::getPermission))
                 .collect(Collectors.toList());
 
@@ -253,6 +257,7 @@ public class DocGenCommand implements ICommandExecutor<CommandSource> {
         return new PermissionDoc()
                 .setDefaultLevel(metadata.getSuggestedLevel().getRole())
                 .setDescription(metadata.getDescription(this.messageProviderService))
+                .setPermission(metadata.getPermission())
                 .setModule(metadata.getModuleId());
     }
 
