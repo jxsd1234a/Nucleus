@@ -13,7 +13,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;

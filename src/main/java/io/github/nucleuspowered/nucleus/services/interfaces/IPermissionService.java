@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.scaffold.command.parameter.NucleusRequirePermissionArgument;
 import io.github.nucleuspowered.nucleus.services.impl.permission.NucleusPermissionService;
 import io.github.nucleuspowered.nucleus.services.impl.permission.PermissionMetadata;
 import io.github.nucleuspowered.nucleus.services.impl.permission.SuggestedLevel;
@@ -43,10 +42,6 @@ public interface IPermissionService {
 
     CommandElement createOtherUserPermissionElement(String permission);
 
-    default NucleusRequirePermissionArgument createPermissionParameter(CommandElement wrapped, String permission) {
-        return new NucleusRequirePermissionArgument(wrapped, this, permission);
-    }
-
     OptionalDouble getDoubleOptionFromSubject(Subject player, String... options);
 
     OptionalLong getPositiveLongOptionFromSubject(Subject player, String... options);
@@ -62,6 +57,12 @@ public interface IPermissionService {
     List<Metadata> getAllMetadata();
 
     Optional<Metadata> getMetadataFor(String permission);
+
+    default OptionalInt getDeclaredLevel(Subject subject, String key) {
+        return getIntOptionFromSubject(subject, key);
+    }
+
+    boolean isPermissionLevelOkay(Subject actor, Subject actee, String key, String permission, boolean isSameOkay);
 
     interface Metadata {
 

@@ -41,8 +41,6 @@ public interface ICommandMetadataService {
 
     void deactivate();
 
-    Map<String, Boolean> getAliasMap(String command);
-
     boolean isNucleusCommand(String command);
 
     Optional<CommandControl> getControl(Class<? extends ICommandExecutor<? extends CommandSource>> executorClass);

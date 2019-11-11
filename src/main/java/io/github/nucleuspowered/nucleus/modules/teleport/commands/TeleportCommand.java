@@ -16,11 +16,11 @@ import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.scaffold.command.parameter.AlternativeUsageArgument;
 import io.github.nucleuspowered.nucleus.scaffold.command.parameter.DisplayNameArgument;
 import io.github.nucleuspowered.nucleus.scaffold.command.parameter.IfConditionElseArgument;
 import io.github.nucleuspowered.nucleus.scaffold.command.parameter.SelectorArgument;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
@@ -45,7 +45,7 @@ import java.util.function.Supplier;
         notes = "If you have permission, this will override '/tptoggle' automatically.")
 @NonnullByDefault
 @Command(
-        aliases = {"teleport", "tp"},
+        aliases = {"teleport", "$tp"},
         basePermission = TeleportPermissions.BASE_TELEPORT,
         commandDescriptionKey = "teleport",
         modifiers = {

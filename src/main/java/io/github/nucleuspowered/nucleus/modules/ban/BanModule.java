@@ -18,6 +18,8 @@ import javax.inject.Inject;
 @ModuleData(id = "ban", name = "Bans")
 public class BanModule extends ConfigurableModule<BanConfig, BanConfigAdapter> {
 
+    public static final String BAN_LEVEL_KEY = "nucleus.ban.level";
+
     @Inject
     public BanModule(Supplier<DiscoveryModuleHolder<?, ?>> moduleHolder,
             INucleusServiceCollection collection) {

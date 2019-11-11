@@ -4,14 +4,21 @@
  */
 package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
+import io.github.nucleuspowered.nucleus.configurate.config.CommonPermissionLevelConfig;
+import io.github.nucleuspowered.nucleus.modules.ban.BanModule;
 import io.github.nucleuspowered.nucleus.modules.ban.BanPermissions;
+import io.github.nucleuspowered.nucleus.modules.ban.config.BanConfig;
+import io.github.nucleuspowered.nucleus.modules.commandlogger.config.CommandLoggerConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
@@ -31,11 +38,16 @@ import org.spongepowered.api.util.ban.BanTypes;
 
 import java.util.Optional;
 
-@Command(aliases = "ban", basePermission = BanPermissions.BASE_BAN, commandDescriptionKey = "ban")
+@Command(
+        aliases = "ban",
+        basePermission = BanPermissions.BASE_BAN,
+        commandDescriptionKey = "ban"
+)
 @EssentialsEquivalent("ban")
 @NonnullByDefault
-public class BanCommand implements ICommandExecutor<CommandSource> {
+public class BanCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
 
+    private CommonPermissionLevelConfig levelConfig = new CommonPermissionLevelConfig();
     private final String name = "name";
 
     @Override
@@ -60,6 +72,7 @@ public class BanCommand implements ICommandExecutor<CommandSource> {
         }
 
         if (ou.isPresent()) {
+            // power check
             Optional<User> optionalUser = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(ou.get());
             if ((!optionalUser.isPresent() || !optionalUser.get().isOnline()) && !context.testPermission(BanPermissions.BAN_OFFLINE)) {
                 return context.errorResult("command.ban.offline.noperms");
@@ -123,6 +136,17 @@ public class BanCommand implements ICommandExecutor<CommandSource> {
                             .getMessageString(src,"standard.unknown")));
         }
 
+        if (this.levelConfig.isUseLevels() &&
+                !context.isPermissionLevelOkay(user,
+                        BanModule.BAN_LEVEL_KEY,
+                        BanPermissions.BASE_BAN,
+                        this.levelConfig.isCanAffectSameLevel())) {
+            // Failure.
+            return context.errorResult("command.modifiers.level.insufficient",
+                    u.getName().orElse(context.getServiceCollection().messageProvider()
+                            .getMessageString(src,"standard.unknown")));
+        }
+
         // Create the ban.
         Ban bp = Ban.builder().type(BanTypes.PROFILE).profile(u)
                 .source(src)
@@ -142,5 +166,9 @@ public class BanCommand implements ICommandExecutor<CommandSource> {
         }
 
         return context.successResult();
+    }
+
+    @Override public void onReload(INucleusServiceCollection serviceCollection) {
+        this.levelConfig = serviceCollection.moduleDataProvider().getModuleConfig(BanConfig.class).getLevelConfig();
     }
 }

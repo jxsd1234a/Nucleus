@@ -13,7 +13,8 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Command {
 
     /**
-     * The command alias. If prefixed with $, a root command.
+     * The command alias. If prefixed with #, a root command, if prefixed with
+     * $, a root command that is disabled by default.
      *
      * @return The command.
      */

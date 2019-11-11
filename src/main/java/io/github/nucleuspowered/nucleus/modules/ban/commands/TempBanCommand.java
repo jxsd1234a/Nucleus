@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
+import io.github.nucleuspowered.nucleus.modules.ban.BanModule;
 import io.github.nucleuspowered.nucleus.modules.ban.BanPermissions;
 import io.github.nucleuspowered.nucleus.modules.ban.config.BanConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
@@ -79,6 +80,15 @@ public class TempBanCommand implements ICommandExecutor<CommandSource>, IReloada
 
         if (service.isBanned(u.getProfile())) {
             return context.errorResult("command.ban.alreadyset", u.getName());
+        }
+
+        if (this.banConfig.getLevelConfig().isUseLevels() &&
+                !context.isPermissionLevelOkay(u,
+                        BanModule.BAN_LEVEL_KEY,
+                        BanPermissions.BASE_TEMPBAN,
+                        this.banConfig.getLevelConfig().isCanAffectSameLevel())) {
+            // Failure.
+            return context.errorResult("command.modifiers.level.insufficient", u.getName());
         }
 
         // Expiration date

@@ -5,7 +5,10 @@
 package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.configurate.config.CommonPermissionLevelConfig;
+import io.github.nucleuspowered.nucleus.modules.ban.BanModule;
 import io.github.nucleuspowered.nucleus.modules.ban.BanPermissions;
+import io.github.nucleuspowered.nucleus.modules.ban.config.BanConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
@@ -13,13 +16,16 @@ import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -34,7 +40,9 @@ import java.util.Optional;
 )
 @EssentialsEquivalent({"unban", "pardon"})
 @NonnullByDefault
-public class UnbanCommand implements ICommandExecutor<CommandSource> {
+public class UnbanCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
+
+    private CommonPermissionLevelConfig levelConfig = new CommonPermissionLevelConfig();
 
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
@@ -63,6 +71,16 @@ public class UnbanCommand implements ICommandExecutor<CommandSource> {
                     "command.checkban.notset", Util.getNameOrUnkown(context, gp));
         }
 
+        User user = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).getOrCreate(gp);
+        if (this.levelConfig.isUseLevels() &&
+                !context.isPermissionLevelOkay(user,
+                        BanModule.BAN_LEVEL_KEY,
+                        BanPermissions.BASE_UNBAN,
+                        this.levelConfig.isCanAffectSameLevel())) {
+            // Failure.
+            return context.errorResult("command.modifiers.level.insufficient", user.getName());
+        }
+
         service.removeBan(obp.get());
 
         MutableMessageChannel notify = context.getServiceCollection().permissionService().permissionMessageChannel(BanPermissions.BAN_NOTIFY).asMutable();
@@ -71,5 +89,9 @@ public class UnbanCommand implements ICommandExecutor<CommandSource> {
             context.sendMessageTo(receiver, "command.unban.success", Util.getNameOrUnkown(context, obp.get().getProfile()));
         }
         return context.successResult();
+    }
+
+    @Override public void onReload(INucleusServiceCollection serviceCollection) {
+        this.levelConfig = serviceCollection.moduleDataProvider().getModuleConfig(BanConfig.class).getLevelConfig();
     }
 }

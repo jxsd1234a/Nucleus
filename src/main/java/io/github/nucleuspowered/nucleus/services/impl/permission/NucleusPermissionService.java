@@ -20,6 +20,7 @@ import org.slf4j.event.Level;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.service.context.ContextCalculator;
@@ -254,6 +255,24 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
     public Optional<IPermissionService.Metadata> getMetadataFor(String permission) {
         this.metadataMap.get(permission);
         return Optional.empty();
+    }
+
+    @Override public boolean isPermissionLevelOkay(Subject actor, Subject actee, String key, String permission, boolean isSameOkay) {
+        int actorLevel = getDeclaredLevel(actor, key).orElseGet(() -> hasPermission(actor, permission) ? getDefaultLevel(actor) : 0);
+        int acteeLevel = getDeclaredLevel(actee, key).orElseGet(() -> hasPermission(actee, permission) ? getDefaultLevel(actee) : 0);
+        if (isSameOkay) {
+            return actorLevel >= acteeLevel;
+        } else {
+            return actorLevel > acteeLevel;
+        }
+    }
+
+    private int getDefaultLevel(Subject subject) {
+        if (subject instanceof ConsoleSource || subject instanceof CommandBlockSource) {
+            return Integer.MAX_VALUE;
+        }
+
+        return 1;
     }
 
     public static class Metadata implements IPermissionService.Metadata {

@@ -33,6 +33,7 @@ import io.github.nucleuspowered.nucleus.quickstart.NucleusLoggerProxy;
 import io.github.nucleuspowered.nucleus.quickstart.QuickStartModuleConstructor;
 import io.github.nucleuspowered.nucleus.quickstart.event.BaseModuleEvent;
 import io.github.nucleuspowered.nucleus.quickstart.module.StandardModule;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModiferRegistry;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.NucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.commandmetadata.CommandMetadataService;
@@ -181,14 +182,14 @@ public class NucleusBootstrap {
                         this::getServiceCollection,
                         this.dataDir,
                         this::getDiscoveryModuleHolder,
-                        configDir,
+                        this.configDir,
                         moduleDataProvider));
         this.serviceCollection = new NucleusServiceCollection(
                 baseInjector,
                 pluginContainer,
                 logger,
                 this.dataDir,
-                configDir);
+                this.configDir);
     }
 
     private INucleusServiceCollection getServiceCollection() {
@@ -201,6 +202,16 @@ public class NucleusBootstrap {
 
     @Listener(order = Order.FIRST)
     public void onPreInit(GamePreInitializationEvent preInitializationEvent) {
+        // Create the command modifier registry module and start it.
+        CommandModiferRegistry registry = new CommandModiferRegistry();
+        registry.registerDefaults();
+
+        registry.getAll().forEach(x -> {
+            if (x instanceof IReloadableService.Reloadable) {
+                this.serviceCollection.reloadableService().registerReloadable((IReloadableService.Reloadable) x);
+            }
+        });
+
         IMessageProviderService messageProvider = this.serviceCollection.messageProvider();
         // Setup object mapper.
         MessageReceiver s;

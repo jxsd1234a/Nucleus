@@ -12,12 +12,15 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 public class WorldMigrationSettingProcessor implements SettingProcessor {
 
     private final UUIDChangeService service;
 
     private final static TypeToken<UUID> uuidTypeToken = TypeToken.of(UUID.class);
 
+    @Inject
     public WorldMigrationSettingProcessor(UUIDChangeService service) {
         this.service = service;
     }

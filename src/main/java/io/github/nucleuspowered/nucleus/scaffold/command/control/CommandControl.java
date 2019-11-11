@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.scaffold.command.control;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
@@ -15,12 +16,18 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandInterceptor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusArgumentParseException;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusCommandException;
+import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.config.CommandModifiersConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.impl.CommandContextImpl;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifierFactory;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.ICommandModifier;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.util.PrettyPrinter;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
@@ -78,7 +85,7 @@ public class CommandControl implements CommandCallable {
     private final String commandKey;
     private final List<String> aliases;
     private final boolean hasHelpCommand;
-    private final ImmutableList<CommandModifier> flags;
+    private final ImmutableMap<CommandModifier, ICommandModifier> modifiers;
     private final CommandModifiersConfig commandModifiersConfig = new CommandModifiersConfig();
 
     private final String command;
@@ -105,7 +112,6 @@ public class CommandControl implements CommandCallable {
         }
 
         this.aliases = ImmutableList.copyOf(meta.getAliases());
-        this.flags = ImmutableList.copyOf(meta.getCommandAnnotation().modifiers());
         Class<? extends CommandSource> c = CommandSource.class;
         if (this.executor != null) {
             for (Type type : this.executor.getClass().getGenericInterfaces()) {
@@ -125,6 +131,9 @@ public class CommandControl implements CommandCallable {
             this.command = meta.getAliases()[0];
         }
         this.isAsync = meta.getCommandAnnotation().async();
+
+        // this must be last.
+        this.modifiers = validateModifiers(this, serviceCollection.logger(), meta.getCommandAnnotation());
     }
 
     public void attach(String alias, CommandControl commandControl) {
@@ -202,7 +211,7 @@ public class CommandControl implements CommandCallable {
                         getContextFrom(source,
                             cause,
                             context,
-                            ImmutableList.of(),
+                            ImmutableMap.of(),
                             this,
                             this.serviceCollection
                     ), command, null);
@@ -215,7 +224,7 @@ public class CommandControl implements CommandCallable {
 
         // Create the ICommandContext
         // TODO: Abstract this away
-        Collection<CommandModifier> modifiers = selectAppropriateModifiers(source);
+        Map<CommandModifier, ICommandModifier> modifiers = selectAppropriateModifiers(source);
         ICommandContext.Mutable<? extends CommandSource> contextSource = getContextFrom(source,
                 cause,
                 context,
@@ -230,8 +239,8 @@ public class CommandControl implements CommandCallable {
             }
 
             // Can we run this command? Exception will be thrown if not.
-            for (CommandModifier x : modifiers) {
-                Optional<Text> req = x.value().testRequirement(contextSource, this, this.serviceCollection);
+            for (Map.Entry<CommandModifier, ICommandModifier> x : modifiers.entrySet()) {
+                Optional<Text> req = x.getValue().testRequirement(contextSource, this, this.serviceCollection, x.getKey());
                 if (req.isPresent()) {
                     // Nope, we're out
                     throw new CommandException(req.get());
@@ -297,9 +306,9 @@ public class CommandControl implements CommandCallable {
             }
 
             // Modifiers might have something to say about it.
-            for (CommandModifier modifier : contextSource.modifiers()) {
-                if (modifier.onExecute()) {
-                    result = modifier.value().preExecute(contextSource, this, this.serviceCollection);
+            for (Map.Entry<CommandModifier, ICommandModifier> modifier : contextSource.modifiers().entrySet()) {
+                if (modifier.getKey().onExecute()) {
+                    result = modifier.getValue().preExecute(contextSource, this, this.serviceCollection, modifier.getKey());
                     if (result.isPresent()) {
                         // STOP.
                         onResult(source, contextSource, result.get());
@@ -329,13 +338,7 @@ public class CommandControl implements CommandCallable {
     }
 
     private <T extends CommandSource> void runFailActions(ICommandContext<T> contextSource) {
-        T source;
-        try {
-            source = contextSource.getCommandSource();
-            contextSource.failActions().forEach(x -> x.accept(source));
-        } catch (CommandException e) {
-            e.printStackTrace();
-        }
+        contextSource.failActions().forEach(x -> x.accept(contextSource));
     }
 
     // Entry point for warmups.
@@ -433,9 +436,9 @@ public class CommandControl implements CommandCallable {
     }
 
     private void onSuccess(ICommandContext<? extends CommandSource> source) throws CommandException {
-        for (CommandModifier x : source.modifiers()) {
-            if (x.onCompletion()) {
-                x.value().onCompletion(source, this, this.serviceCollection);
+        for (Map.Entry<CommandModifier, ICommandModifier> x : source.modifiers().entrySet()) {
+            if (x.getKey().onCompletion()) {
+                x.getValue().onCompletion(source, this, this.serviceCollection, x.getKey());
             }
         }
     }
@@ -448,11 +451,22 @@ public class CommandControl implements CommandCallable {
         }
     }
 
-    private Collection<CommandModifier> selectAppropriateModifiers(CommandSource source) {
-        return this.flags.stream()
-                .filter(x -> x.target().isInstance(source))
-                .filter(x -> x.exemptPermission().isEmpty() || this.serviceCollection.permissionService().hasPermission(source, x.exemptPermission()))
-                .collect(Collectors.toList());
+    private Map<CommandModifier, ICommandModifier> selectAppropriateModifiers(CommandSource source) throws CommandException {
+        return this.modifiers
+                .entrySet()
+                .stream()
+                .filter(x -> x.getKey().target().isInstance(source))
+                .filter(x -> {
+                    try {
+                        return x.getValue().canExecuteModifier(this.serviceCollection, source);
+                    } catch (CommandException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                })
+                .filter(x -> x.getKey().exemptPermission().isEmpty() ||
+                        !this.serviceCollection.permissionService().hasPermission(source, x.getKey().exemptPermission()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
@@ -626,8 +640,8 @@ public class CommandControl implements CommandCallable {
         return this.commandKey;
     }
 
-    public List<CommandModifier> getCommandModifiers() {
-        return this.flags;
+    public Map<CommandModifier, ICommandModifier> getCommandModifiers() {
+        return this.modifiers;
     }
 
     public int getCooldown() {
@@ -664,10 +678,46 @@ public class CommandControl implements CommandCallable {
         return ImmutableList.copyOf(this.aliases);
     }
 
+    private static ImmutableMap<CommandModifier, ICommandModifier> validateModifiers(CommandControl control, Logger logger, Command command) {
+        if (command.modifiers().length == 0) {
+            return ImmutableMap.of();
+        }
+
+        ImmutableMap.Builder<CommandModifier, ICommandModifier> modifiers = new ImmutableMap.Builder<>();
+        for (CommandModifier modifier : command.modifiers()) {
+            try {
+                // Get the registry entry.
+                ICommandModifier commandModifier = Sponge.getRegistry().getType(CommandModifierFactory.class, modifier.value())
+                        .map(x -> x.apply(control))
+                        .orElseThrow(() -> new IllegalArgumentException("Could not get registry entry for \"" + modifier.value() + "\""));
+                commandModifier.validate(modifier);
+                modifiers.put(modifier, commandModifier);
+            } catch (IllegalArgumentException ex) {
+                // could not validate
+                PrettyPrinter printer = new PrettyPrinter();
+                // Sponge can't find an item type...
+                printer.add("Could not add modifier to command!").centre().hr();
+                printer.add("Command Description Key: ");
+                printer.add("  " + command.commandDescriptionKey());
+                printer.add("Modifier: ");
+                printer.add("  " + modifier.value());
+                printer.hr();
+                printer.add("Message:");
+                printer.add(ex.getMessage());
+                printer.hr();
+                printer.add("Stack trace:");
+                printer.add(ex);
+                printer.log(logger, Level.ERROR);
+            }
+        }
+
+        return modifiers.build();
+    }
+
     private static ICommandContext.Mutable<? extends CommandSource> getContextFrom(CommandSource source,
             Cause cause,
             CommandContext context,
-            Collection<CommandModifier> modifiers,
+            Map<CommandModifier, ICommandModifier> modifiers,
             CommandControl control,
             INucleusServiceCollection serviceCollection) throws CommandException {
         if (source instanceof Player) {

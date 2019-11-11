@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.mute.config;
 
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.configurate.config.CommonPermissionLevelConfig;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -31,6 +32,9 @@ public class MuteConfig {
     @Setting(value = "require-separate-unmute-permission", comment = "config.mute.unmute")
     private boolean requireUnmutePermission = false;
 
+    @Setting(value = "mute-permission-levels", comment = "config.mute.permissionlevel")
+    private CommonPermissionLevelConfig level = new CommonPermissionLevelConfig();
+
     public List<String> getBlockedCommands() {
         return this.blockedCommands;
     }
@@ -51,7 +55,7 @@ public class MuteConfig {
         return this.muteOnlineOnly;
     }
 
-    public boolean isRequireUnmutePermission() {
-        return this.requireUnmutePermission;
+    public CommonPermissionLevelConfig getLevelConfig() {
+        return this.level;
     }
 }

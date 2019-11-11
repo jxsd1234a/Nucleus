@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.scaffold.command;
 
 import com.google.common.reflect.TypeToken;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.ICommandModifier;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
@@ -21,8 +21,9 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -60,19 +61,19 @@ public interface ICommandContext<C extends CommandSource> {
      */
     void setWarmup(int warmup);
 
-    Player getPlayerFromArgs(String key, String errorKey) throws NoSuchElementException, CommandException;
+    Player getPlayerFromArgs(String key, String errorKey) throws CommandException;
 
-    default Player getPlayerFromArgs() throws NoSuchElementException, CommandException {
+    default Player getPlayerFromArgs() throws CommandException {
         return getPlayerFromArgs(NucleusParameters.Keys.PLAYER, "command.playeronly");
     }
 
     Player getCommandSourceAsPlayerUnchecked();
 
-    default User getUserFromArgs() throws NoSuchElementException, CommandException {
+    default User getUserFromArgs() throws CommandException {
         return getUserFromArgs(NucleusParameters.Keys.USER, "command.playeronly");
     }
 
-    User getUserFromArgs(String key, String errorKey) throws NoSuchElementException, CommandException;
+    User getUserFromArgs(String key, String errorKey) throws CommandException;
 
     boolean hasAny(String name);
 
@@ -110,9 +111,9 @@ public interface ICommandContext<C extends CommandSource> {
 
     Player getIfPlayer(String errorKey) throws CommandException;
 
-    Collection<CommandModifier> modifiers();
+    Map<CommandModifier, ICommandModifier> modifiers();
 
-    Collection<Consumer<C>> failActions();
+    Collection<Consumer<ICommandContext<C>>> failActions();
 
     boolean testPermission(String permission);
 
@@ -170,15 +171,33 @@ public interface ICommandContext<C extends CommandSource> {
         return getTimeString(Duration.between(Instant.now(), endTime).abs());
     }
 
+    default OptionalInt getLevel(String key) {
+        return getLevelFor(getCommandSourceUnchecked(), key);
+    }
+
+    OptionalInt getLevelFor(Subject subject, String key);
+
+    default int getLevel(String key, String permissionIfNoLevel) {
+        return getLevelFor(getCommandSourceUnchecked(), key, permissionIfNoLevel);
+    }
+
+    default int getLevelFor(Subject subject, String key, String permissionIfNoLevel) {
+        return getLevelFor(subject, key).orElseGet(() -> testPermissionFor(subject, permissionIfNoLevel) ? 1 : 0);
+    }
+
+    boolean isPermissionLevelOkay(Subject actee, String key, String permissionIfNoLevel, boolean isSameLevel);
+
     interface Mutable<C extends CommandSource> extends ICommandContext<C> {
 
         <T> void put(String name, Class<T> clazz, T obj);
 
         <T> void putAll(String name, Class<T> clazz, Collection<? extends T> obj);
 
-        void removeModifier(CommandModifiers modifier);
+        void removeModifier(String modifierId);
 
-        void addFailAction(Consumer<C> action);
+        void removeModifier(ICommandModifier modifier);
+
+        void addFailAction(Consumer<ICommandContext<C>> action);
 
     }
 

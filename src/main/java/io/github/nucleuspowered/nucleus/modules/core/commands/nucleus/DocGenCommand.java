@@ -23,7 +23,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModif
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.scaffold.command.control.CommandControl;
 import io.github.nucleuspowered.nucleus.scaffold.command.control.CommandMetadata;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandMetadataService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;

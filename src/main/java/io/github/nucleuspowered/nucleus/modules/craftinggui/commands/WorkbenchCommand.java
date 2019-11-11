@@ -8,7 +8,7 @@ import io.github.nucleuspowered.nucleus.modules.craftinggui.BasicCraftingCommand
 import io.github.nucleuspowered.nucleus.modules.craftinggui.CraftingGuiPermissions;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

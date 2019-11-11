@@ -9,20 +9,27 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.api.util.Tuple;
 
 import java.util.List;
 
 public final class CommandMetadata {
 
-    private static Tuple<List<String>, List<String>> aliases(String[] v, boolean isRoot, boolean addPrefix) {
-        ImmutableList.Builder<String> root = ImmutableList.builder();
-        ImmutableList.Builder<String> sub = ImmutableList.builder();
+    private static void aliases(String[] v, boolean isRoot, boolean addPrefix,
+            ImmutableList.Builder<String> root,
+            ImmutableList.Builder<String> sub,
+            ImmutableList.Builder<String> disabled) {
         for (String alias : v) {
-            if (alias.startsWith("$")) {
+            if (alias.startsWith("#")) {
                 root.add(alias.substring(1).toLowerCase());
                 if (addPrefix) {
                     root.add("n" + alias.substring(1).toLowerCase());
+                }
+            } else if (alias.startsWith("$")) {
+                String x = alias.substring(1).toLowerCase();
+                root.add(x);
+                disabled.add(x);
+                if (addPrefix) {
+                    root.add("n" + x);
                 }
             } else if (isRoot) {
                 root.add(alias.toLowerCase());
@@ -33,9 +40,8 @@ public final class CommandMetadata {
                 sub.add(alias.toLowerCase());
             }
         }
-
-        return Tuple.of(root.build(), sub.build());
     }
+
 
     private final String moduleid;
     private final String modulename;
@@ -45,6 +51,7 @@ public final class CommandMetadata {
     private final String commandKey;
     private final List<String> root;
     private final List<String> sub;
+    private final List<String> disabledByDefault;
     private final boolean isRoot;
     private final boolean modifierKeyRedirect;
     @Nullable private final EssentialsEquivalent essentialsEquivalent;
@@ -61,11 +68,18 @@ public final class CommandMetadata {
         this.annotation = annotation;
         this.executor = executor;
         this.commandKey = commandKey;
-        Tuple<List<String>, List<String>> tl = aliases(annotation.aliases(),
+        ImmutableList.Builder<String> rootBuilder = new ImmutableList.Builder<>();
+        ImmutableList.Builder<String> subBuilder = new ImmutableList.Builder<>();
+        ImmutableList.Builder<String> disabledRootBuilder = new ImmutableList.Builder<>();
+        aliases(annotation.aliases(),
                 annotation.parentCommand() == ICommandExecutor.class,
-                annotation.prefixAliasesWithN());
-        this.root = tl.getFirst();
-        this.sub = tl.getSecond();
+                annotation.prefixAliasesWithN(),
+                rootBuilder,
+                subBuilder,
+                disabledRootBuilder);
+        this.root = rootBuilder.build();
+        this.sub = subBuilder.build();
+        this.disabledByDefault = disabledRootBuilder.build();
         this.isRoot = annotation.parentCommand() == ICommandExecutor.class;
         this.essentialsEquivalent = essentialsEquivalent;
         this.modifierKeyRedirect = !annotation.modifierOverride().isEmpty();
@@ -94,6 +108,10 @@ public final class CommandMetadata {
 
     public List<String> getRootAliases() {
         return this.root;
+    }
+
+    public List<String> getDisabledByDefaultRootAliases() {
+        return this.disabledByDefault;
     }
 
     public List<String> getAtLevelAliases() {

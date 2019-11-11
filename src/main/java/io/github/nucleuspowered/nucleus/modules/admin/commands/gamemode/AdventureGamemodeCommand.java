@@ -10,7 +10,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
@@ -20,7 +20,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @EssentialsEquivalent({"gma", "adventure"})
 @Command(
         aliases = {"gma", "adventure"},
-        parentCommand = GamemodeCommand.class,
         basePermission = {AdminPermissions.BASE_GAMEMODE, AdminPermissions.GAMEMODE_MODES_ADVENTURE},
         commandDescriptionKey = "gma",
         modifiers =

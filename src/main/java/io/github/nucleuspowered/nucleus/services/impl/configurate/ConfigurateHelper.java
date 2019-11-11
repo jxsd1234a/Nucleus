@@ -6,12 +6,15 @@ package io.github.nucleuspowered.nucleus.services.impl.configurate;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.reflect.TypeToken;
+import com.google.inject.Injector;
 import io.github.nucleuspowered.neutrino.objectmapper.NeutrinoObjectMapperFactory;
+import io.github.nucleuspowered.neutrino.settingprocessor.SettingProcessor;
 import io.github.nucleuspowered.neutrino.typeserialisers.ByteArrayTypeSerialiser;
 import io.github.nucleuspowered.neutrino.typeserialisers.IntArrayTypeSerialiser;
 import io.github.nucleuspowered.neutrino.typeserialisers.PatternTypeSerialiser;
 import io.github.nucleuspowered.neutrino.typeserialisers.SetTypeSerialiser;
 import io.github.nucleuspowered.neutrino.typeserialisers.ShortArrayTypeSerialiser;
+import io.github.nucleuspowered.neutrino.util.ClassConstructor;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.InstantTypeSerialiser;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.MailMessageSerialiser;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.NamedLocationSerialiser;
@@ -69,7 +72,9 @@ public class ConfigurateHelper implements IConfigurateHelper {
                     }
 
                     return comment;
-                }).build(true);
+                })
+                .setSettingProcessorClassConstructor(new SettingProcessorConstructor(serviceCollection.injector()))
+                .build(true);
         this.typeSerializerCollection = setup(serviceCollection);
     }
 
@@ -109,5 +114,18 @@ public class ConfigurateHelper implements IConfigurateHelper {
         typeSerializerCollection.registerType(TypeTokens.MAIL_MESSAGE, new MailMessageSerialiser());
 
         return typeSerializerCollection;
+    }
+
+    private static class SettingProcessorConstructor implements ClassConstructor<SettingProcessor> {
+
+        private final Injector injector;
+
+        private SettingProcessorConstructor(Injector injector) {
+            this.injector = injector;
+        }
+
+        @Override public <T extends SettingProcessor> T construct(Class<T> aClass) throws Throwable {
+            return this.injector.getInstance(aClass);
+        }
     }
 }

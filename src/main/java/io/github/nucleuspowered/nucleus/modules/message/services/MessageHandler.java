@@ -36,7 +36,6 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,7 +57,6 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
     private int serverLevel = 0;
 
     private final INucleusServiceCollection serviceCollection;
-    private final Map<String[], Function<String, String>> replacements = createReplacements();
     private final Map<UUID, UUID> messagesReceived = Maps.newHashMap();
     private final Map<UUID, CustomMessageTarget<? extends CommandSource>> targets = Maps.newHashMap();
     private final Map<String, UUID> targetNames = Maps.newHashMap();
@@ -356,11 +354,11 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
         Preconditions.checkState(!this.targetNames.containsKey(targetName.toLowerCase()), "Target name already registered.");
 
         // Create it
-        this.targets.put(uniqueId, new CustomMessageTarget<>(uniqueId, targetName, displayName, target));
+        this.targets.put(uniqueId, new CustomMessageTarget<>(uniqueId, displayName, target));
         this.targetNames.put(targetName.toLowerCase(), uniqueId);
     }
 
-    public Optional<CommandSource> getLastMessageFrom(UUID from) {
+    private Optional<CommandSource> getLastMessageFrom(UUID from) {
         Preconditions.checkNotNull(from);
         UUID to = this.messagesReceived.get(from);
         if (to == null) {
@@ -401,20 +399,9 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
         return sender instanceof Identifiable ? ((Identifiable) sender).getUniqueId() : Util.CONSOLE_FAKE_UUID;
     }
 
-    @SuppressWarnings("unchecked")
     private Text constructMessage(CommandSource sender, Text message, NucleusTextTemplateImpl template,
             Map<String, Function<CommandSource, Optional<Text>>> tokens, Map<String, Object> variables) {
         return this.serviceCollection.textStyleService().joinTextsWithColoursFlowing(template.getForCommandSource(sender, tokens, variables), message);
-    }
-
-    private Map<String[], Function<String, String>> createReplacements() {
-        Map<String[], Function<String, String>> t = new HashMap<>();
-
-        t.put(new String[] { MessagePermissions.MESSAGE_COLOUR, MessagePermissions.MESSAGE_COLOR }, s -> s.replaceAll("&[0-9a-fA-F]", ""));
-        t.put(new String[] { MessagePermissions.MESSAGE_STYLE }, s -> s.replaceAll("&[l-oL-O]", ""));
-        t.put(new String[] { MessagePermissions.MESSAGE_MAGIC }, s -> s.replaceAll("&[kK]", ""));
-
-        return t;
     }
 
     private Text useMessage(CommandSource player, String m) {
@@ -450,16 +437,14 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
     }
 
     @NonnullByDefault
-    private class CustomMessageTarget<T extends CommandSource & Identifiable> implements Identifiable {
+    private static class CustomMessageTarget<T extends CommandSource & Identifiable> implements Identifiable {
 
         private final UUID uuid;
         @Nullable private final Text displayName;
         private final Supplier<T> supplier;
-        private final String targetName;
 
-        private CustomMessageTarget(UUID uuid, String targetName, @Nullable Text displayName, Supplier<T> supplier) {
+        private CustomMessageTarget(UUID uuid, @Nullable Text displayName, Supplier<T> supplier) {
             this.uuid = uuid;
-            this.targetName = targetName;
             this.displayName = displayName;
             this.supplier = supplier;
         }

@@ -5,12 +5,13 @@
 package io.github.nucleuspowered.nucleus.scaffold.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.CommandModifier;
 import io.github.nucleuspowered.nucleus.scaffold.command.control.CommandControl;
-import io.github.nucleuspowered.nucleus.scaffold.command.requirements.CommandModifiers;
+import io.github.nucleuspowered.nucleus.scaffold.command.modifier.ICommandModifier;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.storage.util.ThrownSupplier;
 import org.spongepowered.api.Sponge;
@@ -30,10 +31,10 @@ import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -42,14 +43,15 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
 
     private final INucleusServiceCollection serviceCollection;
     private final String commandkey;
+    private final String stringName;
     private double cost = 0;
     private int cooldown = 0;
     private int warmup = 0;
     private final Cause cause;
     final CommandContext context;
     private final ThrownSupplier<P, CommandException> source;
-    private final Set<CommandModifier> modifiers;
-    private final ArrayList<Consumer<P>> failActions = new ArrayList<>();
+    private final Map<CommandModifier, ICommandModifier> modifiers;
+    private final ArrayList<Consumer<ICommandContext<P>>> failActions = new ArrayList<>();
 
     CommandContextImpl(Cause cause,
             CommandContext context,
@@ -57,7 +59,7 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
             ThrownSupplier<P, CommandException> source,
             P sourceDirect,
             CommandControl control,
-            Collection<CommandModifier> modifiers) {
+            Map<CommandModifier, ICommandModifier> modifiers) {
         this.cause = cause;
         this.commandkey = control.getCommandKey();
         this.context = context;
@@ -66,7 +68,8 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
         this.cost = control.getCost(sourceDirect);
         this.cooldown = control.getCooldown(sourceDirect);
         this.warmup = control.getWarmup(sourceDirect);
-        this.modifiers = new HashSet<>(modifiers);
+        this.modifiers = new HashMap<>(modifiers);
+        this.stringName = sourceDirect.getName();
     }
 
     @Override
@@ -117,14 +120,13 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
     }
 
     @Override
-    public Player getPlayerFromArgs(String key, String errorKey) throws NoSuchElementException {
-        return getOne(key, Player.class).orElseGet(() -> {
-            try {
-                return getIfPlayer(errorKey);
-            } catch (CommandException e) {
-                throw new NoSuchElementException();
-            }
-        });
+    public Player getPlayerFromArgs(String key, String errorKey) throws CommandException {
+        Optional<Player> player = getOne(key, Player.class);
+        if (player.isPresent()) {
+            return player.get();
+        } else {
+            return getIfPlayer(errorKey);
+        }
     }
 
     @Override
@@ -146,14 +148,13 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
     }
 
     @Override
-    public User getUserFromArgs(String key, String errorKey) throws NoSuchElementException {
-        return getOne(key, User.class).orElseGet(() -> {
-            try {
-                return getIfPlayer(errorKey);
-            } catch (CommandException e) {
-                throw new NoSuchElementException();
-            }
-        });
+    public User getUserFromArgs(String key, String errorKey) throws CommandException {
+        Optional<User> player = getOne(key, User.class);
+        if (player.isPresent()) {
+            return player.get();
+        } else {
+            return getIfPlayer(errorKey);
+        }
     }
 
     @Override
@@ -250,20 +251,24 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
         return this.serviceCollection;
     }
 
-    @Override public Collection<CommandModifier> modifiers() {
-        return ImmutableList.copyOf(this.modifiers);
+    @Override public Map<CommandModifier, ICommandModifier> modifiers() {
+        return ImmutableMap.copyOf(this.modifiers);
+    }
+
+    @Override public void removeModifier(String modifierId) {
+        this.modifiers.entrySet().removeIf(x -> x.getKey().value().equals(modifierId));
     }
 
     @Override
-    public void removeModifier(CommandModifiers modifier) {
-        this.modifiers.removeIf(x -> x.value() == modifier);
+    public void removeModifier(ICommandModifier modifier) {
+        this.modifiers.entrySet().removeIf(x -> x.getValue() == modifier);
     }
 
-    @Override public Collection<Consumer<P>> failActions() {
+    @Override public Collection<Consumer<ICommandContext<P>>> failActions() {
         return ImmutableList.copyOf(this.failActions);
     }
 
-    @Override public void addFailAction(Consumer<P> action) {
+    @Override public void addFailAction(Consumer<ICommandContext<P>> action) {
         this.failActions.add(action);
     }
 
@@ -352,7 +357,15 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
     }
 
     @Override public String getName() {
-        return this.getCommandSourceUnchecked().getName();
+        return this.stringName;
+    }
+
+    @Override public OptionalInt getLevelFor(Subject subject, String key) {
+        return this.serviceCollection.permissionService().getIntOptionFromSubject(subject, key);
+    }
+
+    @Override public boolean isPermissionLevelOkay(Subject actee, String key, String permissionIfNoLevel, boolean isSameLevel) {
+        return this.serviceCollection.permissionService().isPermissionLevelOkay(getCommandSourceUnchecked(), actee, key, permissionIfNoLevel, isSameLevel);
     }
 
     public static class Any extends CommandContextImpl<CommandSource> {
@@ -362,7 +375,7 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
                 INucleusServiceCollection serviceCollection,
                 CommandSource target,
                 CommandControl control,
-                Collection<CommandModifier> modifiers) throws CommandException {
+                Map<CommandModifier, ICommandModifier> modifiers) throws CommandException {
             super(cause, context, serviceCollection, () -> target, target, control, modifiers);
         }
 
@@ -410,7 +423,7 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
                 INucleusServiceCollection serviceCollection,
                 ConsoleSource target,
                 CommandControl control,
-                Collection<CommandModifier> modifiers,
+                Map<CommandModifier, ICommandModifier> modifiers,
                 boolean isBypass) throws CommandException {
             super(cause, context, serviceCollection, () -> target, target, control, modifiers);
             this.isBypass = isBypass;
@@ -454,7 +467,7 @@ public abstract class CommandContextImpl<P extends CommandSource> implements ICo
                 ThrownSupplier<Player, CommandException> source,
                 Player player,
                 CommandControl control,
-                Collection<CommandModifier> modifiers) throws CommandException {
+                Map<CommandModifier, ICommandModifier> modifiers) throws CommandException {
             super(cause, context, serviceCollection, source, player, control, modifiers);
             this.uuid = source.asOptional().map(Identifiable::getUniqueId).get();
         }

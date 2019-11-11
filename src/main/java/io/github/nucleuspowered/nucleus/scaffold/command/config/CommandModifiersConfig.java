@@ -34,4 +34,5 @@ public class CommandModifiersConfig {
         this.cooldown = Math.max(0, cooldown);
     }
 
+
 }

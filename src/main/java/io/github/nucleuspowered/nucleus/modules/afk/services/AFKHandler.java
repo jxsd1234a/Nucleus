@@ -29,6 +29,7 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -156,12 +157,16 @@ public class AFKHandler implements NucleusAFKService, IReloadableService.Reloada
         this.data.forEach((k, v) -> v.cacheValid = false);
     }
 
-    public boolean isAFK(UUID uuid) {
+    private boolean isAFK(UUID uuid) {
         return this.data.containsKey(uuid) && this.data.get(uuid).isKnownAfk;
     }
 
-    public boolean setAfkInternal(Player player) {
-        return setAfkInternal(player, Sponge.getCauseStackManager().getCurrentCause(), false);
+    private boolean setAfkInternal(Player player) {
+        if (Sponge.getServer().isMainThread()) {
+            return setAfkInternal(player, Sponge.getCauseStackManager().getCurrentCause(), false);
+        } else {
+            return setAfkInternal(player, Cause.of(EventContext.empty(), this.serviceCollection.pluginContainer()), false);
+        }
     }
 
     public boolean setAfkInternal(Player player, Cause cause, boolean force) {

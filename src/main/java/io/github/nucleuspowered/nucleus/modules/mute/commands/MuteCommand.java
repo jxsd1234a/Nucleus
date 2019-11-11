@@ -5,8 +5,12 @@
 package io.github.nucleuspowered.nucleus.modules.mute.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.configurate.config.CommonPermissionLevelConfig;
+import io.github.nucleuspowered.nucleus.modules.kick.KickModule;
+import io.github.nucleuspowered.nucleus.modules.kick.KickPermissions;
+import io.github.nucleuspowered.nucleus.modules.mute.MuteModule;
 import io.github.nucleuspowered.nucleus.modules.mute.MutePermissions;
-import io.github.nucleuspowered.nucleus.modules.mute.config.MuteConfigAdapter;
+import io.github.nucleuspowered.nucleus.modules.mute.config.MuteConfig;
 import io.github.nucleuspowered.nucleus.modules.mute.data.MuteData;
 import io.github.nucleuspowered.nucleus.modules.mute.services.MuteHandler;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
@@ -17,13 +21,11 @@ import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -35,12 +37,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @NonnullByDefault
-@EssentialsEquivalent({"mute", "silence"})
-@Command(aliases = { "mute", "unmute" }, basePermission = MutePermissions.BASE_MUTE, commandDescriptionKey = "mute")
+@EssentialsEquivalent(value = {"mute", "silence"}, isExact = false, notes = "Unmuting a player should be done via the /unmute command.")
+@Command(aliases = { "mute" }, basePermission = MutePermissions.BASE_MUTE, commandDescriptionKey = "mute")
 public class MuteCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
 
-    private boolean requireUnmutePermission = false;
     private long maxMute = Long.MAX_VALUE;
+    private CommonPermissionLevelConfig levelConfig = new CommonPermissionLevelConfig();
 
     // seemuted
 
@@ -67,19 +69,13 @@ public class MuteCommand implements ICommandExecutor<CommandSource>, IReloadable
             return context.errorResult("command.mute.exempt", user.getName());
         }
 
-        // No time, no reason, but is muted, unmute
-        if (omd.isPresent() && !time.isPresent() && !reas.isPresent()) {
-            if (!this.requireUnmutePermission || context.testPermission(MutePermissions.MUTE_UNMUTE)) {
-                // Unmute.
-                try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                    frame.pushCause(context.getCommandSource());
-                    handler.unmutePlayer(user, frame.getCurrentCause(), false);
-                    context.sendMessage("command.unmute.success", user.getName(), context.getName());
-                    return context.successResult();
-                }
-            }
-
-            return context.errorResult("command.unmute.perm");
+        if (this.levelConfig.isUseLevels() &&
+                !context.isPermissionLevelOkay(user,
+                        MuteModule.LEVEL_KEY,
+                        MutePermissions.BASE_MUTE,
+                        this.levelConfig.isCanAffectSameLevel())) {
+            // Failure.
+            return context.errorResult("command.modifiers.level.insufficient", user.getName());
         }
 
         // Do we have a reason?
@@ -146,8 +142,8 @@ public class MuteCommand implements ICommandExecutor<CommandSource>, IReloadable
 
     @Override
     public void onReload(INucleusServiceCollection serviceCollection) {
-        MuteConfigAdapter mca = serviceCollection.getServiceUnchecked(MuteConfigAdapter.class);
-        this.requireUnmutePermission = mca.getNodeOrDefault().isRequireUnmutePermission();
-        this.maxMute = mca.getNodeOrDefault().getMaximumMuteLength();
+        MuteConfig config = serviceCollection.moduleDataProvider().getModuleConfig(MuteConfig.class);
+        this.maxMute = config.getMaximumMuteLength();
+        this.levelConfig = config.getLevelConfig();
     }
 }

@@ -5,7 +5,11 @@
 package io.github.nucleuspowered.nucleus.modules.jail.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.configurate.config.CommonPermissionLevelConfig;
 import io.github.nucleuspowered.nucleus.datatypes.LocationData;
+import io.github.nucleuspowered.nucleus.modules.ban.BanModule;
+import io.github.nucleuspowered.nucleus.modules.ban.BanPermissions;
+import io.github.nucleuspowered.nucleus.modules.jail.JailModule;
 import io.github.nucleuspowered.nucleus.modules.jail.JailParameters;
 import io.github.nucleuspowered.nucleus.modules.jail.JailPermissions;
 import io.github.nucleuspowered.nucleus.modules.jail.config.JailConfig;
@@ -41,16 +45,15 @@ import javax.inject.Inject;
 
 @NonnullByDefault
 @Command(
-        aliases = {"jail", "unjail", "togglejail"},
+        aliases = {"jail"},
         basePermission = JailPermissions.BASE_JAIL,
         commandDescriptionKey = "jail"
 )
-@EssentialsEquivalent({"togglejail", "tjail", "unjail", "jail"})
+@EssentialsEquivalent(value = {"togglejail", "tjail", "jail"}, isExact = false, notes = "This command is not a toggle.")
 public class JailCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
 
+    private CommonPermissionLevelConfig levelConfig = new CommonPermissionLevelConfig();
     private final JailHandler handler;
-
-    private boolean requireUnjailPermission = false;
 
     @Inject
     public JailCommand(INucleusServiceCollection serviceCollection) {
@@ -74,31 +77,24 @@ public class JailCommand implements ICommandExecutor<CommandSource>, IReloadable
             return context.errorResult("command.jail.offline.noperms");
         }
 
+        if (this.levelConfig.isUseLevels() &&
+                !context.isPermissionLevelOkay(pl,
+                        JailModule.LEVEL_KEY,
+                        JailPermissions.BASE_JAIL,
+                        this.levelConfig.isCanAffectSameLevel())) {
+            // Failure.
+            return context.errorResult("command.modifiers.level.insufficient", pl.getName());
+        }
+
         if (this.handler.isPlayerJailed(pl)) {
-            if (!this.requireUnjailPermission || context.testPermission(JailPermissions.JAIL_UNJAIL)) {
-                return onUnjail(context, pl);
-            }
-
-            return context.errorResult("command.jail.unjail.perm");
-        } else {
-            if (!context.isConsoleAndBypass() && context.testPermission(JailPermissions.JAIL_EXEMPT_TARGET)) {
-                return context.errorResult("command.jail.exempt", pl.getName());
-            }
-
-            return onJail(context, pl);
+            return context.errorResult("command.jail.alreadyjailed", pl.getName());
         }
-    }
 
-    private ICommandResult onUnjail(ICommandContext<? extends CommandSource> context, User user) throws CommandException {
-        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            frame.pushCause(context.getCommandSource());
-            if (this.handler.unjailPlayer(user)) {
-                context.sendMessage("command.jail.unjail.success", user.getName());
-                return context.successResult();
-            } else {
-                return context.errorResult("command.jail.unjail.fail", user.getName());
-            }
+        if (!context.isConsoleAndBypass() && context.testPermission(JailPermissions.JAIL_EXEMPT_TARGET)) {
+            return context.errorResult("command.jail.exempt", pl.getName());
         }
+
+        return onJail(context, pl);
     }
 
     private ICommandResult onJail(ICommandContext<? extends CommandSource> context, User user) throws CommandException {
@@ -155,6 +151,7 @@ public class JailCommand implements ICommandExecutor<CommandSource>, IReloadable
 
     @Override
     public void onReload(INucleusServiceCollection serviceCollection) {
-        this.requireUnjailPermission = serviceCollection.moduleDataProvider().getModuleConfig(JailConfig.class).isRequireUnjailPermission();
+        boolean requireUnjailPermission = serviceCollection.moduleDataProvider().getModuleConfig(JailConfig.class).isRequireUnjailPermission();
+        this.levelConfig = serviceCollection.moduleDataProvider().getModuleConfig(JailConfig.class).getCommonPermissionLevelConfig();
     }
 }

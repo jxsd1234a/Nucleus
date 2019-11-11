@@ -48,6 +48,6 @@ public class MutePermissions {
     public static final String MUTE_SEEMUTEDCHAT = "nucleus.mute.seemutedchat";
 
     @PermissionMetadata(descriptionKey = "permission.mute.unmute", level = SuggestedLevel.MOD)
-    public static final String MUTE_UNMUTE = "nucleus.mute.unmute";
+    public static final String BASE_UNMUTE = "nucleus.mute.unmute";
 
 }
