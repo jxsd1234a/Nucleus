@@ -1,4 +1,4 @@
-This is an beta version of Nucleus for Sponge API version {{sponge}} 
+This is an beta version of Nucleus {{version}} for Sponge API version {{sponge}} 
 
 **THIS IS A BETA VERSION. IT MAY NOT BE STABLE. DO NOT USE ON PRODUCTION SERVERS**
 
@@ -8,7 +8,11 @@ This was built from Nucleus commit: {{hash}}
 
 If you're having trouble, visit our Discord channel: https://discord.gg/A9QHG5H
 
+---
+
 {{info}}
+
+---
 
 ## Known Issues
 

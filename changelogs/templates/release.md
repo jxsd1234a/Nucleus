@@ -1,4 +1,4 @@
-This is a bug fix and minor feature release for Nucleus for Sponge API version {{sponge}} 
+This is a bug fix and minor feature release - Nucleus {{version}} for Sponge API version {{sponge}} 
 
 This was built from Nucleus commit: {{hash}}
 
@@ -6,7 +6,11 @@ This was built from Nucleus commit: {{hash}}
 
 If you're having trouble, visit our Discord channel: https://discord.gg/A9QHG5H
 
+---
+
 {{info}}
+
+---
 
 ## Known Issues
 

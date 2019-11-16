@@ -285,6 +285,7 @@ task relnotes {
         ext.notes = template
                 .replace('{{hash}}', gitHash.hash)
                 .replace('{{info}}', notesText)
+                .replace('{{version}}', project.versionno + project.suffix)
                 .replace('{{message}}', gitCommitMessage.message())
                 .replace('{{sponge}}', project.ext.spongeapiversion)
     }
