@@ -1,6 +1,6 @@
 This is an alpha version of Nucleus {{version}} for Sponge API version {{sponge}} 
 
-**THIS IS AN ALPHA VERSION. IT IS INCOMPLETE AND WILL NOT BE STABLE. DO NOT USE ON PRODUCTION SERVERS**
+**THIS IS AN ALPHA VERSION. IT IS INCOMPLETE AND WILL NOT BE STABLE. DO NOT USE ON PRODUCTION SERVERS. LIKE ALWAYS, NO WARRANTY IS IMPLIED. NOTE THAT THE RISK OF DATA LOSS IS VERY REAL. IT IS NOT THE FAULT OF THE NUCLEUS TEAM IF ANYTHING GOES WRONG.**
 
 Please report any issues to Github Issues (https://github.com/NucleusPowered/Nucleus/issues) CLEARLY stating the version of Nucleus you are using.
 
