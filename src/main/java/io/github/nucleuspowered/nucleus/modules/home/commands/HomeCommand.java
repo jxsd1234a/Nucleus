@@ -79,8 +79,11 @@ public class HomeCommand implements ICommandExecutor<Player>, IReloadableService
         if (owl.isPresent()) {
             wl = owl.get();
         } else {
-            wl = homeService.getHome(player, NucleusHomeService.DEFAULT_HOME_NAME)
-                .orElseThrow(() -> context.createException("args.home.nohome", "home"));
+            Optional<Home> home = homeService.getHome(player, NucleusHomeService.DEFAULT_HOME_NAME);
+            if (!home.isPresent()) {
+                return context.errorResult("args.home.nohome", NucleusHomeService.DEFAULT_HOME_NAME);
+            }
+            wl = home.get();;
         }
 
         Sponge.getServer().loadWorld(wl.getWorldProperties()
