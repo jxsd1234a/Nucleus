@@ -15,6 +15,9 @@ import org.spongepowered.api.world.teleport.TeleportHelperFilter;
 
 import java.util.Optional;
 
+/**
+ *
+ */
 public interface NucleusSafeTeleportService {
 
     TeleportResult teleportPlayer(Player player,

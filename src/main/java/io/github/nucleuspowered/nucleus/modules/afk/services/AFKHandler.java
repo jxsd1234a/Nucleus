@@ -161,11 +161,11 @@ public class AFKHandler implements NucleusAFKService, IReloadableService.Reloada
         return this.data.containsKey(uuid) && this.data.get(uuid).isKnownAfk;
     }
 
-    private boolean setAfkInternal(Player player) {
+    private void setAfkInternal(Player player) {
         if (Sponge.getServer().isMainThread()) {
-            return setAfkInternal(player, Sponge.getCauseStackManager().getCurrentCause(), false);
+            setAfkInternal(player, Sponge.getCauseStackManager().getCurrentCause(), false);
         } else {
-            return setAfkInternal(player, Cause.of(EventContext.empty(), this.serviceCollection.pluginContainer()), false);
+            setAfkInternal(player, Cause.of(EventContext.empty(), this.serviceCollection.pluginContainer()), false);
         }
     }
 

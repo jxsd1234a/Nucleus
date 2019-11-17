@@ -24,6 +24,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.TeleportHelper;
@@ -34,6 +35,7 @@ import org.spongepowered.api.world.teleport.TeleportHelperFilters;
 
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
@@ -41,6 +43,11 @@ public class SafeTeleportService implements INucleusTeleportService, IReloadable
 
     private static final BorderDisableSession DUMMY = new BorderDisableSession() {};
     private SafeTeleportConfig config = new SafeTeleportConfig();
+
+    @Inject
+    public SafeTeleportService(PluginContainer pluginContainer) {
+        Sponge.getServiceManager().setProvider(pluginContainer, INucleusTeleportService.class, this);
+    }
 
     @Override public boolean setLocation(Player player, Location<World> location) {
         if (player.setLocation(location)) {
