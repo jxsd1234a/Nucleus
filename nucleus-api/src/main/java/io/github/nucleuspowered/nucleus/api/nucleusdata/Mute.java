@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Provides information about a player's mute.
  */
-public interface MuteInfo extends TimedEntry {
+public interface Mute extends TimedEntry {
 
     /**
      * The reason for the mute.

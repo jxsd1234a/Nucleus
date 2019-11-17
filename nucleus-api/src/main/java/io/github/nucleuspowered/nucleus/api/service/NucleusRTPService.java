@@ -83,8 +83,22 @@ public interface NucleusRTPService {
         return getDefaultKernel().getLocation(currentLocation, world, options);
     }
 
+    /**
+     * Gets the default {@link RTPKernel} used when executing
+     * a random teleport
+     *
+     * @param world The world to get the kernel for
+     * @return The kernel
+     */
     RTPKernel getKernel(WorldProperties world);
 
+    /**
+     * Gets the default {@link RTPKernel} used when executing
+     * a random teleport
+     *
+     * @param world The name of the world to get the kernel for
+     * @return The kernel
+     */
     RTPKernel getKernel(String world);
 
     /**

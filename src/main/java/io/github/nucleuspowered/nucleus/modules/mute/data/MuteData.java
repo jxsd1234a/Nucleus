@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.mute.data;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MuteInfo;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Mute;
 import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -19,7 +19,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 @ConfigSerializable
-public final class MuteData extends EndTimestamp implements MuteInfo {
+public final class MuteData extends EndTimestamp implements Mute {
 
     @Setting
     private UUID muter;

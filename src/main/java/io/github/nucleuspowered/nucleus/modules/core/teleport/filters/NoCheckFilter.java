@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.core.teleport.filters;
 
 import com.flowpowered.math.vector.Vector3i;
+import io.github.nucleuspowered.nucleus.api.teleport.NucleusTeleportHelperFilters;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.World;
@@ -31,7 +32,7 @@ public class NoCheckFilter implements TeleportHelperFilter {
 
     @Override
     public String getId() {
-        return "nucleus:no_check";
+        return NucleusTeleportHelperFilters.NO_CHECK_ID;
     }
 
     @Override

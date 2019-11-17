@@ -9,14 +9,18 @@ import org.spongepowered.api.text.Text;
 
 public class NameBanException extends CommandException {
 
-    private final Reasons reason;
+    private final Reason reason;
 
-    public NameBanException(Text message, Reasons reasons) {
+    public NameBanException(Text message, Reason reason) {
         super(message);
-        this.reason = reasons;
+        this.reason = reason;
     }
 
-    public enum Reasons {
+    public Reason getReason() {
+        return this.reason;
+    }
+
+    public enum Reason {
         DISALLOWED_NAME,
         DOES_NOT_EXIST
     }

@@ -4,13 +4,19 @@
  */
 package io.github.nucleuspowered.nucleus.api.teleport;
 
-import org.spongepowered.api.util.generator.dummy.DummyObjectProvider;
+import org.spongepowered.api.Sponge;
 
 public final class TeleportScanners {
 
-    public static final TeleportScanner ASCENDING_SCAN = DummyObjectProvider.createFor(TeleportScanner.class, "ASCENDING_SCAN");
+    public static final String ASCENDING_SCAN_KEY = "nucleus:ascending_scan";
+    public static final String DESCENDING_SCAN_KEY = "nucleus:descending_scan";
+    public static final String NO_SCAN_KEY = "nucleus:no_scan";
 
-    public static final TeleportScanner DESCENDING_SCAN = DummyObjectProvider.createFor(TeleportScanner.class, "DESCENDING_SCAN");
+    public static final TeleportScanner ASCENDING_SCAN =
+            Sponge.getRegistry().getType(TeleportScanner.class, ASCENDING_SCAN_KEY).get();
 
-    public static final TeleportScanner NO_SCAN = DummyObjectProvider.createFor(TeleportScanner.class, "NO_SCAN");
+    public static final TeleportScanner DESCENDING_SCAN =
+            Sponge.getRegistry().getType(TeleportScanner.class, DESCENDING_SCAN_KEY).get();
+
+    public static final TeleportScanner NO_SCAN = Sponge.getRegistry().getType(TeleportScanner.class, NO_SCAN_KEY).get();
 }

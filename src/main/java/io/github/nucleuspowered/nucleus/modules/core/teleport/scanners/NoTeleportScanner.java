@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.core.teleport.scanners;
 
 import com.flowpowered.math.vector.Vector3i;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanner;
+import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.TeleportHelper;
@@ -40,7 +41,7 @@ public class NoTeleportScanner implements TeleportScanner {
 
     @Override
     public String getId() {
-        return "nucleus:no_scan";
+        return TeleportScanners.NO_SCAN_KEY;
     }
 
     @Override

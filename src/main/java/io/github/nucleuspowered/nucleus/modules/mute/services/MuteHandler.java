@@ -8,7 +8,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MuteInfo;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Mute;
 import io.github.nucleuspowered.nucleus.api.service.NucleusMuteService;
 import io.github.nucleuspowered.nucleus.modules.mute.MuteKeys;
 import io.github.nucleuspowered.nucleus.modules.mute.data.MuteData;
@@ -78,7 +78,7 @@ public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteServi
         return getPlayerMuteData(user).isPresent();
     }
 
-    @Override public Optional<MuteInfo> getPlayerMuteInfo(User user) {
+    @Override public Optional<Mute> getPlayerMuteInfo(User user) {
         return getPlayerMuteData(user).map(x -> x);
     }
 

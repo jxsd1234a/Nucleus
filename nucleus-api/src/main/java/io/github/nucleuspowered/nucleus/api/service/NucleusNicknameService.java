@@ -18,6 +18,13 @@ import javax.annotation.Nullable;
  */
 public interface NucleusNicknameService {
 
+    /**
+     * Gets the current nickname for a user with a given {@link UUID},
+     * including the prefix, if it exists.
+     *
+     * @param user The {@link UUID} of the user to inspect.
+     * @return The nickname in {@link Text} form, if it exists.
+     */
     Optional<Text> getNicknameWithPrefix(UUID user);
 
     /**
@@ -37,6 +44,14 @@ public interface NucleusNicknameService {
     Optional<Text> getNickname(User user);
 
     /**
+     * Gets the current nickname for a user, if it exists.
+     *
+     * @param user The {@link UUID} of the user to inspect.
+     * @return The nickname in {@link Text} form, if it exists.
+     */
+    Optional<Text> getNickname(UUID user);
+
+    /**
      * Sets a user's nickname.
      *
      * @param user The {@link User} to change the nickname of
@@ -46,8 +61,6 @@ public interface NucleusNicknameService {
     default void setNickname(User user, @Nullable Text nickname) throws NicknameException {
         setNickname(user, nickname, false);
     }
-
-    Optional<Text> getNickname(UUID user);
 
     /**
      * Sets a user's nickname.

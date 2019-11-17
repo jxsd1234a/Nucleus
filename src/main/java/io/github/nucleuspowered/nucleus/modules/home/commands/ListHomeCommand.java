@@ -60,7 +60,7 @@ public class ListHomeCommand implements ICommandExecutor<CommandSource>, IReload
         User user = context.getUserFromArgs();
         Text header;
 
-        boolean other = context.is(user);
+        boolean other = !context.is(user);
         if (other && (context.isConsoleAndBypass() || context.testPermissionFor(user, HomePermissions.HOME_OTHER_EXEMPT_TARGET))) {
             return context.errorResult("command.listhome.exempt");
         }

@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.github.nucleuspowered.nucleus.Constants;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
-import io.github.nucleuspowered.nucleus.util.CatalogTypeFinalStaticProcessor;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.registry.AdditionalCatalogRegistryModule;
@@ -35,15 +34,6 @@ public abstract class NucleusRegistryModule<T extends CatalogType> implements Ad
         if (!this.registered) {
             registerModuleDefaults();
             this.registered = true;
-            if (getClass().isAnnotationPresent(Registry.class)) {
-                for (Class<?> clazz : getClass().getAnnotation(Registry.class).value()) {
-                    try {
-                        CatalogTypeFinalStaticProcessor.setFinalStaticFields(clazz, this.entries);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
             Sponge.getRegistry().registerModule(catalogClass(), this);
         }
     }

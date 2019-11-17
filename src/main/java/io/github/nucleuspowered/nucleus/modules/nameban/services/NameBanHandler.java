@@ -61,7 +61,7 @@ public class NameBanHandler implements NucleusNameBanService, ServiceBase, IRelo
         }
 
         throw new NameBanException(
-                Text.of("That is not a valid username."), NameBanException.Reasons.DISALLOWED_NAME);
+                Text.of("That is not a valid username."), NameBanException.Reason.DISALLOWED_NAME);
     }
 
     @Override public Optional<String> getReasonForBan(String name) {
@@ -76,10 +76,10 @@ public class NameBanHandler implements NucleusNameBanService, ServiceBase, IRelo
                 Sponge.getEventManager().post(new NameBanEvent.Unbanned(name, reason.get(), cause));
             }
 
-            throw new NameBanException(Text.of("Entry does not exist."), NameBanException.Reasons.DOES_NOT_EXIST);
+            throw new NameBanException(Text.of("Entry does not exist."), NameBanException.Reason.DOES_NOT_EXIST);
         }
 
-        throw new NameBanException(Text.of("That is not a valid username."), NameBanException.Reasons.DISALLOWED_NAME);
+        throw new NameBanException(Text.of("That is not a valid username."), NameBanException.Reason.DISALLOWED_NAME);
     }
 
     public void load() {

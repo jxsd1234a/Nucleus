@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.services.impl.teleport;
 
 import com.flowpowered.math.vector.Vector3d;
 import io.github.nucleuspowered.nucleus.api.EventContexts;
-import io.github.nucleuspowered.nucleus.api.catalogkeys.NucleusTeleportHelperFilters;
+import io.github.nucleuspowered.nucleus.api.teleport.NucleusTeleportHelperFilters;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanner;

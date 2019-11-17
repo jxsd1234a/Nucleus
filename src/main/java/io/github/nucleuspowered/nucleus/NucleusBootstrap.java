@@ -28,11 +28,15 @@ import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.core.services.UUIDChangeService;
 import io.github.nucleuspowered.nucleus.modules.core.services.UniqueUserService;
+import io.github.nucleuspowered.nucleus.modules.core.teleport.filters.NoCheckFilter;
+import io.github.nucleuspowered.nucleus.modules.core.teleport.filters.WallCheckFilter;
 import io.github.nucleuspowered.nucleus.quickstart.ModuleRegistrationProxyService;
 import io.github.nucleuspowered.nucleus.quickstart.NucleusLoggerProxy;
 import io.github.nucleuspowered.nucleus.quickstart.QuickStartModuleConstructor;
 import io.github.nucleuspowered.nucleus.quickstart.event.BaseModuleEvent;
 import io.github.nucleuspowered.nucleus.quickstart.module.StandardModule;
+import io.github.nucleuspowered.nucleus.registry.TeleportResultRegistryModule;
+import io.github.nucleuspowered.nucleus.registry.TeleportScannerRegistryModule;
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModiferRegistry;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.NucleusServiceCollection;
@@ -57,6 +61,7 @@ import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
@@ -70,6 +75,7 @@ import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.teleport.TeleportHelperFilter;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleDiscoveryException;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleLoaderException;
@@ -190,6 +196,7 @@ public class NucleusBootstrap {
                 logger,
                 this.dataDir,
                 this.configDir);
+
     }
 
     private INucleusServiceCollection getServiceCollection() {
@@ -200,17 +207,32 @@ public class NucleusBootstrap {
         return this.moduleContainer;
     }
 
+    @Listener
+    public void onRegisterTeleportHelperFilters(GameRegistryEvent.Register<TeleportHelperFilter> event) {
+        event.register(new NoCheckFilter());
+        event.register(new WallCheckFilter());
+    }
+
+
     @Listener(order = Order.FIRST)
     public void onPreInit(GamePreInitializationEvent preInitializationEvent) {
         // Create the command modifier registry module and start it.
         CommandModiferRegistry registry = new CommandModiferRegistry();
         registry.registerDefaults();
-
         registry.getAll().forEach(x -> {
             if (x instanceof IReloadableService.Reloadable) {
                 this.serviceCollection.reloadableService().registerReloadable((IReloadableService.Reloadable) x);
             }
         });
+
+        // Other registry stuff
+        TeleportScannerRegistryModule registryModule = new TeleportScannerRegistryModule();
+        registryModule.registerDefaults();
+
+        TeleportResultRegistryModule resultRegistryModule = new TeleportResultRegistryModule();
+        resultRegistryModule.registerDefaults();
+
+        //
 
         IMessageProviderService messageProvider = this.serviceCollection.messageProvider();
         // Setup object mapper.

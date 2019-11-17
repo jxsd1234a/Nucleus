@@ -2,9 +2,10 @@
  * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
  * at the root of this project for more details.
  */
-package io.github.nucleuspowered.nucleus.modules.core.registry;
+package io.github.nucleuspowered.nucleus.registry;
 
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
+import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.scaffold.registry.NucleusRegistryModule;
 import io.github.nucleuspowered.nucleus.scaffold.registry.Registry;
@@ -27,17 +28,17 @@ public class TeleportResultRegistryModule extends NucleusRegistryModule<Teleport
     @Override
     public void registerModuleDefaults() {
         registerAdditionalCatalog(new TeleportResultImpl(
-                "nucleus:success",
+                TeleportResults.SUCCESS_KEY,
                 "Successful Teleport",
                 true
         ));
         registerAdditionalCatalog(new TeleportResultImpl(
-                "nucleus:fail_no_location",
+                TeleportResults.FAIL_NO_LOCATION_KEY,
                 "Failed Teleport - no location found",
                 false
         ));
         registerAdditionalCatalog(new TeleportResultImpl(
-                "nucleus:fail_cancelled",
+                TeleportResults.FAIL_CANCELLED_KEY,
                 "Failed Teleport - cancelled by plugin",
                 false
         ));

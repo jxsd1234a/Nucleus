@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.api.service;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MuteInfo;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Mute;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 
@@ -34,12 +34,12 @@ public interface NucleusMuteService {
     boolean isMuted(User user);
 
     /**
-     * Gets the {@link MuteInfo} about a player.
+     * Gets the {@link Mute} about a player.
      *
      * @param user The {@link User} to check
-     * @return The {@link MuteInfo}, if applicable.
+     * @return The {@link Mute}, if applicable.
      */
-    Optional<MuteInfo> getPlayerMuteInfo(User user);
+    Optional<Mute> getPlayerMuteInfo(User user);
 
     /**
      * Mutes a player.
