@@ -27,6 +27,9 @@ public class CorePermissions {
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "nucleus clearcache" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_NUCLEUS_CLEARCACHE = "nucleus.nucleus.clearcache.base";
 
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "nucleus compatibility" }, level = SuggestedLevel.ADMIN)
+    public static final String BASE_NUCLEUS_COMPATIBILITY = "nucleus.nucleus.compatibility.base";
+
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "nucleus debug" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_NUCLEUS_DEBUG = "nucleus.nucleus.debug.base";
 

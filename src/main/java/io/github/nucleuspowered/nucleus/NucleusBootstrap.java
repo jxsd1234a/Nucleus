@@ -13,6 +13,8 @@ import static io.github.nucleuspowered.nucleus.NucleusPluginInfo.VERSION;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.typesafe.config.ConfigException;
@@ -232,7 +234,19 @@ public class NucleusBootstrap {
         TeleportResultRegistryModule resultRegistryModule = new TeleportResultRegistryModule();
         resultRegistryModule.registerDefaults();
 
-        //
+        // Compatibility
+        Optional<Asset> compatJson = Sponge.getAssetManager().getAsset(this.pluginContainer, "compat.json");
+        compatJson.ifPresent(x -> {
+            try {
+                JsonArray object = new JsonParser().parse(x.readString())
+                        .getAsJsonObject()
+                        .getAsJsonObject("json")
+                        .getAsJsonArray("messages");
+                this.serviceCollection.compatibilityService().set(object);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         IMessageProviderService messageProvider = this.serviceCollection.messageProvider();
         // Setup object mapper.

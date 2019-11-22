@@ -9,6 +9,7 @@ import com.google.inject.Injector;
 import io.github.nucleuspowered.nucleus.services.impl.NucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandElementSupplier;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandMetadataService;
+import io.github.nucleuspowered.nucleus.services.interfaces.ICompatibilityService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IConfigurateHelper;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICooldownService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IEconomyServiceProvider;
@@ -86,6 +87,8 @@ public interface INucleusServiceCollection {
     IPlayerInformationService playerInformationService();
 
     IConfigurateHelper configurateHelper();
+
+    ICompatibilityService compatibilityService();
 
     Logger logger();
 

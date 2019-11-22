@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.guice.DataDirectory;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandElementSupplier;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandMetadataService;
+import io.github.nucleuspowered.nucleus.services.interfaces.ICompatibilityService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IConfigurateHelper;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICooldownService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IEconomyServiceProvider;
@@ -71,6 +72,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
     private final Provider<IPlayerInformationService> playerInformationServiceProvider;
     private final Provider<IConfigurateHelper> configurateHelperProvider;
     private final Provider<IPlatformService> platformServiceProvider;
+    private final Provider<ICompatibilityService> compatibilityServiceProvider;
     private final Injector injector;
     private final PluginContainer pluginContainer;
     private final Logger logger;
@@ -107,6 +109,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         this.playerInformationServiceProvider = new LazyLoad<>(injector, IPlayerInformationService.class);
         this.configurateHelperProvider = new LazyLoad<>(injector, IConfigurateHelper.class);
         this.platformServiceProvider = new LazyLoad<>(injector, IPlatformService.class);
+        this.compatibilityServiceProvider = new LazyLoad<>(injector, ICompatibilityService.class);
         this.injector = injector;
         this.pluginContainer = pluginContainer;
         this.logger = logger;
@@ -199,6 +202,10 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
 
     @Override public IConfigurateHelper configurateHelper() {
         return this.configurateHelperProvider.get();
+    }
+
+    @Override public ICompatibilityService compatibilityService() {
+        return this.compatibilityServiceProvider.get();
     }
 
     @Override public IUserCacheService userCacheService() {

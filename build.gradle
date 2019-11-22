@@ -9,6 +9,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '4.0.2'
     id 'java'
     id 'org.spongepowered.plugin' version '0.9.0'
+    id "de.undercouch.download" version "4.0.1"
 }
 
 allprojects {
@@ -309,12 +310,19 @@ task writeRelNotesInOutput(dependsOn: relnotes)  {
     }
 }
 
+task downloadCompat(type: Download) {
+    src 'https://nucleuspowered.org/data/nca.json'
+    dest new File(buildDir, 'resources/main/assets/nucleus/compat.json')
+    onlyIfModified true
+}
+
 blossomSourceReplacementJava.dependsOn(gitHash)
 jar.dependsOn(gitHash)
 relnotes.dependsOn([gitHash, gitCommitMessage])
 compileJava.dependsOn(":nucleus-ap:build")
 clean.dependsOn(cleanJars)
 copyJars.mustRunAfter(cleanJars)
+jar.dependsOn(downloadCompat)
 build.dependsOn(shadowJar)
 build.dependsOn(copyJars)
 build.dependsOn(writeRelNotesInOutput)
