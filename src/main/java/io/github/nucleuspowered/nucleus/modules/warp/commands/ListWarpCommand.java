@@ -26,7 +26,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.util.Comparator;
 import java.util.List;
@@ -140,13 +140,14 @@ public class ListWarpCommand implements ICommandExecutor<CommandSource>, IReload
 
     private Text createWarp(@Nullable Warp data, String name, boolean econExists, double defaultCost,
             ICommandContext<? extends CommandSource> context) {
-        if (data == null || !data.getLocation().isPresent()) {
+        if (data == null || !data.getWorldProperties().map(WorldProperties::isEnabled).orElse(false)) {
             return Text.builder(name).color(TextColors.RED)
                     .onHover(TextActions.showText(
                             context.getMessage("command.warps.unavailable"))).build();
         }
 
-        Location<World> world = data.getLocation().get();
+        String pos = data.getLocation().map(Location::getBlockPosition).orElseGet(() -> data.getPosition().toInt()).toString();
+        String worldName = data.getWorldProperties().get().getWorldName();
 
         Text.Builder inner = Text.builder(name).color(TextColors.GREEN).style(TextStyles.ITALIC)
                 .onClick(TextActions.runCommand("/warp \"" + name + "\""));
@@ -157,8 +158,9 @@ public class ListWarpCommand implements ICommandExecutor<CommandSource>, IReload
             Text.Builder hoverBuilder = Text.builder()
                     .append(context.getMessage("command.warps.warpprompt", name))
                     .append(Text.NEW_LINE)
-                    .append(context.getMessage("command.warps.warplochover", world.getExtent().getName(),
-                            world.getBlockPosition().toString()));
+                    .append(context.getMessage("command.warps.warplochover",
+                            worldName,
+                            pos));
 
             if (econExists) {
                 double cost = data.getCost().orElse(defaultCost);
@@ -186,7 +188,8 @@ public class ListWarpCommand implements ICommandExecutor<CommandSource>, IReload
 
             tb = Text.builder().append(inner.build())
                             .append(context.getMessage("command.warps.warploc",
-                                    world.getExtent().getName(), world.getBlockPosition().toString()
+                                    worldName,
+                                    pos
                             ));
 
             if (econExists) {
