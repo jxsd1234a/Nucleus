@@ -145,7 +145,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
     }
 
     private Text createWarp(@Nullable Warp data, String name, boolean econExists, double defaultCost) {
-        if (data == null || !data.getWorldProperties().map(x -> !x.isEnabled()).orElse(false)) {
+        if (data == null || data.getWorldProperties().map(x -> !x.isEnabled()).orElse(false)) {
             return Text.builder(name).color(TextColors.RED).onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat
                     ("command.warps.unavailable"))).build();
         }
