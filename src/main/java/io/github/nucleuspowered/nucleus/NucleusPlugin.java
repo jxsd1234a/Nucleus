@@ -109,6 +109,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -753,6 +754,10 @@ public class NucleusPlugin extends Nucleus {
         String language = config.getServerLocale();
         if (language == null) {
             language = "default";
+        }
+
+        if (!config.isAutodetectlanguage() && language.equalsIgnoreCase("default")) {
+            language = Locale.UK.toLanguageTag();
         }
 
         if (config.isCustommessages()) {
