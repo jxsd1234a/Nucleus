@@ -66,15 +66,17 @@ public abstract class StaffChatMessageChannel
             source = (CommandSource) sender;
         }
 
-        Text prefix = template.getForCommandSource(source);
-        NucleusChatChannel.StaffChat.super.send(sender, Text.of(prefix, this.colour, original), type);
+        NucleusChatChannel.StaffChat.super.send(sender, format(source, Sponge.getServer().getConsole(), original), type);
     }
 
-
+    @Override
+    public Text format(CommandSource sender, MessageReceiver receiver, Text text) {
+        return Text.of(template.getForCommandSource(sender), colour, text);
+    }
 
     @Override
     public boolean formatMessages() {
-        return this.formatting;
+        return formatting;
     }
 
     private static void onReload() {
