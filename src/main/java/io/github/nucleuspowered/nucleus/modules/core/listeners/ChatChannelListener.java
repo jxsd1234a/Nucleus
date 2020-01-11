@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core.listeners;
 
+import com.google.common.collect.ImmutableList;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -27,7 +28,6 @@ public class ChatChannelListener implements ListenerBase {
         this.chatMessageFormatter = serviceCollection.chatMessageFormatter();
     }
 
-
     // Used to perform any transformations so that they can be caught by other plugins.
     @Listener(order = Order.LATE)
     public void onChatMessageLast(MessageChannelEvent.Chat chat, @Root CommandSource source) {
@@ -38,10 +38,14 @@ public class ChatChannelListener implements ListenerBase {
             channel.formatMessageEvent(source, chat.getFormatter());
             chat.setChannel(chat.getChannel().map(x -> {
                 MutableMessageChannel messageChannel = x.asMutable();
-                messageChannel.clearMembers();
-                for (MessageReceiver receiver : channel.receivers()) {
-                    messageChannel.addMember(receiver);
+                // Copy to make sure we don't CME
+                for (MessageReceiver toSendTo : ImmutableList.copyOf(messageChannel.getMembers())) {
+                    if (!channel.receivers().contains(toSendTo)) {
+                        // If the receiver is not in the channel, remove
+                        messageChannel.removeMember(toSendTo);
+                    }
                 }
+
                 return (MessageChannel) messageChannel;
             }).orElseGet(() -> MessageChannel.fixed(channel.receivers())));
         }
