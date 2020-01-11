@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.staffchat.commands;
 
 import io.github.nucleuspowered.nucleus.api.EventContexts;
+import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatMessageChannel;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatPermissions;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatUserPrefKeys;
@@ -15,6 +16,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
@@ -22,11 +24,11 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Optional;
+
+import javax.inject.Inject;
 
 @NonnullByDefault
 @Command(
@@ -36,6 +38,13 @@ import java.util.Optional;
 )
 public class StaffChatCommand implements ICommandExecutor<CommandSource> {
 
+    private final IChatMessageFormatterService chatMessageFormatterService;
+
+    @Inject
+    public StaffChatCommand(INucleusServiceCollection serviceCollection) {
+        this.chatMessageFormatterService = serviceCollection.chatMessageFormatter();
+    }
+
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
         return new CommandElement[] {
@@ -43,7 +52,8 @@ public class StaffChatCommand implements ICommandExecutor<CommandSource> {
         };
     }
 
-    @Override public ICommandResult execute(ICommandContext<? extends CommandSource> context) throws CommandException {
+    @Override
+    public ICommandResult execute(ICommandContext<? extends CommandSource> context) throws CommandException {
         Optional<String> toSend = context.getOne(NucleusParameters.Keys.MESSAGE, String.class);
         if (toSend.isPresent()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
@@ -53,13 +63,13 @@ public class StaffChatCommand implements ICommandExecutor<CommandSource> {
                     frame.pushCause(pl);
                     frame.addContext(EventContextKeys.PLAYER_SIMULATED, pl.getProfile());
 
-                    MessageChannel mc = pl.getMessageChannel();
-                    pl.setMessageChannel(StaffChatMessageChannel.getInstance());
-                    pl.simulateChat(
-                            context.getServiceCollection()
-                                    .textStyleService()
-                                    .addUrls(toSend.get()), Sponge.getCauseStackManager().getCurrentCause());
-                    pl.setMessageChannel(mc);
+                    try (NoExceptionAutoClosable c = this.chatMessageFormatterService
+                            .setPlayerNucleusChannelTemporarily(pl.getUniqueId(), StaffChatMessageChannel.getInstance())) {
+                        pl.simulateChat(
+                                context.getServiceCollection()
+                                        .textStyleService()
+                                        .addUrls(toSend.get()), Sponge.getCauseStackManager().getCurrentCause());
+                    }
 
                     // If you send a message, you're viewing it again.
                     context.getServiceCollection()
@@ -67,8 +77,8 @@ public class StaffChatCommand implements ICommandExecutor<CommandSource> {
                             .setPreferenceFor(pl, StaffChatUserPrefKeys.VIEW_STAFF_CHAT, true);
                 } else {
                     StaffChatMessageChannel.getInstance()
-                            .send(context.getCommandSource(),
-                            context.getServiceCollection().textStyleService().addUrls(toSend.get()), ChatTypes.CHAT);
+                            .sendMessageFrom(context.getCommandSource(),
+                                    context.getServiceCollection().textStyleService().addUrls(toSend.get()));
                 }
 
                 return context.successResult();

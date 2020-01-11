@@ -4,42 +4,35 @@
  */
 package io.github.nucleuspowered.nucleus.modules.staffchat.services;
 
-import io.github.nucleuspowered.nucleus.api.chat.NucleusChatChannel;
 import io.github.nucleuspowered.nucleus.api.service.NucleusStaffChatService;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatMessageChannel;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatUserPrefKeys;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.Text;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @APIService(NucleusStaffChatService.class)
 public class StaffChatService implements NucleusStaffChatService, ServiceBase {
 
     private final IUserPreferenceService userPreferenceService;
-    private final Map<UUID, MessageChannel> previousChannels = new HashMap<>();
+    private final IChatMessageFormatterService chatMessageFormatService;
 
     @Inject
     public StaffChatService(INucleusServiceCollection serviceCollection) {
         this.userPreferenceService = serviceCollection.userPreferenceService();
+        this.chatMessageFormatService = serviceCollection.chatMessageFormatter();
     }
 
     @Override
-    public NucleusChatChannel.StaffChat getStaffChat() {
-        return StaffChatMessageChannel.getInstance();
-    }
-
-    public void reset(UUID uuid) {
-        this.previousChannels.remove(uuid);
+    public void sendMessageFrom(CommandSource source, Text message) {
+        StaffChatMessageChannel.getInstance().sendMessageFrom(source, message);
     }
 
     public boolean isToggledChat(Player player) {
@@ -48,22 +41,12 @@ public class StaffChatService implements NucleusStaffChatService, ServiceBase {
 
     public void toggle(Player player, boolean toggle) {
         if (toggle) {
-            MessageChannel current = player.getMessageChannel();
-            if (current != StaffChatMessageChannel.getInstance()) {
-                this.previousChannels.put(player.getUniqueId(), player.getMessageChannel());
-            }
-            player.setMessageChannel(StaffChatMessageChannel.getInstance());
+            this.chatMessageFormatService.setPlayerNucleusChannel(player.getUniqueId(), StaffChatMessageChannel.getInstance());
 
             // If you switch, you're switching to the staff chat channel so you should want to listen to it.
             this.userPreferenceService.setPreferenceFor(player, StaffChatUserPrefKeys.VIEW_STAFF_CHAT, true);
         } else {
-            @Nullable MessageChannel mc = this.previousChannels.get(player.getUniqueId());
-            if (mc == null) {
-                player.setMessageChannel(MessageChannel.TO_ALL);
-            } else {
-                player.setMessageChannel(mc);
-                this.previousChannels.remove(player.getUniqueId());
-            }
+            this.chatMessageFormatService.setPlayerNucleusChannel(player.getUniqueId(), null);
         }
     }
 }

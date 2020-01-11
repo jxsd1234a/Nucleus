@@ -6,13 +6,13 @@ package io.github.nucleuspowered.nucleus.modules.ignore.listeners;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.chat.NucleusNoIgnoreChannel;
 import io.github.nucleuspowered.nucleus.api.events.NucleusMailEvent;
 import io.github.nucleuspowered.nucleus.api.events.NucleusMessageEvent;
 import io.github.nucleuspowered.nucleus.modules.ignore.IgnorePermissions;
 import io.github.nucleuspowered.nucleus.modules.ignore.services.IgnoreService;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -33,29 +33,31 @@ public class IgnoreListener implements ListenerBase {
 
     private final IgnoreService service;
     private final IPermissionService permissionService;
+    private final IChatMessageFormatterService chatMessageFormatterService;
 
     @Inject
     public IgnoreListener(INucleusServiceCollection serviceCollection) {
         this.service = serviceCollection.getServiceUnchecked(IgnoreService.class);
         this.permissionService = serviceCollection.permissionService();
+        this.chatMessageFormatterService = serviceCollection.chatMessageFormatter();
     }
 
-    @Listener(order = Order.LATE)
+    @Listener(order = Order.LAST)
     public void onChat(MessageChannelEvent.Chat event) {
-        if (event.getChannel().orElseGet(event::getOriginalChannel) instanceof NucleusNoIgnoreChannel) {
-            return;
-        }
-
         Util.onPlayerSimulatedOrPlayer(event, this::onChat);
     }
 
     private void onChat(MessageChannelEvent.Chat event, Player player) {
         // Reset the channel - but only if we have to.
-        checkCancels(event.getChannel().orElseGet(event::getOriginalChannel).getMembers(), player).ifPresent(x -> {
-            MutableMessageChannel mmc = event.getChannel().orElseGet(event::getOriginalChannel).asMutable();
-            x.forEach(mmc::removeMember);
-            event.setChannel(mmc);
-        });
+        if (!this.chatMessageFormatterService.getNucleusChannel(player.getUniqueId())
+                .map(IChatMessageFormatterService.Channel::ignoreIgnoreList)
+                .orElse(false)) {
+            checkCancels(event.getChannel().orElseGet(event::getOriginalChannel).getMembers(), player).ifPresent(x -> {
+                MutableMessageChannel mmc = event.getChannel().orElseGet(event::getOriginalChannel).asMutable();
+                x.forEach(mmc::removeMember);
+                event.setChannel(mmc);
+            });
+        }
     }
 
     @Listener(order = Order.FIRST)

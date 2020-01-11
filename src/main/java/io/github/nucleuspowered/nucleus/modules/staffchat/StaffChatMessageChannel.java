@@ -5,40 +5,30 @@
 package io.github.nucleuspowered.nucleus.modules.staffchat;
 
 import com.google.common.base.Preconditions;
-import io.github.nucleuspowered.nucleus.api.chat.NucleusChatChannel;
 import io.github.nucleuspowered.nucleus.modules.staffchat.config.StaffChatConfig;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.source.ProxySource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.context.Context;
-import org.spongepowered.api.service.permission.SubjectCollection;
-import org.spongepowered.api.service.permission.SubjectData;
-import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
-import org.spongepowered.api.text.chat.ChatType;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, IReloadableService.Reloadable {
+public class StaffChatMessageChannel implements IChatMessageFormatterService.Channel, IReloadableService.Reloadable {
 
     private static StaffChatMessageChannel INSTANCE = null;
 
@@ -63,26 +53,26 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, IR
         INSTANCE = this;
     }
 
-    @Override
-    public void send(@Nullable Object sender, Text original, ChatType type) {
-        CommandSource source;
-        if (!(sender instanceof CommandSource)) {
-            if (sender instanceof String) {
-                source = new NamedSource((String) sender);
-            } else {
-                source = Sponge.getServer().getConsole();
-            }
-        } else {
-            source = (CommandSource) sender;
-        }
+    public boolean formatMessages() {
+        return this.formatting;
+    }
 
-        Text prefix = this.template.getForCommandSource(source);
-        NucleusChatChannel.StaffChat.super.send(sender, Text.of(prefix, this.colour, original), type);
+    public void sendMessageFrom(CommandSource source, Text text) {
+        MessageEvent.MessageFormatter formatters = new MessageEvent.MessageFormatter();
+        formatters.setBody(text);
+        formatMessageEvent(source, formatters);
+        MessageChannel.fixed(receivers()).send(source, formatters.format(), ChatTypes.CHAT);
     }
 
     @Override
-    @Nonnull
-    public Collection<MessageReceiver> getMembers() {
+    public void formatMessageEvent(CommandSource source, MessageEvent.MessageFormatter formatters) {
+        Text prefix = this.template.getForCommandSource(source);
+        formatters.setHeader(Text.of(formatters.getHeader(), prefix));
+        formatters.setBody(Text.of(this.colour, formatters.getBody()));
+    }
+
+    @Override
+    public Collection<MessageReceiver> receivers() {
         List<MessageReceiver> c =
                 Sponge.getServer().getOnlinePlayers().stream()
                         .filter(this::test)
@@ -92,8 +82,8 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, IR
     }
 
     @Override
-    public boolean formatMessages() {
-        return this.formatting;
+    public boolean ignoreIgnoreList() {
+        return true;
     }
 
     private boolean test(Player player) {
@@ -111,101 +101,6 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, IR
         this.formatting = sc.isIncludeStandardChatFormatting();
         this.template = sc.getMessageTemplate();
         this.colour = serviceCollection.textStyleService().getColourFromString(sc.getMessageColour());
-    }
-
-    @NonnullByDefault
-    private class NamedSource implements ProxySource {
-
-        private final String name;
-
-        NamedSource(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public CommandSource getOriginalSource() {
-            return Sponge.getServer().getConsole();
-        }
-
-        @Override
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public Optional<CommandSource> getCommandSource() {
-            return Optional.of(getOriginalSource());
-        }
-
-        @Override
-        public SubjectCollection getContainingCollection() {
-            return getOriginalSource().getContainingCollection();
-        }
-
-        @Override
-        public SubjectReference asSubjectReference() {
-            return getOriginalSource().asSubjectReference();
-        }
-
-        @Override
-        public boolean isSubjectDataPersisted() {
-            return getOriginalSource().isSubjectDataPersisted();
-        }
-
-        @Override
-        public SubjectData getSubjectData() {
-            return getOriginalSource().getSubjectData();
-        }
-
-        @Override
-        public SubjectData getTransientSubjectData() {
-            return getOriginalSource().getTransientSubjectData();
-        }
-
-        @Override
-        public Tristate getPermissionValue(Set<Context> contexts, String permission) {
-            return getOriginalSource().getPermissionValue(contexts, permission);
-        }
-
-        @Override
-        public boolean isChildOf(Set<Context> contexts, SubjectReference parent) {
-            return getOriginalSource().isChildOf(contexts, parent);
-        }
-
-        @Override
-        public List<SubjectReference> getParents(Set<Context> contexts) {
-            return getOriginalSource().getParents();
-        }
-
-        @Override
-        public Optional<String> getOption(Set<Context> contexts, String key) {
-            return getOriginalSource().getOption(contexts, key);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getName();
-        }
-
-        @Override
-        public Set<Context> getActiveContexts() {
-            return getOriginalSource().getActiveContexts();
-        }
-
-        @Override
-        public void sendMessage(Text message) {
-            getOriginalSource().sendMessage(message);
-        }
-
-        @Override
-        public MessageChannel getMessageChannel() {
-            return getOriginalSource().getMessageChannel();
-        }
-
-        @Override
-        public void setMessageChannel(MessageChannel channel) {
-            getOriginalSource().setMessageChannel(channel);
-        }
     }
 
 }

@@ -60,14 +60,12 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
     private final Map<UUID, UUID> messagesReceived = Maps.newHashMap();
     private final Map<UUID, CustomMessageTarget<? extends CommandSource>> targets = Maps.newHashMap();
     private final Map<String, UUID> targetNames = Maps.newHashMap();
-    private final MessageChannel helpOpMessageChannel;
 
     public static final String socialSpyOption = "nucleus.socialspy.level";
 
     @Inject
     public MessageHandler(INucleusServiceCollection serviceCollection) {
         this.serviceCollection = serviceCollection;
-        this.helpOpMessageChannel = new HelpOpMessageChannel(serviceCollection);
         onReload(serviceCollection);
     }
 
@@ -77,10 +75,6 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
         this.useLevels = this.messageConfig.isSocialSpyLevels();
         this.sameLevel = this.messageConfig.isSocialSpySameLevel();
         this.serverLevel = this.messageConfig.getServerLevel();
-    }
-
-    public MessageChannel getHelpopMessageChannel() {
-        return this.helpOpMessageChannel;
     }
 
     @Override

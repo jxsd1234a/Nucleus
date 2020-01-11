@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.api.service;
 
-import io.github.nucleuspowered.nucleus.api.chat.NucleusChatChannel;
-import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.Text;
 
 /**
  * Provides a way to get the Staff Chat message channel instance.
@@ -13,10 +13,11 @@ import org.spongepowered.api.text.channel.MessageChannel;
 public interface NucleusStaffChatService {
 
     /**
-     * Gets the staff chat message channel.
+     * Sends a message to the Staff Chat channel.
      *
-     * @return The {@link MessageChannel}
+     * @param source The {@link CommandSource} that is sending this message.
+     * @param message The message to send.
      */
-    NucleusChatChannel.StaffChat getStaffChat();
+    void sendMessageFrom(CommandSource source, Text message);
 
 }

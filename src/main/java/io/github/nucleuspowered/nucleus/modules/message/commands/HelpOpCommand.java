@@ -4,6 +4,10 @@
  */
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
+import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.EventContexts;
+import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
+import io.github.nucleuspowered.nucleus.modules.message.HelpOpMessageChannel;
 import io.github.nucleuspowered.nucleus.modules.message.MessagePermissions;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfig;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusHelpOpEvent;
@@ -18,15 +22,21 @@ import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEq
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
+import io.github.nucleuspowered.nucleus.services.interfaces.ITextStyleService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.CauseStackManager;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 @EssentialsEquivalent({"helpop", "amsg", "ac"})
 @NonnullByDefault
@@ -43,7 +53,13 @@ import javax.annotation.Nullable;
 )
 public class HelpOpCommand implements ICommandExecutor<Player>, IReloadableService.Reloadable {
 
-    @Nullable private NucleusTextTemplateImpl prefix = null;
+    private final IChatMessageFormatterService chatMessageFormatterService;
+    private HelpOpMessageChannel channel;
+
+    @Inject
+    public HelpOpCommand(INucleusServiceCollection serviceCollection) {
+        this.chatMessageFormatterService = serviceCollection.chatMessageFormatter();
+    }
 
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
@@ -61,20 +77,30 @@ public class HelpOpCommand implements ICommandExecutor<Player>, IReloadableServi
             return context.errorResult("message.cancel");
         }
 
-        Text prefix = this.prefix == null ? Text.EMPTY : this.prefix.getForCommandSource(context.getCommandSource());
+        Player player = context.getIfPlayer();
 
-        context.getServiceCollection()
-                .getServiceUnchecked(MessageHandler.class)
-                .getHelpopMessageChannel()
-                .send(context.getCommandSource(),
-                    context.getServiceCollection().textStyleService().joinTextsWithColoursFlowing(prefix, Text.of(message)));
+        MessageChannelEvent.Chat chat;
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
+                NoExceptionAutoClosable c = this.chatMessageFormatterService.setPlayerNucleusChannelTemporarily(player.getUniqueId(), this.channel)) {
+            frame.addContext(EventContexts.SHOULD_FORMAT_CHANNEL, false);
+            frame.pushCause(player);
+            chat = player.simulateChat(Text.of(message), Sponge.getCauseStackManager().getCurrentCause());
+        }
 
-        context.sendMessage("command.helpop.success");
+        if (chat.isCancelled()) {
+            context.sendMessage("command.helpop.fail");
+        } else {
+            context.sendMessage("command.helpop.success");
+        }
 
         return context.successResult();
     }
 
     @Override public void onReload(INucleusServiceCollection serviceCollection) {
-        this.prefix = serviceCollection.moduleDataProvider().getModuleConfig(MessageConfig.class).getHelpOpPrefix(serviceCollection.textTemplateFactory());
+        this.channel = new HelpOpMessageChannel(
+                serviceCollection.moduleDataProvider().getModuleConfig(MessageConfig.class).getHelpOpPrefix(serviceCollection.textTemplateFactory()),
+                serviceCollection.permissionService(),
+                serviceCollection.textStyleService()
+        );
     }
 }

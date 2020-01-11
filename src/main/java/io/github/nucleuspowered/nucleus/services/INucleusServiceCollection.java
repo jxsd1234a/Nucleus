@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.services;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.nucleus.services.impl.NucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandElementSupplier;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandMetadataService;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICompatibilityService;
@@ -103,4 +104,6 @@ public interface INucleusServiceCollection {
     Path configDir();
 
     Supplier<Path> dataDir();
+
+    IChatMessageFormatterService chatMessageFormatter();
 }

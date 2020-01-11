@@ -5,8 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.chat.listeners;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.EventContexts;
-import io.github.nucleuspowered.nucleus.api.chat.NucleusNoFormatChannel;
 import io.github.nucleuspowered.nucleus.api.service.NucleusMessageTokenService;
 import io.github.nucleuspowered.nucleus.modules.chat.ChatPermissions;
 import io.github.nucleuspowered.nucleus.modules.chat.config.ChatConfig;
@@ -14,6 +12,7 @@ import io.github.nucleuspowered.nucleus.modules.chat.config.ChatTemplateConfig;
 import io.github.nucleuspowered.nucleus.modules.chat.services.ChatService;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.ITextStyleService;
@@ -24,12 +23,10 @@ import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextTemplate;
-import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.transform.SimpleTextFormatter;
 import org.spongepowered.api.text.transform.SimpleTextTemplateApplier;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 /**
@@ -42,6 +39,7 @@ public class ChatListener implements IReloadableService.Reloadable, ListenerBase
     private final ChatService chatService;
     private final ITextStyleService textStyleService;
     private final IPermissionService permissionService;
+    private final IChatMessageFormatterService chatMessageFormatterService;
 
     private ChatConfig chatConfig;
 
@@ -51,6 +49,7 @@ public class ChatListener implements IReloadableService.Reloadable, ListenerBase
         this.textStyleService = serviceCollection.textStyleService();
         this.chatConfig = serviceCollection.moduleDataProvider().getModuleConfig(ChatConfig.class);
         this.permissionService = serviceCollection.permissionService();
+        this.chatMessageFormatterService = serviceCollection.chatMessageFormatter();
     }
 
     // We do this first so that other plugins can alter it later if needs be.
@@ -59,34 +58,9 @@ public class ChatListener implements IReloadableService.Reloadable, ListenerBase
         Util.onPlayerSimulatedOrPlayer(event, this::onPlayerChatInternal);
     }
 
-    private boolean shouldNotFormat(MessageChannelEvent.Chat event) {
-        if (!event.getContext().get(EventContexts.SHOULD_FORMAT_CHANNEL).orElse(true)) {
-            return true;
-        }
-
-        return event.getChannel().map(this::shouldNotFormat).orElseGet(() -> shouldNotFormat(event.getOriginalChannel()));
-    }
-
-    private boolean shouldNotFormat(MessageChannel channel) {
-        return channel instanceof NucleusNoFormatChannel && !((NucleusNoFormatChannel) channel).formatMessages();
-    }
-
-    @Nullable
-    private NucleusNoFormatChannel getChannel(MessageChannelEvent.Chat event) {
-        if (event.getChannel().filter(x -> x instanceof NucleusNoFormatChannel).isPresent()) {
-            return (NucleusNoFormatChannel) event.getChannel().get();
-        }
-        return event.getOriginalChannel() instanceof NucleusNoFormatChannel ? (NucleusNoFormatChannel) event.getOriginalChannel() : null;
-    }
-
     private void onPlayerChatInternal(MessageChannelEvent.Chat event, Player player) {
-        if (shouldNotFormat(event)) {
-            @Nullable NucleusNoFormatChannel channel = getChannel(event);
-            if (channel != null && channel.removePrefix()) {
-                event.getFormatter().setHeader(Text.EMPTY);
-            }
-
-            // Not interested in applying these transforms.
+        if (this.chatMessageFormatterService.getNucleusChannel(player.getUniqueId())
+                .map(IChatMessageFormatterService.Channel::willFormat).orElse(false)) {
             return;
         }
 
