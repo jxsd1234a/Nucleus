@@ -37,7 +37,6 @@ import io.github.nucleuspowered.nucleus.quickstart.NucleusLoggerProxy;
 import io.github.nucleuspowered.nucleus.quickstart.QuickStartModuleConstructor;
 import io.github.nucleuspowered.nucleus.quickstart.event.BaseModuleEvent;
 import io.github.nucleuspowered.nucleus.quickstart.module.StandardModule;
-import io.github.nucleuspowered.nucleus.registry.TeleportResultRegistryModule;
 import io.github.nucleuspowered.nucleus.registry.TeleportScannerRegistryModule;
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModiferRegistry;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -49,7 +48,6 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderServ
 import io.github.nucleuspowered.nucleus.services.interfaces.IModuleDataProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
-import io.github.nucleuspowered.nucleus.util.CatalogTypeFinalStaticProcessor;
 import io.github.nucleuspowered.nucleus.util.ClientMessageReciever;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -231,9 +229,6 @@ public class NucleusBootstrap {
         TeleportScannerRegistryModule registryModule = new TeleportScannerRegistryModule();
         registryModule.registerDefaults();
 
-        TeleportResultRegistryModule resultRegistryModule = new TeleportResultRegistryModule();
-        resultRegistryModule.registerDefaults();
-
         // Compatibility
         Optional<Asset> compatJson = Sponge.getAssetManager().getAsset(this.pluginContainer, "compat.json");
         compatJson.ifPresent(x -> {
@@ -413,24 +408,6 @@ public class NucleusBootstrap {
                     e.printStackTrace();
                 }
             });
-        } catch (Exception e) {
-            this.isErrored = e;
-            disable();
-            e.printStackTrace();
-        }
-    }
-
-    @Listener(order = Order.FIRST)
-    public void onInit(GameInitializationEvent event) {
-        IMessageProviderService messageProvider = this.serviceCollection.messageProvider();
-        if (this.isErrored != null) {
-            return;
-        }
-
-        this.logger.info(messageProvider.getMessageString("startup.init", NucleusPluginInfo.NAME));
-
-        try {
-            CatalogTypeFinalStaticProcessor.setEventContexts();
         } catch (Exception e) {
             this.isErrored = e;
             disable();

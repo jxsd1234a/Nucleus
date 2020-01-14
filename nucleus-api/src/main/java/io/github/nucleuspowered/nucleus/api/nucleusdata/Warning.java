@@ -10,6 +10,9 @@ import java.util.UUID;
 
 /**
  * Information about a player's warning.
+ *
+ * <p>Note that warnings are no longer part of the Nucleus plugin,
+ * this exists for migration purposes.</p>
  */
 public interface Warning extends TimedEntry {
 

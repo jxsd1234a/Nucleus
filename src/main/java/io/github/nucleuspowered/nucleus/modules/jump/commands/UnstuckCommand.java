@@ -52,7 +52,7 @@ public class UnstuckCommand implements ICommandExecutor<Player>, IReloadableServ
                 src,
                 location,
                 false,
-                TeleportScanners.NO_SCAN,
+                TeleportScanners.NO_SCAN.get(),
                 TeleportHelperFilters.DEFAULT).isSuccessful())
         if (context.getServiceCollection().teleportService().setLocation(src, location)) {
             context.sendMessage("command.unstuck.success");

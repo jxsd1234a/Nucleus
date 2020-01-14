@@ -124,7 +124,7 @@ public interface NucleusKitEvent extends Event {
         /**
          * Fired when a player is redeeming a kit.
          */
-        interface Pre extends Redeem, CancelMessage {
+        interface Pre extends Redeem, CancelMessageEvent {
 
             /**
              * Override the content of the kit for this redemption only.

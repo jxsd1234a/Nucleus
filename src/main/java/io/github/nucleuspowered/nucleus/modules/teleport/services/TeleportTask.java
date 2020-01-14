@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.teleport.services;
 
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.scaffold.task.CancellableTask;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -95,13 +94,13 @@ public class TeleportTask implements CancellableTask {
                         this.requestLocation == null ? targetPlayer.getTransform() : this.requestLocation,
                         false,
                         this.safe,
-                        TeleportScanners.NO_SCAN
+                        TeleportScanners.NO_SCAN.get()
                 );
 
                 if (!result.isSuccessful()) {
                     if (!this.silentSource) {
                         this.serviceCollection.messageProvider()
-                                .sendMessageTo(receiver, result == TeleportResults.FAIL_NO_LOCATION ?
+                                .sendMessageTo(receiver, result == TeleportResult.FAIL_NO_LOCATION ?
                                         "teleport.nosafe" : "teleport.cancelled");
                     }
 

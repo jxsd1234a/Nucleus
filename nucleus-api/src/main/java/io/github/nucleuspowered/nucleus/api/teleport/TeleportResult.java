@@ -4,10 +4,26 @@
  */
 package io.github.nucleuspowered.nucleus.api.teleport;
 
-import org.spongepowered.api.CatalogType;
+public enum TeleportResult {
 
-public interface TeleportResult extends CatalogType {
+    SUCCESS(true),
+    FAIL_NO_LOCATION,
+    FAIL_CANCELLED;
 
-    boolean isSuccessful();
+    // ----
+
+    private final boolean successState;
+
+    TeleportResult() {
+        this(false);
+    }
+
+    TeleportResult(boolean successState) {
+        this.successState = successState;
+    }
+
+    public boolean isSuccessful() {
+        return this.successState;
+    }
 
 }

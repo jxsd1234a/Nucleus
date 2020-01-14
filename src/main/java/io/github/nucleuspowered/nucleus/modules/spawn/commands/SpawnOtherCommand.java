@@ -88,7 +88,7 @@ public class SpawnOtherCommand implements ICommandExecutor<CommandSource>, IRelo
                             event.getTransformTo(),
                             true,
                             this.safeTeleport,
-                            TeleportScanners.NO_SCAN
+                            TeleportScanners.NO_SCAN.get()
                     );
             if (result.isSuccessful()) {
                 context.sendMessage("command.spawnother.success.source", target.getName(), world.getWorldName());

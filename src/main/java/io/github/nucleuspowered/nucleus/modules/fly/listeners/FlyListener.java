@@ -147,7 +147,7 @@ public class FlyListener implements IReloadableService.Reloadable, ListenerBase 
                             pl.getTransform(),
                             false,
                             true,
-                            TeleportScanners.DESCENDING_SCAN
+                            TeleportScanners.DESCENDING_SCAN.get()
                     );
         }
     }

@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportPermissions;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
@@ -107,7 +106,7 @@ public class TeleportPositionCommand implements ICommandExecutor<CommandSource> 
                     loc,
                     false,
                     safe,
-                    TeleportScanners.NO_SCAN
+                    TeleportScanners.NO_SCAN.get()
             );
 
             if (result.isSuccessful()) {
@@ -117,7 +116,7 @@ public class TeleportPositionCommand implements ICommandExecutor<CommandSource> 
                 }
 
                 return context.successResult();
-            } else if (result == TeleportResults.FAIL_NO_LOCATION) {
+            } else if (result == TeleportResult.FAIL_NO_LOCATION) {
                 return context.errorResult("command.tppos.nosafe");
             }
 

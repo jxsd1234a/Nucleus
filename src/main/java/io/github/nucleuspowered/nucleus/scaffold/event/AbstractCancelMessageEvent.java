@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.scaffold.event;
 
-import io.github.nucleuspowered.nucleus.api.events.CancelMessage;
+import io.github.nucleuspowered.nucleus.api.events.CancelMessageEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.text.Text;
@@ -15,7 +15,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-public abstract class AbstractCancelMessageEvent extends AbstractEvent implements CancelMessage {
+public abstract class AbstractCancelMessageEvent extends AbstractEvent implements CancelMessageEvent {
 
     private final Cause cause;
     @Nullable private Text cancelMessage = null;

@@ -202,7 +202,7 @@ public class TeleportCommand implements ICommandExecutor<CommandSource>, IReload
                             l,
                             false,
                             true,
-                            TeleportScanners.NO_SCAN
+                            TeleportScanners.NO_SCAN.get()
                     ).isSuccessful();
             if (result) {
                 if (!context.is(from)) {

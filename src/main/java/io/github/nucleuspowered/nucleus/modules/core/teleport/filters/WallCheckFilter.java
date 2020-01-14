@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.core.teleport.filters;
 
 import com.flowpowered.math.vector.Vector3i;
-import io.github.nucleuspowered.nucleus.api.teleport.NucleusTeleportHelperFilters;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.World;
@@ -36,7 +35,7 @@ public class WallCheckFilter extends FilterBase {
 
     @Override
     public String getId() {
-        return NucleusTeleportHelperFilters.WALL_CHECK_ID;
+        return "nucleus:wall_check_id";
     }
 
     @Override

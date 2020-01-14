@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.back.commands;
 
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.back.BackPermissions;
 import io.github.nucleuspowered.nucleus.modules.back.config.BackConfig;
@@ -79,12 +78,12 @@ public class BackCommand implements ICommandExecutor<Player>, IReloadableService
                             loc,
                             false,
                             !context.hasAny("f"),
-                            TeleportScanners.NO_SCAN
+                            TeleportScanners.NO_SCAN.get()
                     );
             if (result.isSuccessful()) {
                 context.sendMessage("command.back.success");
                 return context.successResult();
-            } else if (result == TeleportResults.FAIL_NO_LOCATION) {
+            } else if (result == TeleportResult.FAIL_NO_LOCATION) {
                 return context.errorResult("command.back.nosafe");
             }
 

@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.teleport.services;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportPermissions;
 import io.github.nucleuspowered.nucleus.modules.teleport.TeleportUserPrefKeys;
@@ -110,7 +109,7 @@ public class PlayerTeleporterService implements ServiceBase, IReloadableService.
                                 target.getTransform(),
                                 false,
                                 safe,
-                                TeleportScanners.NO_SCAN
+                                TeleportScanners.NO_SCAN.get()
                         );
         if (result.isSuccessful()) {
             if (!source.equals(target) && !quietSource) {
@@ -124,7 +123,7 @@ public class PlayerTeleporterService implements ServiceBase, IReloadableService.
                 this.messageProviderService.sendMessageTo(target, "teleport.from.success", playerToTeleport.getName());
             }
         } else if (!quietSource) {
-            this.messageProviderService.sendMessageTo(source, result == TeleportResults.FAIL_NO_LOCATION ? "teleport.nosafe" : "teleport.cancelled");
+            this.messageProviderService.sendMessageTo(source, result == TeleportResult.FAIL_NO_LOCATION ? "teleport.nosafe" : "teleport.cancelled");
         }
 
         return result;

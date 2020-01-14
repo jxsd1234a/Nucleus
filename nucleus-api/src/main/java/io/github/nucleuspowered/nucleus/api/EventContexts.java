@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.api;
 import io.github.nucleuspowered.nucleus.api.events.NucleusSendToSpawnEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContextKey;
-import org.spongepowered.api.util.generator.dummy.DummyObjectProvider;
 
 /**
  * Contexts that may appear in the {@link Cause} of some events.
@@ -24,7 +23,10 @@ public class EventContexts {
      * </p>
      */
     public static final EventContextKey<Boolean> SHOULD_FORMAT_CHANNEL =
-            DummyObjectProvider.createExtendedFor(EventContextKey.class, "SHOULD_FORMAT_CHANNEL");
+            EventContextKey.builder(Boolean.class)
+                    .id(Identifiers.SHOULD_FORMAT_CHANNEL)
+                    .name("Nucleus - Context to indicate whether a chat message should be formatted.")
+                    .build();
 
     /**
      * A context that indicates the source of the Nucleus redirectable spawn events.
@@ -44,7 +46,10 @@ public class EventContexts {
      * </p>
      */
     public static final EventContextKey<Boolean> IS_JAILING_ACTION =
-            DummyObjectProvider.createExtendedFor(EventContextKey.class, "IS_JAILING_ACTION");
+            EventContextKey.builder(Boolean.class)
+                    .id("nucleus:is_jailing_action")
+                    .name("Nucleus - Context to indicate whether a teleport is a jailing teleport.")
+                    .build();
 
     /**
      * A context that indicates whether teleports should ignore the fact someone is jailed.
@@ -54,7 +59,10 @@ public class EventContexts {
      * </p>
      */
     public static final EventContextKey<Boolean> BYPASS_JAILING_RESTRICTION =
-            DummyObjectProvider.createExtendedFor(EventContextKey.class, "BYPASS_JAILING_RESTRICTION ");
+            EventContextKey.builder(Boolean.class)
+                    .id("nucleus:bypass_jailing_restriction")
+                    .name("Nucleus - Context to indicate whether the Nucleus system should ignore jailed status when teleporting a player.")
+                    .build();
 
     public static class Identifiers {
 

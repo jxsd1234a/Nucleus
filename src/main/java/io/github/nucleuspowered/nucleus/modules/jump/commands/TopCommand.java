@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.jump.commands;
 
 import io.github.nucleuspowered.nucleus.api.teleport.NucleusTeleportHelperFilters;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.jump.JumpPermissions;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
@@ -80,8 +79,8 @@ public class TopCommand implements ICommandExecutor<CommandSource> {
                         end.getLocation(),
                         playerToTeleport.getRotation(),
                         false,
-                        TeleportScanners.NO_SCAN,
-                        isSafe ? TeleportHelperFilters.SURFACE_ONLY : NucleusTeleportHelperFilters.NO_CHECK
+                        TeleportScanners.NO_SCAN.get(),
+                        isSafe ? TeleportHelperFilters.SURFACE_ONLY : NucleusTeleportHelperFilters.NO_CHECK.get()
                 );
 
         if (result.isSuccessful()) {
@@ -94,7 +93,7 @@ public class TopCommand implements ICommandExecutor<CommandSource> {
             return context.successResult();
         }
 
-        if (result == TeleportResults.FAIL_NO_LOCATION) {
+        if (result == TeleportResult.FAIL_NO_LOCATION) {
             return context.errorResult("command.top.notsafe");
         } else {
             return context.errorResult("command.top.cancelled");

@@ -8,7 +8,6 @@ import com.flowpowered.math.vector.Vector3d;
 import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.api.teleport.NucleusTeleportHelperFilters;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanner;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.core.config.SafeTeleportConfig;
@@ -144,7 +143,7 @@ public class SafeTeleportService implements INucleusTeleportService, IReloadable
                         ((MessageReceiver) o).sendMessage(x);
                     }
                 });
-                return TeleportResults.FAIL_CANCELLED;
+                return TeleportResult.FAIL_CANCELLED;
             }
 
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
@@ -164,14 +163,14 @@ public class SafeTeleportService implements INucleusTeleportService, IReloadable
 
                 if (player.setTransform(targetLocation)) {
                     player.setSpectatorTarget(null);
-                    return TeleportResults.SUCCESS;
+                    return TeleportResult.SUCCESS;
                 }
 
                 oe.ifPresent(player::setVehicle);
             }
         }
 
-        return TeleportResults.FAIL_NO_LOCATION;
+        return TeleportResult.FAIL_NO_LOCATION;
     }
 
     @Override
@@ -210,7 +209,7 @@ public class SafeTeleportService implements INucleusTeleportService, IReloadable
                 return TeleportHelperFilters.DEFAULT;
             }
         } else {
-            return NucleusTeleportHelperFilters.NO_CHECK;
+            return NucleusTeleportHelperFilters.NO_CHECK.get();
         }
     }
 

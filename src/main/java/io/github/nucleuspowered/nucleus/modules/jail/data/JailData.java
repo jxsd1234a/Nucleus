@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.jail.data;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Inmate;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Jailing;
 import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ConfigSerializable
-public final class JailData extends EndTimestamp implements Inmate {
+public final class JailData extends EndTimestamp implements Jailing {
 
     @Setting
     private UUID jailer;

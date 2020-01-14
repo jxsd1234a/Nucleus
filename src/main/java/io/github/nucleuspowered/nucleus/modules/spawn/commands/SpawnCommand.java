@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.spawn.commands;
 
 import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.spawn.SpawnPermissions;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.GlobalSpawnConfig;
@@ -111,7 +110,7 @@ public class SpawnCommand implements ICommandExecutor<Player>, IReloadableServic
                             event.getTransformTo(),
                             true,
                             !force && this.sc.isSafeTeleport(),
-                            TeleportScanners.NO_SCAN
+                            TeleportScanners.NO_SCAN.get()
                     );
 
             if (result.isSuccessful()) {
@@ -119,7 +118,7 @@ public class SpawnCommand implements ICommandExecutor<Player>, IReloadableServic
                 return context.successResult();
             }
 
-            if (result == TeleportResults.FAIL_NO_LOCATION) {
+            if (result == TeleportResult.FAIL_NO_LOCATION) {
                 return context.errorResult("command.spawn.fail", wp.getWorldName());
             }
 

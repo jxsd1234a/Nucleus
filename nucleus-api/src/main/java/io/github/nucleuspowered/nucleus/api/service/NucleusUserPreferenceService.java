@@ -62,6 +62,7 @@ public interface NucleusUserPreferenceService {
     /**
      * The description of the preference.
      *
+     * @param key The {@link PreferenceKey} to check
      * @return The description.
      */
     String getDescription(PreferenceKey<?> key);

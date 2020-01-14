@@ -47,7 +47,7 @@ public class TeleportAllHereCommand implements ICommandExecutor<Player> {
                             toTransform,
                             false,
                             !context.getOne("f", Boolean.class).orElse(false),
-                            TeleportScanners.NO_SCAN
+                            TeleportScanners.NO_SCAN.get()
                 );
             }
         });

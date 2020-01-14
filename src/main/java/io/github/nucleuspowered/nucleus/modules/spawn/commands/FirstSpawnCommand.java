@@ -60,7 +60,7 @@ public class FirstSpawnCommand implements ICommandExecutor<Player>, IReloadableS
                         olwr.get(),
                         true,
                         this.isSafeTeleport,
-                        TeleportScanners.NO_SCAN
+                        TeleportScanners.NO_SCAN.get()
                 );
         if (result.isSuccessful()) {
             context.sendMessage("command.firstspawn.success");

@@ -121,8 +121,9 @@ public class ServerStatCommand implements ICommandExecutor<CommandSource> {
         return Text.of(colour, TPS_FORMAT.format(currentTps));
     }
 
+    @SuppressWarnings("RedundantCast")
     private Text createText(ICommandContext<? extends CommandSource> context, String mainKey, String hoverKey, String... subs) {
-        Text.Builder tb = context.getMessage(mainKey, subs).toBuilder();
+        Text.Builder tb = context.getMessage(mainKey, (Object[]) subs).toBuilder();
         return tb.onHover(TextActions.showText(context.getMessage(hoverKey))).build();
     }
 

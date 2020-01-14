@@ -95,8 +95,6 @@ public interface INucleusServiceCollection {
 
     <I, C extends I> void registerService(Class<I> key, C service, boolean rereg);
 
-    <I, C extends I> void registerServiceSupplier(Class<I> key, Supplier<C> service, boolean rereg);
-
     <I> Optional<I> getService(Class<I> key);
 
     <I> I getServiceUnchecked(Class<I> key);

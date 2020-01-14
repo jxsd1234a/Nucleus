@@ -11,7 +11,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that an event <em>might</em> happen off the main thread. Care should be taken to ensure SpongeAPI methods are called on the
+ * Indicates that an event <em>might</em> happen off the main thread.
+ * Care should be taken to ensure SpongeAPI methods are called on the
  * main thread.
  */
 @Target(ElementType.TYPE)

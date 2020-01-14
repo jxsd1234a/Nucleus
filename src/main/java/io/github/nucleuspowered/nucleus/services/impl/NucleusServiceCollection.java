@@ -248,16 +248,6 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         this.instances.put(key, service);
     }
 
-    @Override
-    public <I, C extends I> void registerServiceSupplier(Class<I> key, Supplier<C> service, boolean rereg) {
-        if (!rereg && (this.instances.containsKey(key) || this.suppliers.containsKey(key))) {
-            return;
-        }
-
-        this.instances.remove(key);
-        this.suppliers.put(key, service);
-    }
-
     @Override @SuppressWarnings("unchecked")
     public <I> Optional<I> getService(Class<I> key) {
         if (this.instances.containsKey(key)) {

@@ -16,7 +16,7 @@ import org.spongepowered.api.world.World;
  * These events are fired <em>before</em> teleportation actually happens.
  */
 @NonnullByDefault
-public interface NucleusTeleportEvent extends TargetPlayerEvent, CancelMessage {
+public interface NucleusTeleportEvent extends TargetPlayerEvent, CancelMessageEvent {
 
     /**
      * Indicates that a teleport request (such as through <code>/tpa</code>) is being sent.

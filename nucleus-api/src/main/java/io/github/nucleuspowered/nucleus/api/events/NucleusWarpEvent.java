@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * Events when a server warp changes.
  */
-public interface NucleusWarpEvent extends Cancellable, CancelMessage, Event {
+public interface NucleusWarpEvent extends Cancellable, CancelMessageEvent, Event {
 
     /**
      * Get the name of the warp.

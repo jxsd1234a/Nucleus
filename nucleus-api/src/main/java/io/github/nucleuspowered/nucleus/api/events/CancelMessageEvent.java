@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-public interface CancelMessage extends Cancellable {
+public interface CancelMessageEvent extends Cancellable {
 
     /**
      * The message to send to the player if the event is cancelled, if any.

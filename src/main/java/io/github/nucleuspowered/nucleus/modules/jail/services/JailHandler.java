@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.api.exceptions.NoSuchLocationException;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Inmate;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Jailing;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
 import io.github.nucleuspowered.nucleus.api.service.NucleusJailService;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
@@ -150,7 +150,7 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
     }
 
     @Override
-    public Optional<Inmate> getPlayerJailData(User user) {
+    public Optional<Jailing> getPlayerJailData(User user) {
         return getPlayerJailDataInternal(user).map(x -> x);
     }
 
@@ -223,7 +223,7 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
                                     owl.get().getTransform().get(), // The transform exists.
                                     true,
                                     false,
-                                    TeleportScanners.NO_SCAN
+                                    TeleportScanners.NO_SCAN.get()
                             );
                     player.offer(Keys.IS_FLYING, false);
                     player.offer(Keys.CAN_FLY, false);

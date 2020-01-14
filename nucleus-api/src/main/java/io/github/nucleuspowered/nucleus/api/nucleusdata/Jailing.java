@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Represents information about a player's jailing.
  */
-public interface Inmate extends TimedEntry {
+public interface Jailing extends TimedEntry {
 
     /**
      * The reason a player was jailed.

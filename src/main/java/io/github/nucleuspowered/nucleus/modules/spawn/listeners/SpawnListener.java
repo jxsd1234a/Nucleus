@@ -118,8 +118,8 @@ public class SpawnListener implements IReloadableService.Reloadable, ListenerBas
             Optional<Location<World>> safe = this.serviceCollection.teleportService()
                     .getSafeLocation(
                             lw,
-                            TeleportScanners.ASCENDING_SCAN,
-                            this.spawnConfig.isSafeTeleport() ? TeleportHelperFilters.DEFAULT : NucleusTeleportHelperFilters.NO_CHECK
+                            TeleportScanners.ASCENDING_SCAN.get(),
+                            this.spawnConfig.isSafeTeleport() ? TeleportHelperFilters.DEFAULT : NucleusTeleportHelperFilters.NO_CHECK.get()
                     );
 
             if (safe.isPresent()) {

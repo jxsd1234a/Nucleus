@@ -93,7 +93,7 @@ public class JumpCommand implements ICommandExecutor<Player>, IReloadableService
                         finalLocation,
                         false,
                         true,
-                        TeleportScanners.NO_SCAN
+                        TeleportScanners.NO_SCAN.get()
                 ).isSuccessful();
         if (result) {
             context.sendMessage("command.jump.success");

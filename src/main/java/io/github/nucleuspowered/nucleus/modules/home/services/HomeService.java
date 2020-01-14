@@ -215,7 +215,7 @@ public class HomeService implements NucleusHomeService, ServiceBase {
                         targetLocation,
                         home.getRotation(),
                         false,
-                        TeleportScanners.NO_SCAN,
+                        TeleportScanners.NO_SCAN.get(),
                         filter
                 );
     }

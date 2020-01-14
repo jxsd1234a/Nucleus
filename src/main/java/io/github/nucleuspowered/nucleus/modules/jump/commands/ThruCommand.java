@@ -71,7 +71,7 @@ public class ThruCommand implements ICommandExecutor<Player>, IReloadableService
                                 b.getLocation(),
                                 false,
                                 true,
-                                TeleportScanners.NO_SCAN
+                                TeleportScanners.NO_SCAN.get()
                         ).isSuccessful();
                 if (result) {
                     context.sendMessage("command.thru.success");

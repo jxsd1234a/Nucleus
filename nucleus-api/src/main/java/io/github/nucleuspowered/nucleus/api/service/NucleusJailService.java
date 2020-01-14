@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.api.service;
 
 import com.flowpowered.math.vector.Vector3d;
 import io.github.nucleuspowered.nucleus.api.exceptions.NoSuchLocationException;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Inmate;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Jailing;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.User;
@@ -82,9 +82,9 @@ public interface NucleusJailService {
      * Returns information about why a subject is jailed, if they are indeed jailed.
      *
      * @param user The {@link User} to check
-     * @return An {@link Optional} that will contain {@link Inmate} information if the subject is jailed.
+     * @return An {@link Optional} that will contain {@link Jailing} information if the subject is jailed.
      */
-    Optional<Inmate> getPlayerJailData(User user);
+    Optional<Jailing> getPlayerJailData(User user);
 
     /**
      * Jails a subject if they are not currently jailed.

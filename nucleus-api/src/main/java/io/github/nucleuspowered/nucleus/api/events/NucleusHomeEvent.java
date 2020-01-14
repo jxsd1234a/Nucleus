@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Events when a player's home changes.
  */
-public interface NucleusHomeEvent extends Cancellable, CancelMessage, Event {
+public interface NucleusHomeEvent extends Cancellable, CancelMessageEvent, Event {
 
     /**
      * Gets the name of the home.

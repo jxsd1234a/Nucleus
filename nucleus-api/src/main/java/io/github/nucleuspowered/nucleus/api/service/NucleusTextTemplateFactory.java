@@ -4,7 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.api.service;
 
-import io.github.nucleuspowered.nucleus.api.exceptions.NucleusException;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 
 public interface NucleusTextTemplateFactory {
@@ -14,8 +13,7 @@ public interface NucleusTextTemplateFactory {
      *
      * @param string The string to register.
      * @return The {@link NucleusTextTemplate} that can be parsed.
-     * @throws NucleusException thrown if the string could not be parsed.
      */
-    NucleusTextTemplate createFromString(String string) throws Throwable;
+    NucleusTextTemplate createFromString(String string);
 
 }

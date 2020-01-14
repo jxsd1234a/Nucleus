@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResults;
 import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.warp.WarpPermissions;
 import io.github.nucleuspowered.nucleus.modules.warp.config.WarpConfig;
@@ -180,7 +179,7 @@ public class WarpCommand implements ICommandExecutor<CommandSource>, IReloadable
                     wd.getLocation().get(),
                     wd.getRotation(),
                     false,
-                    TeleportScanners.NO_SCAN,
+                    TeleportScanners.NO_SCAN.get(),
                     filter
             );
 
@@ -190,7 +189,7 @@ public class WarpCommand implements ICommandExecutor<CommandSource>, IReloadable
                 }
 
                 // Don't add the cooldown if enabled.
-                return context.errorResult(result == TeleportResults.FAIL_NO_LOCATION ? "command.warps.nosafe" :
+                return context.errorResult(result == TeleportResult.FAIL_NO_LOCATION ? "command.warps.nosafe" :
                         "command.warps.cancelled");
             }
 

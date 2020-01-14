@@ -19,6 +19,15 @@ public final class RTPKernels {
 
     private RTPKernels() {} // No instantiation please!
 
+    public static class Identifiers {
+
+        public static final String AROUND_PLAYER = "nucleus:around_player";
+        public static final String AROUND_PLAYER_SURFACE = "nucleus:around_player_surface";
+        public static final String DEFAULT = "nucleus:default";
+        public static final String SURFACE_ONLY = "nucleus:surface_only";
+
+    }
+
     /**
      * The default Nucleus RTP kernel, adjusted to centre around the player,
      * not the world border centre.
