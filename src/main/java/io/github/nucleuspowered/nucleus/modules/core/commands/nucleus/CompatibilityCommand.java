@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 @Command(
-        aliases = "nucleus",
+        aliases = { "compatibility", "compat" },
         basePermission = CorePermissions.BASE_NUCLEUS_COMPATIBILITY,
         commandDescriptionKey = "nucleus.compatibility",
         parentCommand = NucleusCommand.class,
