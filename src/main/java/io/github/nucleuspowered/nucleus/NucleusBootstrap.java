@@ -588,6 +588,7 @@ public class NucleusBootstrap {
         if (providerRegistration.getService() == PermissionService.class) {
             this.serviceCollection.permissionService().checkServiceChange((ProviderRegistration<PermissionService>) providerRegistration);
         }
+
     }
 
     private void saveData() {

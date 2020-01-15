@@ -87,6 +87,9 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
     @Override public void checkServiceChange(ProviderRegistration<PermissionService> service) {
         this.contextCalculators.forEach(x -> service.getProvider().registerContextCalculator(x));
         service.getProvider().registerContextCalculator(this);
+
+        // don't know if there is a better way to do this.
+        this.isOpOnly = service.getPlugin().getId().equals("sponge");
     }
 
     @Override public boolean hasPermission(Subject permissionSubject, String permission) {
