@@ -67,11 +67,14 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
+import org.spongepowered.api.event.service.ChangeServiceProviderEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
@@ -292,9 +295,6 @@ public class NucleusBootstrap {
         Game game = Sponge.getGame();
         NucleusAPITokens.onPreInit(this);
 
-        // Startup tasks, for the migrations I need to do.
-        PreloadTasks.getPreloadTasks().forEach(x -> x.accept(this));
-
         // Get the mandatory config files.
         try {
             Files.createDirectories(this.configDir);
@@ -307,8 +307,6 @@ public class NucleusBootstrap {
             e.printStackTrace();
             return;
         }
-
-        PreloadTasks.getPreloadTasks2().forEach(x -> x.accept(this));
 
         game.getServiceManager().setProvider(this, NucleusModuleService.class, new ModuleRegistrationProxyService(this.serviceCollection, this.moduleContainer));
         game.getServiceManager().setProvider(this, NucleusWarmupManagerService.class, this.serviceCollection.warmupService());
@@ -445,10 +443,6 @@ public class NucleusBootstrap {
             if (coreConfig.isErrorOnStartup()) {
                 throw new IllegalStateException("In main.conf, core.simulate-error-on-startup is set to TRUE. Remove this config entry to allow Nucleus to start. Simulating error and disabling Nucleus.");
             }
-
-            this.serviceCollection.reloadableService().registerReloadable(serviceCollection ->
-            {
-            });
         } catch (Throwable construction) {
             this.logger.info(messageProvider.getMessageString("startup.modulenotloaded", NucleusPluginInfo.NAME));
             construction.printStackTrace();
@@ -460,7 +454,6 @@ public class NucleusBootstrap {
         this.logger.info(messageProvider.getMessageString("startup.moduleloaded", NucleusPluginInfo.NAME));
         this.serviceCollection.permissionService().registerDescriptions();
         Sponge.getEventManager().post(new BaseModuleEvent.Complete(this));
-
         this.logger.info(messageProvider.getMessageString("startup.completeinit", NucleusPluginInfo.NAME));
     }
 
@@ -584,6 +577,16 @@ public class NucleusBootstrap {
             this.logger.info(messageProvider.getMessageString("startup.stopped", NucleusPluginInfo.NAME));
             saveData();
             this.serviceCollection.commandMetadataService().deactivate();
+        }
+    }
+
+    // Need this as soon as possible.
+    @Listener
+    @SuppressWarnings("unchecked")
+    public void onProviderRegistration(ChangeServiceProviderEvent event) {
+        ProviderRegistration<?> providerRegistration = event.getNewProviderRegistration();
+        if (providerRegistration.getService() == PermissionService.class) {
+            this.serviceCollection.permissionService().checkServiceChange((ProviderRegistration<PermissionService>) providerRegistration);
         }
     }
 

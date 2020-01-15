@@ -13,7 +13,7 @@ import org.spongepowered.api.text.Text;
 @ImplementedBy(NucleusTextTemplateFactoryImpl.class)
 public interface INucleusTextTemplateFactory extends NucleusTextTemplateFactory {
 
-    NucleusTextTemplateImpl createFromString(String string) throws Throwable;
+    NucleusTextTemplateImpl createFromString(String string);
 
     NucleusTextTemplateImpl createFromAmpersandString(String string);
 

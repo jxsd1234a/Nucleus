@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
@@ -46,6 +47,7 @@ import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -69,6 +71,7 @@ import javax.annotation.Nonnull;
 
 public class CommandControl implements CommandCallable {
 
+    private static final String CONTEXT_KEY = "nucleus_command";
     private static final InputTokenizer tokeniser = InputTokenizer.quotedStrings(false);
 
     private final INucleusServiceCollection serviceCollection;
@@ -83,6 +86,7 @@ public class CommandControl implements CommandCallable {
     private final Map<String, CommandCallable> primarySubcommands = new HashMap<>();
     private final CommandElement element;
     private final String commandKey;
+    private final Context context;
     private final List<String> aliases;
     private final boolean hasHelpCommand;
     private final ImmutableMap<CommandModifier, ICommandModifier> modifiers;
@@ -99,6 +103,7 @@ public class CommandControl implements CommandCallable {
         this.executor = meta.getCommandAnnotation().hasExecutor() ? executor : null;
         this.metadata = meta;
         this.commandKey = meta.getCommandKey();
+        this.context = new Context(CONTEXT_KEY, this.commandKey.replace(".", " "));
         this.basicPermission = ImmutableList.copyOf(meta.getCommandAnnotation().basePermission());
         this.serviceCollection = serviceCollection;
         this.hasHelpCommand = meta.getCommandAnnotation().hasHelpCommand();
@@ -214,7 +219,7 @@ public class CommandControl implements CommandCallable {
                             ImmutableMap.of(),
                             this,
                             this.serviceCollection
-                    ), command, null);
+                    ), this.command, null);
                 return ICommandResult.success();
             }
         }
@@ -232,7 +237,7 @@ public class CommandControl implements CommandCallable {
                 this,
                 this.serviceCollection);
 
-        try {
+        try (NoExceptionAutoClosable closable = this.serviceCollection.permissionService().setContextTemporarily(source, this.context)) {
             // Do we have permission?
             if (!testPermission(source)) {
                 throw new CommandPermissionException();
@@ -258,70 +263,72 @@ public class CommandControl implements CommandCallable {
             }
 
             try {
-                // Okay, parse this.
-                this.element.parse(source, args, context);
-                if (args.hasNext()) {
-                    thrown.add(Tuple.of(command, new NucleusArgumentParseException(
-                            this.serviceCollection.messageProvider(),
-                            Text.of(TextColors.RED, "Too many arguments"),
-                            args.getRaw(),
-                            args.getRawPosition(),
+                try {
+                    // Okay, parse this.
+                    this.element.parse(source, args, context);
+                    if (args.hasNext()) {
+                        thrown.add(Tuple.of(command, new NucleusArgumentParseException(
+                                this.serviceCollection.messageProvider(),
+                                Text.of(TextColors.RED, "Too many arguments"),
+                                args.getRaw(),
+                                args.getRawPosition(),
+                                Text.of(getUsage(source)),
+                                getSubcommandTexts(source),
+                                true)));
+                        throw new NucleusCommandException(thrown, true, this.serviceCollection.messageProvider());
+                    }
+                } catch (NucleusCommandException nce) {
+                    throw nce;
+                } catch (ArgumentParseException ape) {
+                    // get the command to get the usage/subs from.
+                    thrown.add(Tuple.of(this.command, NucleusArgumentParseException.from(this.serviceCollection.messageProvider(),
+                            ape,
                             Text.of(getUsage(source)),
-                            getSubcommandTexts(source),
-                            true)));
+                            getSubcommandTexts(source))));
+                    throw new NucleusCommandException(thrown, true, this.serviceCollection.messageProvider());
+                } catch (Throwable throwable) {
+                    String m;
+                    if (throwable.getMessage() == null) {
+                        m = "null";
+                    } else {
+                        m = throwable.getMessage();
+                    }
+
+                    thrown.add(
+                            Tuple.of(this.command, new CommandException(
+                                    this.serviceCollection.messageProvider().getMessageFor(source, "command.exception.unexpected", m), throwable)));
+                    throwable.printStackTrace(); // this is on demand, so we should throw it.
                     throw new NucleusCommandException(thrown, true, this.serviceCollection.messageProvider());
                 }
-            } catch (NucleusCommandException nce) {
-                throw nce;
-            } catch (ArgumentParseException ape) {
-                // get the command to get the usage/subs from.
-                thrown.add(Tuple.of(command, NucleusArgumentParseException.from(this.serviceCollection.messageProvider(),
-                        ape,
-                        Text.of(getUsage(source)),
-                        getSubcommandTexts(source))));
-                throw new NucleusCommandException(thrown, true, this.serviceCollection.messageProvider());
-            } catch (Throwable throwable) {
-                String m;
-                if (throwable.getMessage() == null) {
-                    m = "null";
-                } else {
-                    m = throwable.getMessage();
+
+
+                // execution
+                //noinspection unchecked
+                Optional<ICommandResult> result = this.executor.preExecute((ICommandContext.Mutable) contextSource);
+                if (result.isPresent()) {
+                    // STOP.
+                    onResult(source, contextSource, result.get());
+                    return result.get();
                 }
 
-                thrown.add(
-                        Tuple.of(command, new CommandException(
-                                this.serviceCollection.messageProvider().getMessageFor(source, "command.exception.unexpected", m), throwable)));
-                throwable.printStackTrace(); // this is on demand, so we should throw it.
-                throw new NucleusCommandException(thrown, true, this.serviceCollection.messageProvider());
-            }
-
-
-            // execution
-            //noinspection unchecked
-            Optional<ICommandResult> result = this.executor.preExecute((ICommandContext.Mutable) contextSource);
-            if (result.isPresent()) {
-                // STOP.
-                onResult(source, contextSource, result.get());
-                return result.get();
-            }
-
-            // Modifiers might have something to say about it.
-            for (Map.Entry<CommandModifier, ICommandModifier> modifier : contextSource.modifiers().entrySet()) {
-                if (modifier.getKey().onExecute()) {
-                    result = modifier.getValue().preExecute(contextSource, this, this.serviceCollection, modifier.getKey());
-                    if (result.isPresent()) {
-                        // STOP.
-                        onResult(source, contextSource, result.get());
-                        return result.get();
+                // Modifiers might have something to say about it.
+                for (Map.Entry<CommandModifier, ICommandModifier> modifier : contextSource.modifiers().entrySet()) {
+                    if (modifier.getKey().onExecute()) {
+                        result = modifier.getValue().preExecute(contextSource, this, this.serviceCollection, modifier.getKey());
+                        if (result.isPresent()) {
+                            // STOP.
+                            onResult(source, contextSource, result.get());
+                            return result.get();
+                        }
                     }
                 }
-            }
 
-            return execute(source, contextSource);
-        } catch (Exception ex) {
-            // Run any fail actions.
-            runFailActions(contextSource);
-            throw ex;
+                return execute(source, contextSource);
+            } catch (Exception ex) {
+                // Run any fail actions.
+                runFailActions(contextSource);
+                throw ex;
+            }
         }
     }
 
@@ -638,6 +645,10 @@ public class CommandControl implements CommandCallable {
 
     public String getCommandKey() {
         return this.commandKey;
+    }
+
+    public Context getContext() {
+        return this.context;
     }
 
     public Map<CommandModifier, ICommandModifier> getCommandModifiers() {

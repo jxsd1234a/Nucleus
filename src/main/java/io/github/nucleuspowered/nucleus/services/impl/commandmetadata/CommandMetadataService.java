@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-@SuppressWarnings("UnstableApiUsage")
+@SuppressWarnings({"UnstableApiUsage", "rawtypes"})
 @Singleton
 public class CommandMetadataService implements ICommandMetadataService, IReloadableService.Reloadable {
 

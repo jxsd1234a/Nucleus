@@ -5,12 +5,14 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
+import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.services.impl.permission.NucleusPermissionService;
 import io.github.nucleuspowered.nucleus.services.impl.permission.PermissionMetadata;
 import io.github.nucleuspowered.nucleus.services.impl.permission.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.util.PermissionMessageChannel;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.service.ProviderRegistration;
+import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
@@ -20,9 +22,10 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.UUID;
 
 @ImplementedBy(NucleusPermissionService.class)
-public interface IPermissionService {
+public interface IPermissionService extends ContextCalculator<Subject> {
 
     boolean isOpOnly();
 
@@ -63,6 +66,14 @@ public interface IPermissionService {
     }
 
     boolean isPermissionLevelOkay(Subject actor, Subject actee, String key, String permission, boolean isSameOkay);
+
+    void setContext(Subject subject, Context context);
+
+    NoExceptionAutoClosable setContextTemporarily(Subject subject, Context context);
+
+    void removeContext(UUID subject, String key);
+
+    void removePlayerContexts(UUID uuid);
 
     interface Metadata {
 

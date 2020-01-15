@@ -29,7 +29,7 @@ public class NucleusTextTemplateFactoryImpl implements INucleusTextTemplateFacto
     }
 
     @Override
-    public NucleusTextTemplateImpl createFromString(String string) throws Throwable {
+    public NucleusTextTemplateImpl createFromString(String string) {
         return create(string);
     }
 
@@ -42,7 +42,7 @@ public class NucleusTextTemplateFactoryImpl implements INucleusTextTemplateFacto
         return new NucleusTextTemplateImpl.Ampersand(string, prefix, suffix, this.serviceCollection);
     }
 
-    public NucleusTextTemplateImpl create(String string) throws Throwable {
+    public NucleusTextTemplateImpl create(String string) {
         if (string.isEmpty()) {
             return this.emptyInstance;
         }
@@ -54,8 +54,6 @@ public class NucleusTextTemplateFactoryImpl implements INucleusTextTemplateFacto
         } catch (RuntimeException e) {
             if (e.getCause() != null && e.getCause() instanceof ObjectMappingException) {
                 return createFromAmpersand(string);
-            } else if (e.getCause() != null) {
-                throw e.getCause();
             } else {
                 throw e;
             }

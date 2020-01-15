@@ -169,6 +169,7 @@ public class DocGenCommand implements ICommandExecutor<CommandSource> {
                     commandDoc.setUsageString(control.getUsage(Sponge.getServer().getConsole()).toPlain());
                     commandDoc.setPermissions(new ArrayList<>(permissionDocs));
                     commandDoc.setSimpleUsage(control.getUsageText(Sponge.getServer().getConsole()).toPlain());
+                    commandDoc.setContext(control.getContext().getValue());
 
                     return commandDoc;
                 });

@@ -67,6 +67,10 @@ public class UsageCommand {
                 this.attachedCommandControl.getMetadata().getModulename(),
                 this.attachedCommandControl.getMetadata().getModuleid()));
 
+        textMessages.add(context.getMessage("command.usage.context",
+                this.attachedCommandControl.getContext().getKey(),
+                this.attachedCommandControl.getContext().getValue()));
+
         // Aliases
         final String prefix = command.replaceAll("[\\S]+$","");
         String result = "/" + this.attachedCommandControl.getAliases()

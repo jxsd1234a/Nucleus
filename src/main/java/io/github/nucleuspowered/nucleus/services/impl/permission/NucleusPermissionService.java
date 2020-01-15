@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.services.impl.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.parameter.NucleusRequirePermissionArgument;
@@ -23,10 +24,12 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.ProviderRegistration;
+import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.Identifiable;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.HashMap;
@@ -38,6 +41,8 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -57,11 +62,16 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
     private final Map<String, IPermissionService.Metadata> metadataMap = new HashMap<>();
     private final Map<String, IPermissionService.Metadata> prefixMetadataMap = new HashMap<>();
 
+    private final Map<UUID, Map<String, Context>> standardContexts = new ConcurrentHashMap<>();
+
     @Inject public NucleusPermissionService(
             INucleusServiceCollection serviceCollection,
             IReloadableService service) {
         this.messageProviderService = serviceCollection.messageProvider();
         this.serviceCollection = serviceCollection;
+
+        // Register the context calculators.
+        Sponge.getServiceManager().provide(PermissionService.class).ifPresent(x -> x.registerContextCalculator(this));
         service.registerReloadable(this);
     }
 
@@ -76,6 +86,7 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
 
     @Override public void checkServiceChange(ProviderRegistration<PermissionService> service) {
         this.contextCalculators.forEach(x -> service.getProvider().registerContextCalculator(x));
+        service.getProvider().registerContextCalculator(this);
     }
 
     @Override public boolean hasPermission(Subject permissionSubject, String permission) {
@@ -257,7 +268,8 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
         return Optional.empty();
     }
 
-    @Override public boolean isPermissionLevelOkay(Subject actor, Subject actee, String key, String permission, boolean isSameOkay) {
+    @Override
+    public boolean isPermissionLevelOkay(Subject actor, Subject actee, String key, String permission, boolean isSameOkay) {
         int actorLevel = getDeclaredLevel(actor, key).orElseGet(() -> hasPermission(actor, permission) ? getDefaultLevel(actor) : 0);
         int acteeLevel = getDeclaredLevel(actee, key).orElseGet(() -> hasPermission(actee, permission) ? getDefaultLevel(actee) : 0);
         if (isSameOkay) {
@@ -265,6 +277,67 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
         } else {
             return actorLevel > acteeLevel;
         }
+    }
+
+    @Override
+    public void setContext(Subject subject, Context context) {
+        if (subject instanceof Identifiable) {
+            setContext(((Identifiable) subject).getUniqueId(), context);
+        }
+    }
+
+    private void setContext(UUID uuid, Context context) {
+        this.standardContexts.computeIfAbsent(uuid, k -> new HashMap<>()).put(context.getKey().toLowerCase(), context);
+    }
+
+    @Override
+    public NoExceptionAutoClosable setContextTemporarily(Subject subject, Context context) {
+        if (subject instanceof Identifiable) {
+            UUID uuid = ((Identifiable) subject).getUniqueId();
+            Context old = this.standardContexts.computeIfAbsent(uuid, k -> new HashMap<>()).put(context.getKey().toLowerCase(), context);
+            return () -> {
+                removeContext(uuid, context.getKey().toLowerCase());
+                if (old != null) {
+                    setContext(uuid, context);
+                }
+            };
+        }
+        return NoExceptionAutoClosable.EMPTY;
+    }
+
+    @Override
+    public void removeContext(UUID subject, String key) {
+        Map<String, Context> contexts = this.standardContexts.get(subject);
+        if (contexts != null && !contexts.isEmpty()) {
+            contexts.remove(key.toLowerCase());
+        }
+    }
+
+    @Override
+    public void removePlayerContexts(UUID uuid) {
+        this.standardContexts.remove(uuid);
+    }
+
+    @Override
+    public void accumulateContexts(Subject target, Set<Context> accumulator) {
+        if (target instanceof Identifiable) {
+            Map<String, Context> ctxs = this.standardContexts.get(((Identifiable) target).getUniqueId());
+            if (ctxs != null && !ctxs.isEmpty()) {
+                accumulator.addAll(ctxs.values());
+            }
+        }
+    }
+
+    @Override
+    public boolean matches(final Context context, final Subject target) {
+        if (target instanceof Identifiable) {
+            Map<String, Context> ctxs = this.standardContexts.get(((Identifiable) target).getUniqueId());
+            if (ctxs != null && !ctxs.isEmpty()) {
+                Context ctx = ctxs.get(context.getKey());
+                return ctx.equals(context);
+            }
+        }
+        return false;
     }
 
     private int getDefaultLevel(Subject subject) {

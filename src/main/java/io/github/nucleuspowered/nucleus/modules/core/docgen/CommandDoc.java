@@ -64,6 +64,8 @@ public class CommandDoc {
 
     @Setting private String subcommands;
 
+    @Setting private String context;
+
     public String getCommandName() {
         return this.commandName;
     }
@@ -202,5 +204,13 @@ public class CommandDoc {
 
     public void setSimpleUsage(String simpleUsage) {
         this.simpleUsage = simpleUsage;
+    }
+
+    public String getContext() {
+        return this.context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
     }
 }
