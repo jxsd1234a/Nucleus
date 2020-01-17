@@ -13,12 +13,12 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusInvulnerabilityServic
 import io.github.nucleuspowered.nucleus.api.service.NucleusJailService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusMailService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMessageTokenService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusMuteService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusNameBanService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusNicknameService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusNoteService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPlayerMetadataService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPrivateMessagingService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
@@ -81,13 +81,13 @@ public class NucleusAPI {
     }
 
     /**
-     * Gets the {@link NucleusMessageTokenService} service, which allows plugins to register message tokens/placeholders.
-     * @return The {@link NucleusMessageTokenService}
+     * Gets the {@link NucleusPlaceholderService} service, which allows plugins to register message placeholders.
+     * @return The {@link NucleusPlaceholderService}
      * @throws IllegalStateException if Nucleus hasn't completed pre init yet.
      */
-    public static NucleusMessageTokenService getMessageTokenService() {
-        return getService(NucleusMessageTokenService.class)
-                .orElseThrow(() -> new IllegalStateException("Message Tokens are not being registered yet"));
+    public static NucleusPlaceholderService getPlaceholderService() {
+        return getService(NucleusPlaceholderService.class)
+                .orElseThrow(() -> new IllegalStateException("Placeholders are not being registered yet"));
     }
 
     /**

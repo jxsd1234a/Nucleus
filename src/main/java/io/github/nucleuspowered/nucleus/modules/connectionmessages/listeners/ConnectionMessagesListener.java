@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.connectionmessages.listeners;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
 import io.github.nucleuspowered.nucleus.modules.connectionmessages.ConnectionMessagesPermissions;
 import io.github.nucleuspowered.nucleus.modules.connectionmessages.config.ConnectionMessagesConfig;
@@ -59,7 +58,7 @@ public class ConnectionMessagesListener implements IReloadableService.Reloadable
                     joinEvent.getChannel().orElse(MessageChannel.TO_ALL).send(this.pluginContainer,
                             this.cmc.getPriorNameMessage()
                                     .getForCommandSource(pl,
-                                            ImmutableMap.of("previousname", cs -> Optional.of(Text.of(lastKnown.get()))), Maps.newHashMap()));
+                                            ImmutableMap.of("previousname", cs -> Optional.of(Text.of(lastKnown.get())))));
             }
         } catch (Exception e) {
             e.printStackTrace();

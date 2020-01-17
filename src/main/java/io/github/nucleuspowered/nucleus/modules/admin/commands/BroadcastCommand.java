@@ -51,7 +51,7 @@ public class BroadcastCommand implements ICommandExecutor<CommandSource>, IReloa
         new NucleusTextTemplateMessageSender(
                 context.getServiceCollection().textTemplateFactory(),
                 textTemplate,
-                context.getServiceCollection().messageTokenService(),
+                context.getServiceCollection().placeholderService(),
                 context.getCommandSource()
         ).send(context.getCause());
         return context.successResult();

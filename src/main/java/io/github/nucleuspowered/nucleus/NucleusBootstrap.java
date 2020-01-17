@@ -19,8 +19,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.typesafe.config.ConfigException;
 import io.github.nucleuspowered.nucleus.api.NucleusAPITokens;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMessageTokenService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusSafeTeleportService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
@@ -308,11 +308,11 @@ public class NucleusBootstrap {
             return;
         }
 
-        game.getServiceManager().setProvider(this, NucleusModuleService.class, new ModuleRegistrationProxyService(this.serviceCollection, this.moduleContainer));
-        game.getServiceManager().setProvider(this, NucleusWarmupManagerService.class, this.serviceCollection.warmupService());
-        game.getServiceManager().setProvider(this, NucleusUserPreferenceService.class, this.serviceCollection.userPreferenceService());
-        game.getServiceManager().setProvider(this, NucleusMessageTokenService.class, this.serviceCollection.messageTokenService());
-        game.getServiceManager().setProvider(this, NucleusSafeTeleportService.class, this.serviceCollection.teleportService());
+        game.getServiceManager().setProvider(this.pluginContainer, NucleusModuleService.class, new ModuleRegistrationProxyService(this.serviceCollection, this.moduleContainer));
+        game.getServiceManager().setProvider(this.pluginContainer, NucleusWarmupManagerService.class, this.serviceCollection.warmupService());
+        game.getServiceManager().setProvider(this.pluginContainer, NucleusUserPreferenceService.class, this.serviceCollection.userPreferenceService());
+        game.getServiceManager().setProvider(this.pluginContainer, NucleusSafeTeleportService.class, this.serviceCollection.teleportService());
+        game.getServiceManager().setProvider(this.pluginContainer, NucleusPlaceholderService.class, this.serviceCollection.placeholderService());
 
         try {
             final String he = this.serviceCollection.messageProvider().getMessageString("config.main-header", NucleusPluginInfo.VERSION);

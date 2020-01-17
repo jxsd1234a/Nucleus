@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.api.text;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusMessageTokenService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextRepresentable;
@@ -57,7 +57,7 @@ public interface NucleusTextTemplate extends TextRepresentable {
      * @return The parsed {@link Text}
      */
     default Text getForCommandSource(CommandSource source) {
-        return getForCommandSource(source, null, null);
+        return getForCommandSource(source, null);
     }
 
     /**
@@ -73,18 +73,12 @@ public interface NucleusTextTemplate extends TextRepresentable {
      * <p>
      *     By supplying a token array, these token identifiers act as additional tokens that could be encountered, and will be used above standard
      *     tokens. This is useful for having a token in a specific context, such as "displayfrom", which might only be used in a message, and is
-     *     not worth registering in a {@link NucleusMessageTokenService.TokenParser}. They must not contain the token start or end delimiters.
-     * </p>
-     * <p>
-     *     The variables are items that <em>might</em> be used by tokens, and is generally best used with your own messages and tokens.
-     *     {@link NucleusMessageTokenService.TokenParser}s are passed this map.
+     *     not worth registering in a {@link NucleusPlaceholderService}. They must not contain the token start or end delimiters.
      * </p>
      *
      * @param source The {@link CommandSource} that will influence what is displayed by the tokens.
      * @param tokensArray The extra tokens that can be used to parse a text.
-     * @param variables The variables.
      * @return The parsed {@link Text}
      */
-    Text getForCommandSource(CommandSource source, @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray,
-            @Nullable Map<String, Object> variables);
+    Text getForCommandSource(CommandSource source, @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray);
 }

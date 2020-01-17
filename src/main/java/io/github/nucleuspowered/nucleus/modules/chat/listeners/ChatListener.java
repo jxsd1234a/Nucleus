@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.chat.listeners;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMessageTokenService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.modules.chat.ChatPermissions;
 import io.github.nucleuspowered.nucleus.modules.chat.config.ChatConfig;
 import io.github.nucleuspowered.nucleus.modules.chat.config.ChatTemplateConfig;
@@ -31,7 +31,7 @@ import javax.inject.Inject;
 
 /**
  * A listener that modifies all chat messages. Uses the
- * {@link NucleusMessageTokenService}, which
+ * {@link NucleusPlaceholderService}, which
  * should be used if tokens need to be registered.
  */
 public class ChatListener implements IReloadableService.Reloadable, ListenerBase.Conditional {

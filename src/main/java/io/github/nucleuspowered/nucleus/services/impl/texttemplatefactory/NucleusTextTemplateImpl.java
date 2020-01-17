@@ -47,8 +47,6 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
 
-    private static final Map<String, Object> emptyVariables = Maps.newHashMap();
-
     @Nullable private final Text prefix;
     @Nullable private final Text suffix;
     private final String representation;
@@ -110,23 +108,21 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
 
     @Override @SuppressWarnings("SameParameterValue")
     public Text getForCommandSource(CommandSource source,
-            @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray,
-            @Nullable Map<String, Object> variables) {
-        final Map<String, Object> variables2 = variables == null ? emptyVariables : variables;
+            @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray) {
 
         Map<String, TextTemplate.Arg> tokens = this.textTemplate.getArguments();
-        Map<String, Text> finalArgs = Maps.newHashMap();
+        Map<String, TextRepresentable> finalArgs = Maps.newHashMap();
 
         tokens.forEach((k, v) -> {
             String key = k.toLowerCase();
 
-            Text t;
+            TextRepresentable t;
             if (this.tokenMap.containsKey(key)) {
                 t = this.tokenMap.get(key).apply(source);
             } else if (tokensArray != null && tokensArray.containsKey(key)) {
                 t = tokensArray.get(key).apply(source).orElse(null);
             } else {
-                t = this.serviceCollection.messageTokenService().parseToken(key, source, variables2).orElse(null);
+                t = this.serviceCollection.placeholderService().parse(source, key);
             }
 
             if (t != null) {
@@ -337,9 +333,8 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
             super(representation, prefix, suffix, serviceCollection);
         }
 
-        @Override Tuple<TextTemplate, Map<String, Function<CommandSource, Text>>> parse(String input) {
+        @Override Tuple<TextTemplate, Map<String, Function<CommandSource, Text>>> parse(final String string) {
             // regex!
-            final String string = this.serviceCollection.messageTokenService().performReplacements(input);
             Matcher mat = pattern.matcher(string);
             List<String> map = Lists.newArrayList();
 

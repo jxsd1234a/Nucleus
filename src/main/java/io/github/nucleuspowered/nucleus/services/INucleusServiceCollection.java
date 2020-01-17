@@ -15,11 +15,11 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IConfigurateHelper;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICooldownService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IEconomyServiceProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
-import io.github.nucleuspowered.nucleus.services.interfaces.IMessageTokenService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IModuleDataProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTeleportService;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPlaceholderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlatformService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerDisplayNameService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerInformationService;
@@ -57,8 +57,6 @@ public interface INucleusServiceCollection {
 
     IPlayerOnlineService playerOnlineService();
 
-    IMessageTokenService messageTokenService();
-
     IStorageManager storageManager();
 
     ICommandMetadataService commandMetadataService();
@@ -90,6 +88,8 @@ public interface INucleusServiceCollection {
     IConfigurateHelper configurateHelper();
 
     ICompatibilityService compatibilityService();
+
+    IPlaceholderService placeholderService();
 
     Logger logger();
 

@@ -386,7 +386,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
                     x.offer(Keys.DISPLAY_NAME,
                             this.serviceCollection.textTemplateFactory()
                                     .createFromAmpersandString(TextSerializers.FORMATTING_CODE.serialize(text))
-                                    .getForCommandSource(player, null, null));
+                                    .getForCommandSource(player, null));
                 }
             });
 
@@ -396,7 +396,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
                             text.stream().map(y ->
                                     this.serviceCollection.textTemplateFactory()
                                             .createFromAmpersandString(TextSerializers.FORMATTING_CODE.serialize(y))
-                                            .getForCommandSource(player, null, null)).collect(Collectors.toList()));
+                                            .getForCommandSource(player, null)).collect(Collectors.toList()));
                 }
             });
         }

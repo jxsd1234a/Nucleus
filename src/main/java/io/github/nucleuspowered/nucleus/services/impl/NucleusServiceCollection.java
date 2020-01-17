@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.services.impl;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.nucleus.guice.ConfigDirectory;
 import io.github.nucleuspowered.nucleus.guice.DataDirectory;
+import io.github.nucleuspowered.nucleus.services.IInitService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandElementSupplier;
@@ -16,11 +17,11 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IConfigurateHelper;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICooldownService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IEconomyServiceProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
-import io.github.nucleuspowered.nucleus.services.interfaces.IMessageTokenService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IModuleDataProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTeleportService;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPlaceholderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlatformService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerDisplayNameService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerInformationService;
@@ -59,7 +60,6 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
     private final Provider<IPermissionService> permissionCheckService;
     private final Provider<IReloadableService> reloadableService;
     private final Provider<IPlayerOnlineService> playerOnlineService;
-    private final Provider<IMessageTokenService> messageTokenService;
     private final Provider<IStorageManager> storageManager;
     private final Provider<IUserPreferenceService> userPreferenceService;
     private final Provider<ICommandMetadataService> commandMetadataService;
@@ -75,6 +75,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
     private final Provider<IPlatformService> platformServiceProvider;
     private final Provider<ICompatibilityService> compatibilityServiceProvider;
     private final Provider<IChatMessageFormatterService> chatMessageFormatterProvider;
+    private final Provider<IPlaceholderService> placeholderServiceProvider;
     private final Injector injector;
     private final PluginContainer pluginContainer;
     private final Logger logger;
@@ -97,7 +98,6 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         this.permissionCheckService = new LazyLoad<>(injector, IPermissionService.class);
         this.reloadableService = new LazyLoad<>(injector, IReloadableService.class);
         this.playerOnlineService = new LazyLoad<>(injector, IPlayerOnlineService.class);
-        this.messageTokenService = new LazyLoad<>(injector, IMessageTokenService.class);
         this.storageManager = new LazyLoad<>(injector, IStorageManager.class);
         this.commandMetadataService = new LazyLoad<>(injector, ICommandMetadataService.class);
         this.playerDisplayNameService = new LazyLoad<>(injector, IPlayerDisplayNameService.class);
@@ -113,6 +113,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         this.platformServiceProvider = new LazyLoad<>(injector, IPlatformService.class);
         this.compatibilityServiceProvider = new LazyLoad<>(injector, ICompatibilityService.class);
         this.chatMessageFormatterProvider = new LazyLoad<>(injector, IChatMessageFormatterService.class);
+        this.placeholderServiceProvider = new LazyLoad<>(injector, IPlaceholderService.class);
         this.injector = injector;
         this.pluginContainer = pluginContainer;
         this.logger = logger;
@@ -157,10 +158,6 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
 
     @Override public IPlayerOnlineService playerOnlineService() {
         return this.playerOnlineService.get();
-    }
-
-    @Override public IMessageTokenService messageTokenService() {
-        return this.messageTokenService.get();
     }
 
     @Override public IStorageManager storageManager() {
@@ -209,6 +206,10 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
 
     @Override public ICompatibilityService compatibilityService() {
         return this.compatibilityServiceProvider.get();
+    }
+
+    @Override public IPlaceholderService placeholderService() {
+        return this.placeholderServiceProvider.get();
     }
 
     @Override public IUserCacheService userCacheService() {
@@ -278,7 +279,7 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         return this.dataDir;
     }
 
-    private static class LazyLoad<T> implements Provider<T> {
+    private class LazyLoad<T> implements Provider<T> {
         private final Class<T> clazz;
         private final Injector injector;
         private T instance;
@@ -291,6 +292,9 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
         @Override public T get() {
             if (this.instance == null) {
                 this.instance = this.injector.getInstance(this.clazz);
+                if (this.instance instanceof IInitService) {
+                    ((IInitService) this.instance).init(NucleusServiceCollection.this);
+                }
             }
             return this.instance;
         }

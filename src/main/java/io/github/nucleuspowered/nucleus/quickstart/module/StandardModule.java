@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.quickstart.module;
 import com.google.common.collect.ImmutableMap;
 import io.github.nucleuspowered.nucleus.Constants;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
 import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.quickstart.annotation.RequireExistenceOf;
 import io.github.nucleuspowered.nucleus.quickstart.annotation.RequiresPlatform;
@@ -21,7 +22,6 @@ import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
 import io.github.nucleuspowered.nucleus.scaffold.task.TaskBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
-import io.github.nucleuspowered.nucleus.services.impl.messagetoken.Tokens;
 import io.github.nucleuspowered.nucleus.services.impl.permission.PermissionMetadata;
 import io.github.nucleuspowered.nucleus.services.impl.playerinformation.NucleusProvider;
 import io.github.nucleuspowered.nucleus.services.impl.userprefs.PreferenceKeyImpl;
@@ -98,7 +98,7 @@ public abstract class StandardModule implements Module {
         }
     }
 
-    protected Map<String, Tokens.Translator> tokensToRegister() {
+    protected Map<String, PlaceholderParser> tokensToRegister() {
         return ImmutableMap.of();
     }
 
@@ -323,20 +323,19 @@ public abstract class StandardModule implements Module {
     }
 
     public final void loadTokens() {
-        Map<String, Tokens.Translator> map = tokensToRegister();
+        Map<String, PlaceholderParser> map = tokensToRegister();
         if (!map.isEmpty()) {
             map.forEach((k, t) -> {
                 try {
-                    if (!this.serviceCollection.messageTokenService().getNucleusTokenParser().register(k, t, true)) {
-                        this.serviceCollection.logger().warn("Could not register primary token identifier " + k);
-                    }
-                } catch (IllegalArgumentException e) {
-                    this.serviceCollection.logger().warn("Could not register nucleus token identifier " + k);
+                    this.serviceCollection.placeholderService().registerToken(this.serviceCollection.pluginContainer(), k, t);
+                } catch (Exception e) {
+                    this.serviceCollection.logger().warn("Could not register nucleus token identifier " + k, e);
                 }
             });
         }
     }
 
+    @SuppressWarnings("unchecked")
     public final void loadRegistries() {
         Set<Class<? extends NucleusRegistryModule>> registries;
         if (this.objectTypesToClassListMap != null) {
@@ -346,7 +345,7 @@ public abstract class StandardModule implements Module {
         }
 
         for (Class<? extends NucleusRegistryModule> r : registries) {
-            NucleusRegistryModule instance = getInstance(r);
+            NucleusRegistryModule<?> instance = getInstance(r);
             try {
                 instance.registerDefaults();
             } catch (Exception e) {

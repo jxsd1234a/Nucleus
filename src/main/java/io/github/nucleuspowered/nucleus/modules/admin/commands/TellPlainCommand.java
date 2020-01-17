@@ -37,7 +37,7 @@ public class TellPlainCommand implements ICommandExecutor<CommandSource> {
                     context.getServiceCollection().textTemplateFactory(),
                     context.getServiceCollection().textTemplateFactory().createFromString(
                         context.requireOne(NucleusParameters.Keys.MESSAGE, String.class)),
-                    context.getServiceCollection().messageTokenService(),
+                    context.getServiceCollection().placeholderService(),
                     context.getCommandSource())
                     .send(context.getAll(NucleusParameters.Keys.PLAYER_OR_CONSOLE, CommandSource.class), context.getCause());
         } catch (Throwable throwable) {

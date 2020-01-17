@@ -25,6 +25,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.control.CommandControl;
 import io.github.nucleuspowered.nucleus.scaffold.command.control.CommandMetadata;
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.placeholder.PlaceholderMetadata;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandMetadataService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
@@ -181,10 +182,11 @@ public class DocGenCommand implements ICommandExecutor<CommandSource> {
                 .sorted(Comparator.comparing(PermissionDoc::getPermission))
                 .collect(Collectors.toList());
 
-        List<TokenDoc> tokenDocs = serviceCollection.messageTokenService()
-                .getNucleusTokenParser()
-                .getTokenNames()
+        List<TokenDoc> tokenDocs = serviceCollection
+                .placeholderService()
+                .getNucleusParsers()
                 .stream()
+                .map(PlaceholderMetadata::getToken)
                 .filter(x -> this.messageProviderService.hasKey("nucleus.token." + x.toLowerCase()))
                 .map(x -> new TokenDoc().setName(x).setDescription(this.messageProviderService.getMessageString("nucleus.token." + x.toLowerCase())))
                 .collect(Collectors.toList());

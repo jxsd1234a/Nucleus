@@ -5,22 +5,20 @@
 package io.github.nucleuspowered.nucleus.modules.vanish;
 
 import com.google.common.collect.ImmutableMap;
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
 import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfig;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.vanish.services.VanishService;
 import io.github.nucleuspowered.nucleus.quickstart.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
-import io.github.nucleuspowered.nucleus.services.impl.messagetoken.Tokens;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.living.player.Player;
+import io.github.nucleuspowered.nucleus.services.impl.placeholder.parser.ConditionalParser;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 import uk.co.drnaylor.quickstart.holders.DiscoveryModuleHolder;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -38,22 +36,13 @@ public class VanishModule extends ConfigurableModule<VanishConfig, VanishConfigA
         return new VanishConfigAdapter();
     }
 
-    @Override protected Map<String, Tokens.Translator> tokensToRegister() {
-        return ImmutableMap.<String, Tokens.Translator>builder()
-                .put("vanished", new Tokens.TrueFalseVariableTranslator() {
-                    @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<Text> def =
-                            Optional.of(Text.of(TextColors.GRAY, "[Vanished]"));
-
-                    @Override protected Optional<Text> getDefault() {
-                        return this.def;
-                    }
-
-                    @Override protected boolean condition(CommandSource commandSource) {
-                        return commandSource instanceof Player &&
-                                serviceCollection.getServiceUnchecked(VanishService.class)
-                                        .isVanished((Player) commandSource);
-                    }
-                }).build();
+    @Override
+    protected Map<String, PlaceholderParser> tokensToRegister() {
+        return ImmutableMap.<String,  PlaceholderParser>builder()
+                .put("vanished", new ConditionalParser.PlayerCondition(
+                        Text.of(TextColors.GRAY, "[Vanished]"),
+                        player -> serviceCollection.getServiceUnchecked(VanishService.class).isVanished(player)
+                )).build();
     }
 
 }

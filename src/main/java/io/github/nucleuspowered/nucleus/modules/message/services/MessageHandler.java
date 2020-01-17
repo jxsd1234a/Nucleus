@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPrivateMessagingService;
-import io.github.nucleuspowered.nucleus.modules.message.HelpOpMessageChannel;
 import io.github.nucleuspowered.nucleus.modules.message.MessagePermissions;
 import io.github.nucleuspowered.nucleus.modules.message.MessageUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfig;
@@ -395,7 +394,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
 
     private Text constructMessage(CommandSource sender, Text message, NucleusTextTemplateImpl template,
             Map<String, Function<CommandSource, Optional<Text>>> tokens, Map<String, Object> variables) {
-        return this.serviceCollection.textStyleService().joinTextsWithColoursFlowing(template.getForCommandSource(sender, tokens, variables), message);
+        return this.serviceCollection.textStyleService().joinTextsWithColoursFlowing(template.getForCommandSource(sender, tokens), message);
     }
 
     private Text useMessage(CommandSource player, String m) {
