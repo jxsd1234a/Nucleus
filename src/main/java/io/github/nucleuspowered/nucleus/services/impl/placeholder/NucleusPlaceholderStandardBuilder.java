@@ -26,8 +26,8 @@ public class NucleusPlaceholderStandardBuilder implements Placeholder.StandardBu
     }
 
     @Override
-    public Placeholder.StandardBuilder setParser(String parser) {
-        this.metadata = this.placeholderService.getMetadata(parser);
+    public Placeholder.StandardBuilder setToken(String token) {
+        this.metadata = this.placeholderService.getMetadata(token);
         return this;
     }
 
@@ -44,13 +44,13 @@ public class NucleusPlaceholderStandardBuilder implements Placeholder.StandardBu
     }
 
     @Override
-    public Placeholder.StandardBuilder setPrependingText(Text prefix) {
+    public Placeholder.StandardBuilder setPrependingTextIfNotEmpty(Text prefix) {
         this.prepend = prefix == null ? Text.EMPTY : prefix;
         return this;
     }
 
     @Override
-    public Placeholder.StandardBuilder setAppendingText(Text prefix) {
+    public Placeholder.StandardBuilder setAppendingTextIfNotEmpty(Text prefix) {
         this.append = append == null ? Text.EMPTY : prefix;
         return this;
     }
@@ -58,7 +58,9 @@ public class NucleusPlaceholderStandardBuilder implements Placeholder.StandardBu
     @Override
     public Placeholder.Standard build() {
         Preconditions.checkState(this.metadata != null, "Parser has not been set!");
-        return new NucleusPlaceholder(this.metadata, this.source, this.argument, this.prepend, this.append);
+        Placeholder.Standard placeholder = new NucleusPlaceholder(this.metadata, this.source, this.argument, this.prepend, this.append);
+        this.metadata.getParser().validate(placeholder);
+        return placeholder;
     }
 
     @Override

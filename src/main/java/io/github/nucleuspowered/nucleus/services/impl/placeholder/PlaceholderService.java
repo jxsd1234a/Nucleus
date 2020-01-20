@@ -119,14 +119,14 @@ public class PlaceholderService implements IPlaceholderService, IInitService {
             }
             // option
             builder = new NucleusOptionPlaceholderBuilder()
-                    .setOption(token.substring(2))
+                    .setOptionKey(token.substring(2))
                     .setSubject(commandSource)
                     .setTextSerializer(TextSerializers.FORMATTING_CODE);
         } else {
             String[] s = token.split("\\|", 2);
             String tokenIn = s[0].toLowerCase();
             Placeholder.StandardBuilder b = new NucleusPlaceholderStandardBuilder(this)
-                    .setParser(tokenIn)
+                    .setToken(tokenIn)
                     .setAssociatedSource(commandSource);
             if (s.length == 2) {
                 b.setArgument(s[1]);
@@ -136,8 +136,8 @@ public class PlaceholderService implements IPlaceholderService, IInitService {
         }
 
         return builder
-                .setPrependingText(prependSpace)
-                .setAppendingText(appendSpace)
+                .setPrependingTextIfNotEmpty(prependSpace)
+                .setAppendingTextIfNotEmpty(appendSpace)
                 .build();
     }
 

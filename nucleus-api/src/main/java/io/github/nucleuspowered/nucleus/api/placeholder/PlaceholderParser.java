@@ -12,6 +12,10 @@ public interface PlaceholderParser {
     /**
      * Creates a {@link Text} based on the provided {@link Placeholder.Standard}.
      *
+     * <p>This method should not throw an error, instead doing so in
+     * {@link #validate(Placeholder.Standard)} which is called when the
+     * {@link Placeholder} that will call this is built.</p>
+     *
      * @param placeholder The {@link Placeholder.Standard}
      * @return The {@link Text}
      */

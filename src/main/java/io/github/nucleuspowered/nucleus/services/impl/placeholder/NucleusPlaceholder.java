@@ -5,9 +5,11 @@
 package io.github.nucleuspowered.nucleus.services.impl.placeholder;
 
 import io.github.nucleuspowered.nucleus.api.placeholder.Placeholder;
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
@@ -34,8 +36,18 @@ public class NucleusPlaceholder implements Placeholder.Standard {
     }
 
     @Override
-    public String getParser() {
+    public String getRegisteredToken() {
         return this.metadata.getToken();
+    }
+
+    @Override
+    public PluginContainer getRegisteredPlugin() {
+        return this.metadata.getPluginContainer();
+    }
+
+    @Override
+    public PlaceholderParser getParser() {
+        return this.metadata.getParser();
     }
 
     @Override
@@ -49,12 +61,12 @@ public class NucleusPlaceholder implements Placeholder.Standard {
     }
 
     @Override
-    public Text getPrependingText() {
+    public Text getPrependingTextIfNotEmpty() {
         return this.prepend;
     }
 
     @Override
-    public Text getAppendingText() {
+    public Text getAppendingTextIfNotEmpty() {
         return this.append;
     }
 
@@ -65,7 +77,12 @@ public class NucleusPlaceholder implements Placeholder.Standard {
     @NonNull
     @Override
     public Text toText() {
-        return Text.of(this.prepend, this.metadata.getParser().parse(this), this.append);
+        Text result = this.metadata.getParser().parse(this);
+        if (!result.isEmpty()) {
+            return Text.of(this.prepend, result, this.append);
+        }
+
+        return result;
     }
 
 }

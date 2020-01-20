@@ -34,7 +34,7 @@ public class NucleusOptionPlaceholder implements Placeholder.Option {
     }
 
     @Override
-    public String getOption() {
+    public String getOptionKey() {
         return this.option;
     }
 
@@ -44,25 +44,30 @@ public class NucleusOptionPlaceholder implements Placeholder.Option {
     }
 
     @Override
-    public Text getPrependingText() {
+    public Text getPrependingTextIfNotEmpty() {
         return this.prepend;
     }
 
     @Override
-    public Text getAppendingText() {
+    public Text getAppendingTextIfNotEmpty() {
         return this.append;
     }
 
-    @Override public TextSerializer getTextSerializer(TextSerializer serializer) {
+    @Override public TextSerializer getTextSerializer() {
         return this.serializer;
     }
 
     @Override
     @NonNull
     public Text toText() {
-        return Text.of(this.prepend,
-                this.source.resolve().join().getOption(this.option).map(this.serializer::deserialize).orElse(this.defaultText),
-                this.append);
+        Text result = this.source.resolve().join().getOption(this.option).map(this.serializer::deserialize).orElse(this.defaultText);
+        if (!result.isEmpty()) {
+            return Text.of(this.prepend,
+                    result,
+                    this.append);
+        }
+
+        return result;
     }
 
 }

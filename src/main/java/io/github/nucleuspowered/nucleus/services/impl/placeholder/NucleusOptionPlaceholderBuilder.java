@@ -31,7 +31,7 @@ public class NucleusOptionPlaceholderBuilder implements Placeholder.OptionBuilde
     }
 
     @Override
-    public Placeholder.OptionBuilder setOption(String option) {
+    public Placeholder.OptionBuilder setOptionKey(String option) {
         this.option = option;
         return this;
     }
@@ -54,13 +54,13 @@ public class NucleusOptionPlaceholderBuilder implements Placeholder.OptionBuilde
     }
 
     @Override
-    public Placeholder.OptionBuilder setPrependingText(Text prefix) {
+    public Placeholder.OptionBuilder setPrependingTextIfNotEmpty(Text prefix) {
         this.prepend = prefix == null ? Text.EMPTY : prefix;
         return this;
     }
 
     @Override
-    public Placeholder.OptionBuilder setAppendingText(Text prefix) {
+    public Placeholder.OptionBuilder setAppendingTextIfNotEmpty(Text prefix) {
         this.append = append == null ? Text.EMPTY : prefix;
         return this;
     }
@@ -82,7 +82,7 @@ public class NucleusOptionPlaceholderBuilder implements Placeholder.OptionBuilde
     @Override
     public Placeholder.OptionBuilder from(Placeholder.Option value) {
         this.source = value.getSubjectReference();
-        this.option = value.getOption();
+        this.option = value.getOptionKey();
         this.defaultText = value.getDefault();
         return this;
     }

@@ -17,6 +17,7 @@ public interface NucleusWarmupManagerService {
      * Executes a task after the specified time, if the target does
      * not move or run a command.
      *
+     * @param target The {@link Player} to execute the task on.
      * @param duration The {@link Duration} to wait.
      * @param runnable The {@link WarmupTask} to execute.
      */
@@ -26,6 +27,7 @@ public interface NucleusWarmupManagerService {
      * Executes a task after the specified time, if the target does
      * not move or run a command. The task will be run off the main thread
      *
+     * @param target The {@link Player} to execute the task on.
      * @param duration The {@link Duration} to wait.
      * @param runnable The {@link WarmupTask} to execute
      */
@@ -35,6 +37,7 @@ public interface NucleusWarmupManagerService {
      * Cancels a task by {@link Player}
      *
      * @param player The player that this task is attached to.
+     * @return true if cancelled, false otherwise
      */
     boolean cancel(Player player);
 
