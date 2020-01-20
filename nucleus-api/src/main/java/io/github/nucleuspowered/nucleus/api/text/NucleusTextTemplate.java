@@ -96,6 +96,7 @@ public interface NucleusTextTemplate extends TextRepresentable {
      *
      * @param source The {@link CommandSource} that will influence what is displayed by the tokens.
      * @param tokensArray The extra tokens that can be used to parse a text.
+     * @param variables {@link PlaceholderVariables} that provide additional information.
      * @return The parsed {@link Text}
      */
     Text getForCommandSource(
