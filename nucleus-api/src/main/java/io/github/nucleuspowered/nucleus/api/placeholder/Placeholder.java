@@ -103,6 +103,14 @@ public interface Placeholder extends TextRepresentable {
         PlaceholderParser getParser();
 
         /**
+         * Gets the {@link PlaceholderVariables} associated with this
+         * placeholder.
+         *
+         * @return The {@link PlaceholderVariables}
+         */
+        PlaceholderVariables getVariables();
+
+        /**
          * If provided, the {@link CommandSource} which to pull information
          * from when building the placeholder text.
          *
@@ -210,6 +218,15 @@ public interface Placeholder extends TextRepresentable {
          * @see Standard#getAssociatedSource()
          */
         StandardBuilder setAssociatedSource(@Nullable CommandSource source);
+
+        /**
+         * Sets the {@link PlaceholderVariables} to use as a source of information
+         * for this {@link Placeholder}.
+         *
+         * @param placeholderVariables The variables
+         * @return This, for chaining
+         */
+        StandardBuilder setPlaceholderVariables(PlaceholderVariables placeholderVariables);
 
         /**
          * Sets a string that represents variables for the supplied token.

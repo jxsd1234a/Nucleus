@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.api.text;
 
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderVariables;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
@@ -50,6 +51,13 @@ public interface NucleusTextTemplate extends TextRepresentable {
     TextTemplate getTextTemplate();
 
     /**
+     * Returns whether there are tokens to parse.
+     *
+     * @return <code>true</code> if there are tokens.
+     */
+    boolean containsTokens();
+
+    /**
      * Gets the {@link Text} where the tokens have been parsed from the viewpoint of the supplied {@link CommandSource}. Any unknown tokens in
      * the parsed text will be left blank.
      *
@@ -57,15 +65,8 @@ public interface NucleusTextTemplate extends TextRepresentable {
      * @return The parsed {@link Text}
      */
     default Text getForCommandSource(CommandSource source) {
-        return getForCommandSource(source, null);
+        return getForCommandSource(source, null, PlaceholderVariables.builder().build());
     }
-
-    /**
-     * Returns whether there are tokens to parse.
-     *
-     * @return <code>true</code> if there are tokens.
-     */
-    boolean containsTokens();
 
     /**
      * Gets the {@link Text} where the tokens have been parsed from the viewpoint of the supplied {@link CommandSource}.
@@ -80,5 +81,25 @@ public interface NucleusTextTemplate extends TextRepresentable {
      * @param tokensArray The extra tokens that can be used to parse a text.
      * @return The parsed {@link Text}
      */
-    Text getForCommandSource(CommandSource source, @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray);
+    default Text getForCommandSource(CommandSource source, @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray) {
+        return getForCommandSource(source, tokensArray, PlaceholderVariables.empty());
+    }
+
+    /**
+     * Gets the {@link Text} where the tokens have been parsed from the viewpoint of the supplied {@link CommandSource}.
+     *
+     * <p>
+     *     By supplying a token array, these token identifiers act as additional tokens that could be encountered, and will be used above standard
+     *     tokens. This is useful for having a token in a specific context, such as "displayfrom", which might only be used in a message, and is
+     *     not worth registering in a {@link NucleusPlaceholderService}. They must not contain the token start or end delimiters.
+     * </p>
+     *
+     * @param source The {@link CommandSource} that will influence what is displayed by the tokens.
+     * @param tokensArray The extra tokens that can be used to parse a text.
+     * @return The parsed {@link Text}
+     */
+    Text getForCommandSource(
+            CommandSource source,
+            @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray,
+            PlaceholderVariables variables);
 }

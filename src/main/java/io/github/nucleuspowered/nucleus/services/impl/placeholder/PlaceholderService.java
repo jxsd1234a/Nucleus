@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.services.impl.placeholder;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.placeholder.Placeholder;
 import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderVariables;
 import io.github.nucleuspowered.nucleus.modules.core.services.UniqueUserService;
 import io.github.nucleuspowered.nucleus.services.IInitService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -92,10 +93,12 @@ public class PlaceholderService implements IPlaceholderService, IInitService {
         // register the builders.
         Sponge.getRegistry().registerBuilderSupplier(Placeholder.StandardBuilder.class, () -> new NucleusPlaceholderStandardBuilder(this));
         Sponge.getRegistry().registerBuilderSupplier(Placeholder.OptionBuilder.class, NucleusOptionPlaceholderBuilder::new);
+        Sponge.getRegistry().registerBuilderSupplier(PlaceholderVariables.KeyBuilder.class, () -> NucleusPlaceholderVariableKeyBuilder.INSTANCE);
+        Sponge.getRegistry().registerBuilderSupplier(PlaceholderVariables.Builder.class, NucleusPlaceholderVariablesBuilder::new);
     }
 
     @Override
-    public TextRepresentable parse(@Nullable CommandSource commandSource, String input) {
+    public TextRepresentable parse(@Nullable CommandSource commandSource, String input, PlaceholderVariables variables) {
         String token = input.toLowerCase().trim().replace("{{", "").replace("}}", "");
         Matcher m = SUFFIX_PATTERN.matcher(token);
         Text appendSpace = Text.EMPTY;
@@ -127,7 +130,8 @@ public class PlaceholderService implements IPlaceholderService, IInitService {
             String tokenIn = s[0].toLowerCase();
             Placeholder.StandardBuilder b = new NucleusPlaceholderStandardBuilder(this)
                     .setToken(tokenIn)
-                    .setAssociatedSource(commandSource);
+                    .setAssociatedSource(commandSource)
+                    .setPlaceholderVariables(variables);
             if (s.length == 2) {
                 b.setArgument(s[1]);
             }

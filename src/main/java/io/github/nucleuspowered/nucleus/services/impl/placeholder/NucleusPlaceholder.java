@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.services.impl.placeholder;
 
 import io.github.nucleuspowered.nucleus.api.placeholder.Placeholder;
 import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderVariables;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.command.CommandSource;
@@ -21,18 +22,21 @@ public class NucleusPlaceholder implements Placeholder.Standard {
     @Nullable private final String argument;
     private final Text append;
     private final Text prepend;
+    private final PlaceholderVariables placeholderVariables;
 
     public NucleusPlaceholder(
             PlaceholderMetadata metadata,
             @Nullable CommandSource sender,
             @Nullable String argument,
             Text prepend,
-            Text append) {
+            Text append,
+            PlaceholderVariables placeholderVariables) {
         this.metadata = metadata;
         this.sender = sender;
         this.argument = argument;
         this.prepend = prepend;
         this.append = append;
+        this.placeholderVariables = placeholderVariables;
     }
 
     @Override
@@ -48,6 +52,11 @@ public class NucleusPlaceholder implements Placeholder.Standard {
     @Override
     public PlaceholderParser getParser() {
         return this.metadata.getParser();
+    }
+
+    @Override
+    public PlaceholderVariables getVariables() {
+        return this.placeholderVariables;
     }
 
     @Override

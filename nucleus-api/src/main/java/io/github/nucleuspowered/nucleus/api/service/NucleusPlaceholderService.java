@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.api.service;
 
 import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
+import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderVariables;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -28,7 +29,22 @@ public interface NucleusPlaceholderService {
      * @param token The token text to parse.
      * @return The parsed {@link Text}.
      */
-    TextRepresentable parse(@Nullable CommandSource commandSource, String token);
+    default TextRepresentable parse(@Nullable CommandSource commandSource, String token) {
+        return parse(commandSource, token, PlaceholderVariables.empty());
+    }
+
+    /**
+     * Parses a string on behalf of a {@link CommandSource} based on the Nucleus
+     * chat format.
+     *
+     * @param commandSource The source that tokens should use as a context. May
+     *                      be {@code null}, but some tokens may not parse
+     *                      without this supplied.
+     * @param token The token text to parse.
+     * @param variables The variables to pass to the placeholder parser.
+     * @return The parsed {@link Text}.
+     */
+    TextRepresentable parse(@Nullable CommandSource commandSource, String token, PlaceholderVariables variables);
 
     /**
      * Registers a token.
