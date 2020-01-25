@@ -185,6 +185,16 @@ public interface ICommandContext<C extends CommandSource> {
         return getLevelFor(subject, key).orElseGet(() -> testPermissionFor(subject, permissionIfNoLevel) ? 1 : 0);
     }
 
+    /**
+     * Gets whether the permission level is okay.
+     *
+     * @param actee The person that is targetted
+     * @param key The level key
+     * @param permissionIfNoLevel The permission to check if no level is provided
+     * @param isSameLevel If true, this returns true if the actor and actee have the same permission level, if false,
+     *                      returns false in the same situation.
+     * @return if the level is okay to proceed
+     */
     boolean isPermissionLevelOkay(Subject actee, String key, String permissionIfNoLevel, boolean isSameLevel);
 
     interface Mutable<C extends CommandSource> extends ICommandContext<C> {

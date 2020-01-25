@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.admin;
 
 import io.github.nucleuspowered.nucleus.modules.admin.config.AdminConfig;
-import io.github.nucleuspowered.nucleus.quickstart.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.admin.config.AdminConfigAdapter;
+import io.github.nucleuspowered.nucleus.quickstart.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 import uk.co.drnaylor.quickstart.holders.DiscoveryModuleHolder;
@@ -19,6 +19,7 @@ import javax.inject.Inject;
 public class AdminModule extends ConfigurableModule<AdminConfig, AdminConfigAdapter> {
 
     public final static String ID = "admin";
+    public static final String SUDO_LEVEL_KEY = "nucleus.sudo.level";
 
     @Inject
     public AdminModule(Supplier<DiscoveryModuleHolder<?, ?>> moduleHolder, INucleusServiceCollection collection) {

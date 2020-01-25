@@ -4,7 +4,10 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
+import io.github.nucleuspowered.nucleus.configurate.config.CommonPermissionLevelConfig;
+import io.github.nucleuspowered.nucleus.modules.admin.AdminModule;
 import io.github.nucleuspowered.nucleus.modules.admin.AdminPermissions;
+import io.github.nucleuspowered.nucleus.modules.admin.config.AdminConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
@@ -12,6 +15,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
@@ -27,7 +31,9 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
         commandDescriptionKey = "sudo")
 @EssentialsEquivalent("sudo")
 @NonnullByDefault
-public class SudoCommand implements ICommandExecutor<CommandSource> {
+public class SudoCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
+
+    private CommonPermissionLevelConfig levelConfig = new CommonPermissionLevelConfig();
 
     @Override
     public CommandElement[] parameters(INucleusServiceCollection serviceCollection) {
@@ -43,6 +49,15 @@ public class SudoCommand implements ICommandExecutor<CommandSource> {
         String cmd = context.requireOne(NucleusParameters.Keys.COMMAND, String.class);
         if (context.is(pl) || (!context.isConsoleAndBypass() && context.testPermissionFor(pl, AdminPermissions.SUDO_EXEMPT))) {
             return context.errorResult("command.sudo.noperms");
+        }
+
+        if (this.levelConfig.isUseLevels() &&
+                !context.isPermissionLevelOkay(pl,
+                        AdminModule.SUDO_LEVEL_KEY,
+                        AdminPermissions.BASE_SUDO,
+                        this.levelConfig.isCanAffectSameLevel())) {
+            // Failure.
+            return context.errorResult("command.modifiers.level.insufficient", pl.getName());
         }
 
         if (cmd.startsWith("c:")) {
@@ -69,4 +84,8 @@ public class SudoCommand implements ICommandExecutor<CommandSource> {
         return context.successResult();
     }
 
+    @Override
+    public void onReload(INucleusServiceCollection serviceCollection) {
+        this.levelConfig = serviceCollection.moduleDataProvider().getModuleConfig(AdminConfig.class).getLevelConfig();
+    }
 }
