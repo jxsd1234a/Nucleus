@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IUserDataObject;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.Getter;
@@ -32,11 +33,13 @@ public class KitListener implements ListenerBase {
 
     private final KitService handler;
     private final IMessageProviderService messageProviderService;
+    private final IStorageManager storageManager;
 
     @Inject
     public KitListener(INucleusServiceCollection serviceCollection) {
         this.handler = serviceCollection.getServiceUnchecked(KitService.class);
         this.messageProviderService = serviceCollection.messageProvider();
+        this.storageManager = serviceCollection.storageManager();
     }
 
     // For migration of the kit data.
@@ -73,10 +76,10 @@ public class KitListener implements ListenerBase {
         handler.getCurrentlyOpenInventoryKit(inventory).ifPresent(x -> {
             try {
                 x.getFirst().updateKitInventory(x.getSecond());
-                handler.saveKit(x.getFirst(), false);
+                this.handler.saveKit(x.getFirst(), false);
 
                 if (event instanceof InteractInventoryEvent.Close) {
-                    this.handler.save();
+                    this.storageManager.getKitsService().ensureSaved();
                     this.messageProviderService.sendMessageTo(player, "command.kit.edit.success", x.getFirst().getName());
                     handler.removeKitInventoryFromListener(inventory);
                 }

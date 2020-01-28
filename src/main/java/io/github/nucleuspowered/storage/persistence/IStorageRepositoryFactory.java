@@ -40,4 +40,10 @@ public interface IStorageRepositoryFactory<O> extends CatalogType {
      */
     IStorageRepository.@Nullable Single<O> generalRepository();
 
+    /**
+     * Gets a storage system for kit data
+     *
+     * @return The storage system, if offered.
+     */
+    IStorageRepository.@Nullable Single<O> kitsRepository();
 }

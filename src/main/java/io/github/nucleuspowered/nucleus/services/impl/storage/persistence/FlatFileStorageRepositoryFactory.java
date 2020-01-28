@@ -25,24 +25,27 @@ import javax.inject.Singleton;
 @Singleton
 public final class FlatFileStorageRepositoryFactory implements IStorageRepositoryFactory<JsonObject> {
 
-    private static final String wd = "worlddata";
-    private static final String ud = "userdata";
+    private static final String WORLD_DATA_DIRECTORY = "worlddata";
+    private static final String USER_DATA_DIRECTORY = "userdata";
+    private static final String GENERAL_FILE = "general.json";
+    private static final String KITS_FILE = "kits.json";
     private final Supplier<Path> dataPath;
     private final Logger logger;
 
-    @Inject public FlatFileStorageRepositoryFactory(@DataDirectory Supplier<Path> path, Logger logger) {
+    @Inject
+    public FlatFileStorageRepositoryFactory(@DataDirectory Supplier<Path> path, Logger logger) {
         this.dataPath = path;
         this.logger = logger;
     }
 
     @Override
     public IStorageRepository.Keyed<UUID, IUserQueryObject, JsonObject> userRepository() {
-        return repository(ud);
+        return repository(USER_DATA_DIRECTORY);
     }
 
     @Override
     public IStorageRepository.Keyed<UUID, IWorldQueryObject, JsonObject> worldRepository() {
-        return repository(wd);
+        return repository(WORLD_DATA_DIRECTORY);
     }
 
     private <R extends IQueryObject<UUID, R>> IStorageRepository.Keyed<UUID, R, JsonObject> repository(final String p) {
@@ -61,7 +64,12 @@ public final class FlatFileStorageRepositoryFactory implements IStorageRepositor
 
     @Override
     public IStorageRepository.Single<JsonObject> generalRepository() {
-        return new FlatFileStorageRepository.Single(this.logger, () -> this.dataPath.get().resolve("general.json"));
+        return new FlatFileStorageRepository.Single(this.logger, () -> this.dataPath.get().resolve(GENERAL_FILE));
+    }
+
+    @Override
+    public IStorageRepository.Single<JsonObject> kitsRepository() {
+        return new FlatFileStorageRepository.Single(this.logger, () -> this.dataPath.get().resolve(KITS_FILE));
     }
 
     @Override public String getId() {

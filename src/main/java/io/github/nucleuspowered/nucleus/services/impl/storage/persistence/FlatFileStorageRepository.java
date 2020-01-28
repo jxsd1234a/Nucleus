@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-abstract class FlatFileStorageRepository implements IStorageRepository<JsonObject> {
+abstract class FlatFileStorageRepository implements IStorageRepository {
 
     private final Logger logger;
 

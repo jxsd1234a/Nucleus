@@ -4,12 +4,12 @@
  */
 package io.github.nucleuspowered.nucleus.services.impl.storage.services;
 
-import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IGeneralDataObject;
-import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
+import com.google.gson.JsonObject;
+import io.github.nucleuspowered.storage.dataaccess.IDataTranslator;
+import io.github.nucleuspowered.storage.dataobjects.IDataObject;
 import io.github.nucleuspowered.storage.persistence.IStorageRepository;
+import io.github.nucleuspowered.storage.services.IStorageService;
 import io.github.nucleuspowered.storage.services.ServicesUtil;
-import io.github.nucleuspowered.storage.util.ThrownConsumer;
-import io.github.nucleuspowered.storage.util.ThrownSupplier;
 import org.spongepowered.api.plugin.PluginContainer;
 
 import java.util.Optional;
@@ -18,27 +18,26 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-public class GeneralService implements IGeneralDataService {
+public class SingleCachedService<O extends IDataObject> implements IStorageService.SingleCached<O> {
 
-    private final Supplier<IGeneralDataObject> createNew;
-    private final ThrownSupplier<Optional<IGeneralDataObject>, Exception> get;
-    private final ThrownConsumer<IGeneralDataObject, Exception> save;
-    private final Supplier<IStorageRepository.Single<?>> repositorySupplier;
+    private final Supplier<O> createNew;
+    private final Supplier<IStorageRepository.Single<JsonObject>> repositorySupplier;
+    private final Supplier<IDataTranslator<O, JsonObject>> dataAccessSupplier;
     private final PluginContainer pluginContainer;
+    private O cached = null;
 
-    private IGeneralDataObject cached = null;
-
-    public GeneralService(IStorageManager storageManager, PluginContainer pluginContainer) {
+    public SingleCachedService(
+            final Supplier<IStorageRepository.Single<JsonObject>> repositorySupplier,
+            final Supplier<IDataTranslator<O, JsonObject>> dataAccessSupplier,
+            final PluginContainer pluginContainer) {
         this.pluginContainer = pluginContainer;
-        this.createNew = () -> storageManager.getGeneralDataAccess().createNew();
-        this.get = () -> storageManager.getGeneralRepository().get()
-                .map(x -> storageManager.getGeneralDataAccess().fromDataAccessObject(x));
-        this.save = r -> storageManager.getGeneralRepository().save(storageManager.getGeneralDataAccess().toDataAccessObject(r));
-        this.repositorySupplier = storageManager::getGeneralRepository;
+        this.repositorySupplier = repositorySupplier;
+        this.dataAccessSupplier = dataAccessSupplier;
+        this.createNew = () -> this.dataAccessSupplier.get().createNew();
     }
 
     @Override
-    public IGeneralDataObject createNew() {
+    public O createNew() {
         return this.createNew.get();
     }
 
@@ -53,12 +52,17 @@ public class GeneralService implements IGeneralDataService {
     }
 
     @Override
-    public Optional<IGeneralDataObject> getCached() {
+    public void saveCached() {
+        ensureSaved();
+    }
+
+    @Override
+    public Optional<O> getCached() {
         return Optional.ofNullable(this.cached);
     }
 
     @Override
-    public CompletableFuture<Optional<IGeneralDataObject>> get() {
+    public CompletableFuture<Optional<O>> get() {
         if (this.cached != null) {
             return CompletableFuture.completedFuture(Optional.of(this.cached));
         }
@@ -67,7 +71,7 @@ public class GeneralService implements IGeneralDataService {
     }
 
     @Override
-    public Optional<IGeneralDataObject> getOnThread() {
+    public Optional<O> getOnThread() {
         if (this.cached != null) {
             return Optional.of(this.cached);
         }
@@ -79,15 +83,15 @@ public class GeneralService implements IGeneralDataService {
         }
     }
 
-    private Optional<IGeneralDataObject> getFromRepo() throws Exception {
-        Optional<IGeneralDataObject> gdo = this.get.get();
+    private Optional<O> getFromRepo() throws Exception {
+        Optional<O> gdo = this.repositorySupplier.get().get().map(x -> this.dataAccessSupplier.get().fromDataAccessObject(x));
         gdo.ifPresent(x -> this.cached = x);
         return gdo;
     }
 
     @Override
-    public CompletableFuture<IGeneralDataObject> getOrNew() {
-        CompletableFuture<IGeneralDataObject> d = IGeneralDataService.super.getOrNew();
+    public CompletableFuture<O> getOrNew() {
+        CompletableFuture<O> d = IStorageService.SingleCached.super.getOrNew();
         d.whenComplete((r, x) -> {
             if (r != null) {
                 this.cached = r;
@@ -97,9 +101,9 @@ public class GeneralService implements IGeneralDataService {
     }
 
     @Override
-    public CompletableFuture<Void> save(@Nonnull IGeneralDataObject value) {
+    public CompletableFuture<Void> save(@Nonnull O value) {
         return ServicesUtil.run(() -> {
-            this.save.save(value);
+            this.repositorySupplier.get().save(this.dataAccessSupplier.get().toDataAccessObject(value));
             this.cached = value;
             return null;
         }, this.pluginContainer);
@@ -117,4 +121,5 @@ public class GeneralService implements IGeneralDataService {
             return CompletableFuture.completedFuture(null);
         }
     }
+
 }

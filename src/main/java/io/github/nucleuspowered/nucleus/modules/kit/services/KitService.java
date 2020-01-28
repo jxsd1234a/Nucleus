@@ -14,7 +14,6 @@ import io.github.nucleuspowered.nucleus.api.events.NucleusKitEvent;
 import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
-import io.github.nucleuspowered.nucleus.configurate.loaders.NucleusGsonConfigurationLoader;
 import io.github.nucleuspowered.nucleus.modules.kit.KitKeys;
 import io.github.nucleuspowered.nucleus.modules.kit.KitPermissions;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfig;
@@ -22,16 +21,17 @@ import io.github.nucleuspowered.nucleus.modules.kit.events.KitEvent;
 import io.github.nucleuspowered.nucleus.modules.kit.misc.KitRedeemResult;
 import io.github.nucleuspowered.nucleus.modules.kit.misc.SingleKit;
 import io.github.nucleuspowered.nucleus.modules.kit.parameters.KitParameter;
-import io.github.nucleuspowered.nucleus.modules.kit.serialiser.SingleKitTypeSerilaiser;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IUserDataObject;
+import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.standard.IKitDataObject;
+import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
+import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ConfigurationOptions;
-import ninja.leaping.configurate.gson.GsonConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.source.ConsoleSource;
@@ -49,8 +49,6 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.Tuple;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -68,14 +66,17 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @APIService(NucleusKitService.class)
-public class KitService implements NucleusKitService, IReloadableService.Reloadable, IReloadableService.DataLocationReloadable, ServiceBase {
+public class KitService implements NucleusKitService, IReloadableService.Reloadable, ServiceBase {
 
     private static final InventoryTransactionResult EMPTY_ITR =
             InventoryTransactionResult.builder().type(InventoryTransactionResult.Type.SUCCESS).build();
 
     private static final Pattern inventory = Pattern.compile("\\{\\{.+?}}");
-    private final INucleusServiceCollection serviceCollection;
-    private final Map<String, Kit> kits = new HashMap<>();
+    private final IStorageManager storageManager;
+    private final IPermissionService permissionService;
+    private final IMessageProviderService messageProviderService;
+    private final INucleusTextTemplateFactory textTemplateFactory;
+    private final Logger logger;
     private final List<Container> viewers = Lists.newArrayList();
     private final Map<Container, Tuple<Kit, Inventory>> inventoryKitMap = Maps.newHashMap();
 
@@ -83,11 +84,14 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
     private final KitParameter perm;
     private boolean isProcessTokens = false;
     private boolean isMustGetAll = false;
-    private Path dataDirectory = null;
 
     @Inject
     public KitService(INucleusServiceCollection serviceCollection) {
-        this.serviceCollection = serviceCollection;
+        this.permissionService = serviceCollection.permissionService();
+        this.storageManager = serviceCollection.storageManager();
+        this.messageProviderService = serviceCollection.messageProvider();
+        this.textTemplateFactory = serviceCollection.textTemplateFactory();
+        this.logger = serviceCollection.logger();
         this.noPerm = new KitParameter(
                 this,
                 serviceCollection.messageProvider(),
@@ -117,7 +121,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
 
     @Override
     public Optional<Kit> getKit(String name) {
-        return Optional.ofNullable(this.kits.get(name.toLowerCase()));
+        return Optional.ofNullable(this.storageManager.getKits().getKitMap().get(name.toLowerCase()));
     }
 
     @Override
@@ -146,8 +150,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
             boolean checkCooldown,
             boolean isMustGetAll,
             boolean isFirstJoin) throws KitRedeemException {
-        IUserDataObject dataObject = this.serviceCollection
-                .storageManager()
+        IUserDataObject dataObject = this.storageManager
                 .getUserService()
                 .getOrNewOnThread(player.getUniqueId());
 
@@ -233,7 +236,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
                 if (checkCooldown) {
                     redeemed.put(kit.getName().toLowerCase(), now);
                     dataObject.set(KitKeys.REDEEMED_KITS, redeemed);
-                    this.serviceCollection.storageManager().getUserService().save(player.getUniqueId(), dataObject);
+                    this.storageManager.getUserService().save(player.getUniqueId(), dataObject);
                 }
 
                 Sponge.getEventManager().post(new KitEvent.PostRedeem(frame.getCurrentCause(), timeOfLastUse, kit, player, original,
@@ -266,7 +269,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
 
     public boolean checkOneTime(Kit kit, Player player) {
         // if it's one time only and the user does not have an exemption...
-        return !kit.isOneTime() || this.serviceCollection.permissionService().hasPermission(player, KitPermissions.KIT_EXEMPT_ONETIME);
+        return !kit.isOneTime() || this.permissionService.hasPermission(player, KitPermissions.KIT_EXEMPT_ONETIME);
     }
 
     public Optional<Duration> checkCooldown(Kit kit, Player player, Instant timeOfLastUse) {
@@ -277,7 +280,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
 
             // If we have a cooldown for the kit, and we don't have permission to
             // bypass it...
-            if (!this.serviceCollection.permissionService().hasPermission(player, KitPermissions.KIT_EXEMPT_COOLDOWN)
+            if (!this.permissionService.hasPermission(player, KitPermissions.KIT_EXEMPT_COOLDOWN)
                     && kit.getCooldown().map(Duration::getSeconds).orElse(0L) > 0) {
 
                 // ...and we haven't reached the cooldown point yet...
@@ -293,31 +296,34 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
 
     @Override
     public void saveKit(Kit kit) {
-        saveKitInternal(kit.getName(), kit);
+        saveKit(kit, true);
     }
 
     public void saveKit(Kit kit, boolean save) {
-        Util.getKeyIgnoreCase(getKitNames(true), kit.getName()).ifPresent(this.kits::remove);
-        this.kits.put(kit.getName().toLowerCase(), kit);
-        if (save) {
-            save();
+        IKitDataObject kitDataObject = this.storageManager.getKits();
+        Map<String, Kit> kits = new HashMap<>(kitDataObject.getKitMap());
+        Util.getKeyIgnoreCase(getKitNames(true), kit.getName()).ifPresent(kits::remove);
+        kits.put(kit.getName().toLowerCase(), kit);
+        try {
+            kitDataObject.setKitMap(kits);
+            if (save) {
+                this.storageManager.getKitsService().save(kitDataObject);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    private synchronized void saveKitInternal(String name, Kit kit) {
-        Preconditions.checkArgument(kit instanceof SingleKit);
-        Util.getKeyIgnoreCase(getKitNames(true), name).ifPresent(this.kits::remove);
-        this.kits.put(name, kit);
-        save();
     }
 
     @Override
     public Kit createKit(String name) throws IllegalArgumentException {
-        Optional<String> key = Util.getKeyIgnoreCase(this.kits, name);
-        key.ifPresent(s -> {
+        IKitDataObject kitDataObject = this.storageManager.getKits();
+        Map<String, Kit> kits = new HashMap<>(kitDataObject.getKitMap());
+        Util.getKeyIgnoreCase(kits, name).ifPresent(s -> {
             throw new IllegalArgumentException("Kit " + name + " already exists!");
         });
-        return new SingleKit(name);
+        Kit kit = new SingleKit(name);
+        saveKit(kit, true);
+        return kit;
     }
 
     @Override
@@ -325,12 +331,11 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
         String from = kitName.toLowerCase();
         String to = newKitName.toLowerCase();
         Kit targetKit = getKit(from).orElseThrow(() -> new IllegalArgumentException(
-                this.serviceCollection.messageProvider().getMessageString("kit.noexists", kitName)));
+                this.messageProviderService.getMessageString("kit.noexists", kitName)));
         if (getKit(to).isPresent()) {
-            throw new IllegalArgumentException(this.serviceCollection.messageProvider().getMessageString("kit.cannotrename", from, to));
+            throw new IllegalArgumentException(this.messageProviderService.getMessageString("kit.cannotrename", from, to));
         }
-
-        saveKitInternal(to, targetKit);
+        saveKit(new SingleKit(kitName.toLowerCase(), targetKit), true);
         removeKit(from);
     }
 
@@ -384,7 +389,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
             x.get(Keys.DISPLAY_NAME).ifPresent(text -> {
                 if (m.reset(text.toPlain()).find()) {
                     x.offer(Keys.DISPLAY_NAME,
-                            this.serviceCollection.textTemplateFactory()
+                            this.textTemplateFactory
                                     .createFromAmpersandString(TextSerializers.FORMATTING_CODE.serialize(text))
                                     .getForCommandSource(player, null));
                 }
@@ -394,7 +399,7 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
                 if (text.stream().map(Text::toPlain).anyMatch(y -> m.reset(y).find())) {
                     x.offer(Keys.ITEM_LORE,
                             text.stream().map(y ->
-                                    this.serviceCollection.textTemplateFactory()
+                                    this.textTemplateFactory
                                             .createFromAmpersandString(TextSerializers.FORMATTING_CODE.serialize(y))
                                             .getForCommandSource(player, null)).collect(Collectors.toList()));
                 }
@@ -449,20 +454,20 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
     // --
 
     public Set<String> getKitNames(boolean showHidden) {
-        return this.kits.entrySet().stream()
+        return this.storageManager.getKits().getKitMap().entrySet().stream()
                 .filter(x -> showHidden || (!x.getValue().isHiddenFromList() && !x.getValue().isFirstJoinKit()))
                 .map(Map.Entry::getKey).collect(ImmutableSet.toImmutableSet());
     }
 
     public List<Kit> getFirstJoinKits() {
-        return this.kits.values()
+        return this.storageManager.getKits().getKitMap().values()
                 .stream()
                 .filter(Kit::isFirstJoinKit)
                 .collect(Collectors.toList());
     }
 
     public List<Kit> getAutoRedeemable() {
-        return this.kits
+        return this.storageManager.getKits().getKitMap()
                 .values()
                 .stream()
                 .filter(x -> x.isAutoRedeem() && x.getCost() <= 0)
@@ -470,30 +475,16 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
     }
 
     public boolean removeKit(String name) {
-        boolean r = this.kits.remove(name.toLowerCase()) != null;
-        save();
+        boolean r = false;
+        try {
+            r = this.storageManager.getKits().removeKit(name.toLowerCase());
+        } catch (Exception e) {
+            this.logger.error("Could not update kits", e);
+        }
         return r;
     }
 
     // --
-
-    private void load() {
-        try {
-            SingleKitTypeSerilaiser.INSTANCE.deserialize(getLoader().load());
-        } catch (IOException | ObjectMappingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void save() {
-        try {
-            ConfigurationNode node = this.serviceCollection.configurateHelper().createNode();
-            SingleKitTypeSerilaiser.INSTANCE.serialize(this.kits, node);
-            getLoader().save(node);
-        } catch (IOException | ObjectMappingException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onReload(INucleusServiceCollection serviceCollection) {
@@ -502,20 +493,4 @@ public class KitService implements NucleusKitService, IReloadableService.Reloada
         this.isProcessTokens = kitConfig.isProcessTokens();
     }
 
-    @Override
-    public void onDataFileLocationChange(INucleusServiceCollection serviceCollection) {
-        this.dataDirectory = serviceCollection.dataDir().get();
-        load();
-    }
-
-    // --
-
-    private NucleusGsonConfigurationLoader getLoader() {
-        Preconditions.checkState(this.dataDirectory != null, "Data directory has not yet been set");
-        return new NucleusGsonConfigurationLoader(
-                GsonConfigurationLoader.builder()
-                        .setPath(this.dataDirectory.resolve("kits.json"))
-                        .setDefaultOptions(this.serviceCollection.configurateHelper().setOptions(ConfigurationOptions.defaults()))
-        );
-    }
 }

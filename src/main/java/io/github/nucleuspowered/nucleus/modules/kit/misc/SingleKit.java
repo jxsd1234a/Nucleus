@@ -40,6 +40,19 @@ public class SingleKit implements Kit {
         this.name = name;
     }
 
+    public SingleKit(String name, Kit toClone) {
+        this(name, toClone.getStacks(),
+                toClone.getCooldown().orElse(null),
+                toClone.getCost(),
+                toClone.isAutoRedeem(),
+                toClone.isOneTime(),
+                toClone.isDisplayMessageOnRedeem(),
+                toClone.ignoresPermission(),
+                toClone.isHiddenFromList(),
+                toClone.getCommands(),
+                toClone.isFirstJoinKit());
+    }
+
     public SingleKit(String name,
             List<ItemStackSnapshot> itemStackSnapshots,
             @Nullable Duration interval, double cost, boolean autoRedeem, boolean oneTime, boolean displayOnRedeem,

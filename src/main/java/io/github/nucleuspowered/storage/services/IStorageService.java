@@ -97,6 +97,26 @@ public interface IStorageService<D extends IDataObject> {
     }
 
     /**
+     * A service where there is one data point that can be cached.
+     *
+     * @param <D> The data object type
+     */
+    interface SingleCached<D extends IDataObject> extends IStorageService.Single<D> {
+
+        /**
+         * Saves the cached version if it exists.
+         */
+        void saveCached();
+
+        /**
+         * Get the cached object, if it exists.
+         *
+         * @return The object.
+         */
+        Optional<D> getCached();
+    }
+
+    /**
      * A service where multiple data objects may be retured based on a query.
      *
      * <p>Note that while a query object may be provided, the storage engine

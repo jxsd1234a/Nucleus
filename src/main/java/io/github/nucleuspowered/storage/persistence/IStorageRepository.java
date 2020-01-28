@@ -26,7 +26,7 @@ import java.util.UUID;
  * into storage is equivalent to that coming out. You may inspect the json as you wish (which you may
  * want to do to support queries more effectively)</p>
  */
-public interface IStorageRepository<O> {
+public interface IStorageRepository {
 
     /**
      * Shutdown the repository, finishing any operations.
@@ -60,7 +60,7 @@ public interface IStorageRepository<O> {
     /**
      * A repository where a single document is stored.
      */
-    interface Single<O> extends IStorageRepository<O> {
+    interface Single<O> extends IStorageRepository {
 
         /**
          * Gets the object, if it exists
@@ -82,7 +82,7 @@ public interface IStorageRepository<O> {
      *
      * @param <Q> The query object
      */
-    interface Keyed<K, Q extends IQueryObject<K, Q>, O> extends IStorageRepository<O> {
+    interface Keyed<K, Q extends IQueryObject<K, Q>, O> extends IStorageRepository {
 
         /**
          * Whether this storage mechanism supports complex queries

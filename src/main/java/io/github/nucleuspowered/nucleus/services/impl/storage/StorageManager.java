@@ -14,11 +14,13 @@ import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modula
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IWorldDataObject;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.UserDataObject;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.WorldDataObject;
+import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.standard.IKitDataObject;
+import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.standard.KitDataObject;
 import io.github.nucleuspowered.nucleus.services.impl.storage.persistence.FlatFileStorageRepositoryFactory;
 import io.github.nucleuspowered.nucleus.services.impl.storage.queryobjects.IUserQueryObject;
 import io.github.nucleuspowered.nucleus.services.impl.storage.queryobjects.IWorldQueryObject;
 import io.github.nucleuspowered.nucleus.services.impl.storage.registry.IStorageRepositoryFactoryRegistryModule;
-import io.github.nucleuspowered.nucleus.services.impl.storage.services.GeneralService;
+import io.github.nucleuspowered.nucleus.services.impl.storage.services.SingleCachedService;
 import io.github.nucleuspowered.nucleus.services.impl.storage.services.UserService;
 import io.github.nucleuspowered.nucleus.services.impl.storage.services.WorldService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IConfigurateHelper;
@@ -26,6 +28,7 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IStorageManager;
 import io.github.nucleuspowered.storage.dataaccess.IDataTranslator;
 import io.github.nucleuspowered.storage.persistence.IStorageRepository;
+import io.github.nucleuspowered.storage.services.IStorageService;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.SimpleConfigurationNode;
@@ -46,9 +49,10 @@ public final class StorageManager implements IStorageManager, IReloadableService
 
     private final FlatFileStorageRepositoryFactory flatFileStorageRepositoryFactory;
     private final IConfigurateHelper configurateHelper;
-    private final GeneralService generalService;
+    private final IStorageService.SingleCached<IGeneralDataObject> generalService;
     private final UserService userService;
     private final WorldService worldService;
+    private final IStorageService.SingleCached<IKitDataObject> kitsService;
 
     @Inject
     public StorageManager(@DataDirectory Supplier<Path> dataDirectory,
@@ -60,7 +64,14 @@ public final class StorageManager implements IStorageManager, IReloadableService
         this.configurateHelper = configurateHelper;
         this.userService = new UserService(this, pluginContainer);
         this.worldService = new WorldService(this, pluginContainer);
-        this.generalService = new GeneralService(this, pluginContainer);
+        this.generalService = new SingleCachedService<>(
+                this::getGeneralRepository,
+                this::getGeneralDataAccess,
+                pluginContainer);
+        this.kitsService = new SingleCachedService<>(
+                this::getKitsRepository,
+                this::getKitsDataAccess,
+                pluginContainer);
     }
 
     @Nullable
@@ -71,6 +82,9 @@ public final class StorageManager implements IStorageManager, IReloadableService
 
     @Nullable
     private IStorageRepository.Single<JsonObject> generalRepository;
+
+    @Nullable
+    private IStorageRepository.Single<JsonObject> kitsRepository;
 
     private final IConfigurateBackedDataTranslator<IUserDataObject> userDataAccess = new IConfigurateBackedDataTranslator<IUserDataObject>() {
         @Override public ConfigurationNode createNewNode() {
@@ -105,10 +119,26 @@ public final class StorageManager implements IStorageManager, IReloadableService
             return d;
         }
     };
+    private final IConfigurateBackedDataTranslator<IKitDataObject> kitsDataAccess = new IConfigurateBackedDataTranslator<IKitDataObject>() {
+        @Override public ConfigurationNode createNewNode() {
+            return SimpleConfigurationNode.root(configurateHelper.setOptions(ConfigurationOptions.defaults()));
+        }
+
+        @Override public IKitDataObject createNew() {
+            KitDataObject d = new KitDataObject();
+            d.setBackingNode(configurateHelper.createNode());
+            return d;
+        }
+    };
 
     @Override
-    public GeneralService getGeneralService() {
+    public IStorageService.SingleCached<IGeneralDataObject> getGeneralService() {
         return this.generalService;
+    }
+
+    @Override
+    public IStorageService.SingleCached<IKitDataObject> getKitsService() {
+        return this.kitsService;
     }
 
     @Override
@@ -131,6 +161,10 @@ public final class StorageManager implements IStorageManager, IReloadableService
 
     @Override public IDataTranslator<IGeneralDataObject, JsonObject> getGeneralDataAccess() {
         return this.generalDataAccess;
+    }
+
+    @Override public IDataTranslator<IKitDataObject, JsonObject> getKitsDataAccess() {
+        return this.kitsDataAccess;
     }
 
     @Override
@@ -160,19 +194,29 @@ public final class StorageManager implements IStorageManager, IReloadableService
         return this.generalRepository;
     }
 
+    @Override public IStorageRepository.Single<JsonObject> getKitsRepository() {
+        if (this.kitsRepository == null) {
+            // fallback to flat file
+            this.kitsRepository = this.flatFileStorageRepositoryFactory.kitsRepository();
+        }
+        return this.kitsRepository;
+    }
+
     @Override
     public CompletableFuture<Void> saveAndInvalidateAllCaches() {
         CompletableFuture<Void> a = this.generalService.ensureSaved().whenComplete((cv, t) -> this.generalService.clearCache());
         CompletableFuture<Void> b = this.userService.ensureSaved().whenComplete((cv, t) -> this.userService.clearCache());
         CompletableFuture<Void> c = this.worldService.ensureSaved().whenComplete((cv, t) -> this.worldService.clearCache());
-        return CompletableFuture.allOf(a, b, c);
+        CompletableFuture<Void> d = this.kitsService.ensureSaved().whenComplete((cv, t) -> this.kitsService.clearCache());
+        return CompletableFuture.allOf(a, b, c, d);
     }
 
     @Override public CompletableFuture<Void> saveAll() {
         CompletableFuture<Void> a = this.generalService.ensureSaved();
         CompletableFuture<Void> b = this.userService.ensureSaved();
         CompletableFuture<Void> c = this.worldService.ensureSaved();
-        return CompletableFuture.allOf(a, b, c);
+        CompletableFuture<Void> d = this.kitsService.ensureSaved();
+        return CompletableFuture.allOf(a, b, c, d);
     }
 
     @Override
@@ -195,6 +239,12 @@ public final class StorageManager implements IStorageManager, IReloadableService
         }
 
         this.userRepository = null; // TODO: config
+
+        if (this.kitsRepository != null) {
+            this.kitsRepository.shutdown();
+        }
+
+        this.kitsRepository = null; // TODO: config
     }
 
 }
