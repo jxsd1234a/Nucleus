@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.warn.services;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warning;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarningService;
+import io.github.nucleuspowered.nucleus.api.module.warning.NucleusWarningService;
+import io.github.nucleuspowered.nucleus.api.module.warning.data.Warning;
 import io.github.nucleuspowered.nucleus.modules.warn.WarnKeys;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;

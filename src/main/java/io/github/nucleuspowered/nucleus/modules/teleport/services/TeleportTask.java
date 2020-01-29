@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.teleport.services;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportResult;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanners;
 import io.github.nucleuspowered.nucleus.scaffold.task.CancellableTask;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTeleportService;

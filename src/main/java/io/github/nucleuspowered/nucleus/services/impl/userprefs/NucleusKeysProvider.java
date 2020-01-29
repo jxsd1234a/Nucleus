@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.services.impl.userprefs;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 
 import java.util.Optional;
 

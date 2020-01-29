@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.jump.commands;
 
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.jump.JumpPermissions;
 import io.github.nucleuspowered.nucleus.modules.jump.config.JumpConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

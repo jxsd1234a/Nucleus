@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warp.data;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.Warp;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.WarpCategory;
 import org.spongepowered.api.text.Text;
 
 import java.util.Collection;

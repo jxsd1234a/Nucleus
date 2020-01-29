@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mail.commands;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusMailService;
+import io.github.nucleuspowered.nucleus.api.module.mail.NucleusMailService;
 import io.github.nucleuspowered.nucleus.modules.mail.MailPermissions;
 import io.github.nucleuspowered.nucleus.modules.mail.parameter.MailFilterArgument;
 import io.github.nucleuspowered.nucleus.modules.mail.services.MailHandler;

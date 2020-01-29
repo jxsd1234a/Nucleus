@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.api.service.NucleusTextTemplateFactory;
+import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateFactoryImpl;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
 import org.spongepowered.api.text.Text;

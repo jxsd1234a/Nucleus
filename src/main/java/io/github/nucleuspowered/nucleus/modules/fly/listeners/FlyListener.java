@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.fly.listeners;
 
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.fly.FlyKeys;
 import io.github.nucleuspowered.nucleus.modules.fly.FlyPermissions;
 import io.github.nucleuspowered.nucleus.modules.fly.config.FlyConfig;

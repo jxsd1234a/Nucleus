@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.jail;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
+import io.github.nucleuspowered.nucleus.api.util.data.NamedLocation;
 import io.github.nucleuspowered.nucleus.modules.jail.data.JailData;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IGeneralDataObject;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IUserDataObject;

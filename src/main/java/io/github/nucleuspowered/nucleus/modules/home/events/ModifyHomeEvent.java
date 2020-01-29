@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.home.events;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusHomeEvent;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
+import io.github.nucleuspowered.nucleus.api.module.home.data.Home;
+import io.github.nucleuspowered.nucleus.api.module.home.event.NucleusHomeEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

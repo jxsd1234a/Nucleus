@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.api.placeholder;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
+import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplateFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;

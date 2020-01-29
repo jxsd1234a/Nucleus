@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.home.listeners;
 
 import io.github.nucleuspowered.nucleus.api.EventContexts;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
-import io.github.nucleuspowered.nucleus.api.service.NucleusHomeService;
+import io.github.nucleuspowered.nucleus.api.module.home.NucleusHomeService;
+import io.github.nucleuspowered.nucleus.api.module.home.data.Home;
 import io.github.nucleuspowered.nucleus.modules.home.config.HomeConfig;
 import io.github.nucleuspowered.nucleus.modules.home.services.HomeService;
 import io.github.nucleuspowered.nucleus.modules.spawn.events.SendToSpawnEvent;

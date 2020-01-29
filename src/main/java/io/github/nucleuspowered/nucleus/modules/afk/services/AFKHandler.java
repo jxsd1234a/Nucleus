@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import io.github.nucleuspowered.nucleus.api.service.NucleusAFKService;
+import io.github.nucleuspowered.nucleus.api.module.afk.NucleusAFKService;
 import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.modules.afk.AFKPermissions;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfig;

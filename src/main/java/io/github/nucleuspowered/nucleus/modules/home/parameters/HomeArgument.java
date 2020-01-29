@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.home.parameters;
 
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
+import io.github.nucleuspowered.nucleus.api.module.home.data.Home;
+import io.github.nucleuspowered.nucleus.api.util.data.NamedLocation;
 import io.github.nucleuspowered.nucleus.modules.home.services.HomeService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import org.spongepowered.api.command.CommandSource;

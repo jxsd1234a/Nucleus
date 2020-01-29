@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.events;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusMuteEvent;
+import io.github.nucleuspowered.nucleus.api.module.mute.event.NucleusMuteEvent;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;

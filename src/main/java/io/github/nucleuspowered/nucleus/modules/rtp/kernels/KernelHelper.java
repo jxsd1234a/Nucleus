@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.rtp.kernels;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
-import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.NucleusRTPService;
 
 import java.util.Random;
 

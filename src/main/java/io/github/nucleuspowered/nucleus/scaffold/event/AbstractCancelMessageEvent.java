@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.scaffold.event;
 
-import io.github.nucleuspowered.nucleus.api.events.CancelMessageEvent;
+import io.github.nucleuspowered.nucleus.api.util.CancelMessageEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.text.Text;

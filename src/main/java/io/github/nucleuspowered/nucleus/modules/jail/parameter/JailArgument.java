@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.jail.parameter;
 
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
+import io.github.nucleuspowered.nucleus.api.util.data.NamedLocation;
 import io.github.nucleuspowered.nucleus.modules.jail.services.JailHandler;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;

@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.afk.listeners;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusAFKEvent;
+import io.github.nucleuspowered.nucleus.api.module.afk.event.NucleusAFKEvent;
 import io.github.nucleuspowered.nucleus.modules.afk.AFKPermissions;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfig;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;

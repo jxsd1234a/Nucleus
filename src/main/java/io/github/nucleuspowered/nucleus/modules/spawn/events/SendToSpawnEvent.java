@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.spawn.events;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusSendToSpawnEvent;
+import io.github.nucleuspowered.nucleus.api.module.spawn.event.NucleusSendToSpawnEvent;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;

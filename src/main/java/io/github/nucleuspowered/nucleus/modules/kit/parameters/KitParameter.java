@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.kit.parameters;
 
 import com.google.common.collect.ImmutableList;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import io.github.nucleuspowered.nucleus.api.module.kit.data.Kit;
 import io.github.nucleuspowered.nucleus.modules.kit.KitPermissions;
 import io.github.nucleuspowered.nucleus.modules.kit.services.KitService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;

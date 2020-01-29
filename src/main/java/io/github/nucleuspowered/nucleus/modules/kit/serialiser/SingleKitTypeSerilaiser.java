@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.kit.serialiser;
 
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import io.github.nucleuspowered.nucleus.api.module.kit.data.Kit;
 import io.github.nucleuspowered.nucleus.configurate.wrappers.NucleusItemStackSnapshot;
 import io.github.nucleuspowered.nucleus.modules.kit.misc.SingleKit;
 import io.github.nucleuspowered.nucleus.util.TypeTokens;

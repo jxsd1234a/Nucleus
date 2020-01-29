@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.core.services;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWorldUUIDChangeService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusWorldUUIDChangeService;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;

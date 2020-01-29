@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.datatypes;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.TimedEntry;
+import io.github.nucleuspowered.nucleus.api.util.data.TimedEntry;
 import ninja.leaping.configurate.objectmapping.Setting;
 
 import java.time.Duration;

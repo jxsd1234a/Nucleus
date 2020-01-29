@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.mute.listeners;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.events.NucleusMessageEvent;
+import io.github.nucleuspowered.nucleus.api.module.message.event.NucleusMessageEvent;
 import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusHelpOpEvent;
 import io.github.nucleuspowered.nucleus.modules.mute.MutePermissions;

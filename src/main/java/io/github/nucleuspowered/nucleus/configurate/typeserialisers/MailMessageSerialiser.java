@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.configurate.typeserialisers;
 
 import com.google.common.reflect.TypeToken;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MailMessage;
+import io.github.nucleuspowered.nucleus.api.module.mail.data.MailMessage;
 import io.github.nucleuspowered.nucleus.modules.mail.data.MailData;
 import io.github.nucleuspowered.nucleus.util.TypeTokens;
 import ninja.leaping.configurate.ConfigurationNode;

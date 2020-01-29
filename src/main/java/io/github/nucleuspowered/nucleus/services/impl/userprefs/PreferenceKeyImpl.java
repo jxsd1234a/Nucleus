@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.services.impl.userprefs;
 
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IUserDataObject;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;

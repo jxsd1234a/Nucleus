@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
+import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.services.impl.placeholder.PlaceholderMetadata;
 import io.github.nucleuspowered.nucleus.services.impl.placeholder.PlaceholderService;
 

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mail.events;
 
+import io.github.nucleuspowered.nucleus.api.module.mail.event.NucleusMailEvent;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
@@ -16,7 +17,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-public class InternalNucleusMailEvent extends AbstractEvent implements io.github.nucleuspowered.nucleus.api.events.NucleusMailEvent {
+public class InternalNucleusMailEvent extends AbstractEvent implements NucleusMailEvent {
 
     @Nullable private final User from;
     private final User to;

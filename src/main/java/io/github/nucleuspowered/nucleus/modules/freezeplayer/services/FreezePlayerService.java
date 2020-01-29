@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.freezeplayer.services;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import io.github.nucleuspowered.nucleus.api.service.NucleusFreezePlayerService;
+import io.github.nucleuspowered.nucleus.api.module.freezeplayer.NucleusFreezePlayerService;
 import io.github.nucleuspowered.nucleus.modules.freezeplayer.FreezePlayerKeys;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;

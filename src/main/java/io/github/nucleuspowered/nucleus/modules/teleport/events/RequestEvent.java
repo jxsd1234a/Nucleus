@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.events;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusTeleportEvent;
+import io.github.nucleuspowered.nucleus.api.teleport.event.NucleusTeleportEvent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;

@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.note.data;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Note;
+import io.github.nucleuspowered.nucleus.api.module.note.data.Note;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 

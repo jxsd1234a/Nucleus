@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.back.listeners;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusJailService;
+import io.github.nucleuspowered.nucleus.api.module.jail.NucleusJailService;
 import io.github.nucleuspowered.nucleus.modules.back.BackPermissions;
 import io.github.nucleuspowered.nucleus.modules.back.config.BackConfig;
 import io.github.nucleuspowered.nucleus.modules.back.services.BackHandler;

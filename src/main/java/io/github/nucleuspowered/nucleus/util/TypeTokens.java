@@ -6,10 +6,10 @@ package io.github.nucleuspowered.nucleus.util;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MailMessage;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.module.mail.data.MailMessage;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.Warp;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.util.data.NamedLocation;
 import io.github.nucleuspowered.nucleus.configurate.datatypes.LocationNode;
 import io.github.nucleuspowered.nucleus.modules.jail.data.JailData;
 import io.github.nucleuspowered.nucleus.modules.mute.data.MuteData;

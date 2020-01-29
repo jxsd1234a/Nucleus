@@ -4,33 +4,32 @@
  */
 package io.github.nucleuspowered.nucleus.api;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusAFKService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusAPIMetaService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusBackService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusFreezePlayerService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusHomeService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusInvulnerabilityService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusJailService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMailService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMuteService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusNameBanService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusNicknameService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusNoteService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlayerMetadataService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPrivateMessagingService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusSeenService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusStaffChatService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusTextTemplateFactory;
-import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarningService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWorldUUIDChangeService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusAPIMetaService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusPlayerMetadataService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusWarmupManagerService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusWorldUUIDChangeService;
+import io.github.nucleuspowered.nucleus.api.module.afk.NucleusAFKService;
+import io.github.nucleuspowered.nucleus.api.module.back.NucleusBackService;
+import io.github.nucleuspowered.nucleus.api.module.freezeplayer.NucleusFreezePlayerService;
+import io.github.nucleuspowered.nucleus.api.module.home.NucleusHomeService;
+import io.github.nucleuspowered.nucleus.api.module.invulnerability.NucleusInvulnerabilityService;
+import io.github.nucleuspowered.nucleus.api.module.jail.NucleusJailService;
+import io.github.nucleuspowered.nucleus.api.module.kit.NucleusKitService;
+import io.github.nucleuspowered.nucleus.api.module.mail.NucleusMailService;
+import io.github.nucleuspowered.nucleus.api.module.message.NucleusPrivateMessagingService;
+import io.github.nucleuspowered.nucleus.api.module.mute.NucleusMuteService;
+import io.github.nucleuspowered.nucleus.api.module.nameban.NucleusNameBanService;
+import io.github.nucleuspowered.nucleus.api.module.nickname.NucleusNicknameService;
+import io.github.nucleuspowered.nucleus.api.module.note.NucleusNoteService;
+import io.github.nucleuspowered.nucleus.api.module.playerinfo.NucleusSeenService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.staffchat.NucleusStaffChatService;
+import io.github.nucleuspowered.nucleus.api.module.warning.NucleusWarningService;
+import io.github.nucleuspowered.nucleus.api.module.warp.NucleusWarpService;
+import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
+import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplateFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 
@@ -50,16 +49,6 @@ public class NucleusAPI {
      */
     public static NucleusAPIMetaService getMetaService() {
         return getService(NucleusAPIMetaService.class).orElseThrow(() -> new IllegalStateException("Nucleus API has not started registering yet"));
-    }
-
-    /**
-     * Gets the {@link NucleusModuleService} service, which contains the module information, as well as a way to disable the modules during
-     * pre-init or init.
-     * @return The {@link NucleusAPIMetaService}
-     * @throws IllegalStateException if Nucleus hasn't completed pre init yet.
-     */
-    public static NucleusModuleService getModuleService() {
-        return getService(NucleusModuleService.class).orElseThrow(() -> new IllegalStateException("Nucleus Modules have not been discovered yet"));
     }
 
     /**

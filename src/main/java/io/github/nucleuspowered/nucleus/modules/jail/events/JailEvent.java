@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.jail.events;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusJailEvent;
+import io.github.nucleuspowered.nucleus.api.module.jail.event.NucleusJailEvent;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;

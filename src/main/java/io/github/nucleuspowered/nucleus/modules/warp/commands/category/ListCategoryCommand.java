@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.warp.commands.category;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.WarpCategory;
 import io.github.nucleuspowered.nucleus.modules.warp.WarpPermissions;
 import io.github.nucleuspowered.nucleus.modules.warp.services.WarpService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

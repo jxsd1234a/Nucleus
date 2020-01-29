@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.api;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusAPIMetaService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusAPIMetaService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 

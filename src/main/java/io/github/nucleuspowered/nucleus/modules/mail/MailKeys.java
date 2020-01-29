@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mail;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MailMessage;
+import io.github.nucleuspowered.nucleus.api.module.mail.data.MailMessage;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.modular.IUserDataObject;
 import io.github.nucleuspowered.nucleus.util.TypeTokens;
 import io.github.nucleuspowered.storage.dataobjects.keyed.DataKey;

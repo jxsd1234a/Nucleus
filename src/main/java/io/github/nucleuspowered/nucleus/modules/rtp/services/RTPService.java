@@ -4,9 +4,9 @@
  */
 package io.github.nucleuspowered.nucleus.modules.rtp.services;
 
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernel;
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernels;
-import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.kernel.RTPKernel;
+import io.github.nucleuspowered.nucleus.api.module.rtp.kernel.RTPKernels;
 import io.github.nucleuspowered.nucleus.modules.rtp.config.RTPConfig;
 import io.github.nucleuspowered.nucleus.modules.rtp.options.RTPOptionsBuilder;
 import io.github.nucleuspowered.nucleus.modules.rtp.registry.RTPRegistryModule;

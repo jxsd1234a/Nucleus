@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.api.events.NucleusTextTemplateEvent;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
+import io.github.nucleuspowered.nucleus.api.text.event.NucleusTextTemplateEvent;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlaceholderService;
 import org.spongepowered.api.Sponge;

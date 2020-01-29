@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.back.commands;
 
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanners;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportResult;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanners;
 import io.github.nucleuspowered.nucleus.modules.back.BackPermissions;
 import io.github.nucleuspowered.nucleus.modules.back.config.BackConfig;
 import io.github.nucleuspowered.nucleus.modules.back.services.BackHandler;

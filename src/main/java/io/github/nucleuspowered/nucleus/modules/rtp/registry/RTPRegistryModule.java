@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.rtp.registry;
 
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernel;
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernels;
+import io.github.nucleuspowered.nucleus.api.module.rtp.kernel.RTPKernel;
+import io.github.nucleuspowered.nucleus.api.module.rtp.kernel.RTPKernels;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.AroundPlayerAndSurfaceKernel;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.AroundPlayerKernel;
 import io.github.nucleuspowered.nucleus.modules.rtp.kernels.DefaultKernel;

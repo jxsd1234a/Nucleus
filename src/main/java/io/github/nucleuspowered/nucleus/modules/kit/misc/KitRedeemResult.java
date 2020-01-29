@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.misc;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
+import io.github.nucleuspowered.nucleus.api.module.kit.NucleusKitService;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 
 import java.util.Collection;

@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.home.commands;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
+import io.github.nucleuspowered.nucleus.api.module.home.data.Home;
 import io.github.nucleuspowered.nucleus.modules.home.HomePermissions;
 import io.github.nucleuspowered.nucleus.modules.home.parameters.HomeArgument;
 import io.github.nucleuspowered.nucleus.modules.home.services.HomeService;

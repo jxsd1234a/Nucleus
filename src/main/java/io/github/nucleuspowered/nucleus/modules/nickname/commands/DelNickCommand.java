@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.nickname.commands;
 
-import io.github.nucleuspowered.nucleus.api.exceptions.NicknameException;
+import io.github.nucleuspowered.nucleus.api.module.nickname.exception.NicknameException;
 import io.github.nucleuspowered.nucleus.modules.nickname.NicknamePermissions;
 import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

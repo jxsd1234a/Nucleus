@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.mail.parameter;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMailService;
+import io.github.nucleuspowered.nucleus.api.module.mail.NucleusMailService;
 import io.github.nucleuspowered.nucleus.modules.mail.services.MailHandler;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;

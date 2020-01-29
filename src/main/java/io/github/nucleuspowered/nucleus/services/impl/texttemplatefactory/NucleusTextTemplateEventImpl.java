@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory;
 
 import com.google.common.collect.ImmutableSet;
-import io.github.nucleuspowered.nucleus.api.events.NucleusTextTemplateEvent;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
+import io.github.nucleuspowered.nucleus.api.text.event.NucleusTextTemplateEvent;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.command.CommandSource;

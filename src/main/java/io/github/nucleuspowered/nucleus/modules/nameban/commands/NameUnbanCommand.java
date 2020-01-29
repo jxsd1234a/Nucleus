@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.nameban.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.exceptions.NameBanException;
+import io.github.nucleuspowered.nucleus.api.module.nameban.exception.NameBanException;
 import io.github.nucleuspowered.nucleus.modules.nameban.NameBanPermissions;
 import io.github.nucleuspowered.nucleus.modules.nameban.services.NameBanHandler;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

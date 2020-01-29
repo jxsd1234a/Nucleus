@@ -6,9 +6,9 @@ package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.api.service.NucleusSafeTeleportService;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportResult;
-import io.github.nucleuspowered.nucleus.api.teleport.TeleportScanner;
+import io.github.nucleuspowered.nucleus.api.teleport.NucleusSafeTeleportService;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportResult;
+import io.github.nucleuspowered.nucleus.api.teleport.data.TeleportScanner;
 import io.github.nucleuspowered.nucleus.services.impl.teleport.SafeTeleportService;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;

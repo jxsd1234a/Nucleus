@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.warn.data;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warning;
+import io.github.nucleuspowered.nucleus.api.module.warning.data.Warning;
 import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;

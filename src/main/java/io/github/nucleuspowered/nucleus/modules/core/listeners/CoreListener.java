@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.core.listeners;
 
 import com.google.common.collect.Lists;
-import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
+import io.github.nucleuspowered.nucleus.api.core.event.NucleusFirstJoinEvent;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.modules.core.CoreKeys;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;

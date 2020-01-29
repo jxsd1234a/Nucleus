@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.core.services;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlayerMetadataService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusPlayerMetadataService;
 import io.github.nucleuspowered.nucleus.modules.core.CoreKeys;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;

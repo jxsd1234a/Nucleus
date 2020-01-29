@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.rtp.commands;
 
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
-import io.github.nucleuspowered.nucleus.api.rtp.RTPKernel;
-import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.kernel.RTPKernel;
 import io.github.nucleuspowered.nucleus.modules.rtp.RTPPermissions;
 import io.github.nucleuspowered.nucleus.modules.rtp.config.RTPConfig;
 import io.github.nucleuspowered.nucleus.modules.rtp.events.RTPSelectedLocationEvent;

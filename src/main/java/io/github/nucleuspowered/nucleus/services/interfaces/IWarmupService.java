@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusWarmupManagerService;
 import io.github.nucleuspowered.nucleus.services.impl.warmup.WarmupService;
 
 @ImplementedBy(WarmupService.class)

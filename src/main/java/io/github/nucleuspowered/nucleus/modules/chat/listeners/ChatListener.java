@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.chat.listeners;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
+import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.modules.chat.ChatPermissions;
 import io.github.nucleuspowered.nucleus.modules.chat.config.ChatConfig;
 import io.github.nucleuspowered.nucleus.modules.chat.config.ChatTemplateConfig;

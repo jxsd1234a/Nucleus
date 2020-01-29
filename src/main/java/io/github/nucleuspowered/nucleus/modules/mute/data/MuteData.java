@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.mute.data;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Mute;
+import io.github.nucleuspowered.nucleus.api.module.mute.data.Mute;
 import io.github.nucleuspowered.nucleus.datatypes.EndTimestamp;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;

@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.ignore.listeners;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.events.NucleusMailEvent;
-import io.github.nucleuspowered.nucleus.api.events.NucleusMessageEvent;
+import io.github.nucleuspowered.nucleus.api.module.mail.event.NucleusMailEvent;
+import io.github.nucleuspowered.nucleus.api.module.message.event.NucleusMessageEvent;
 import io.github.nucleuspowered.nucleus.modules.ignore.IgnorePermissions;
 import io.github.nucleuspowered.nucleus.modules.ignore.services.IgnoreService;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;

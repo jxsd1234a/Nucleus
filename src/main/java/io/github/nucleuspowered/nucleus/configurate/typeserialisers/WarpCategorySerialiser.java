@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.configurate.typeserialisers;
 
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.WarpCategory;
 import io.github.nucleuspowered.nucleus.modules.warp.data.WarpCategoryData;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;

@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
+import io.github.nucleuspowered.nucleus.api.module.warp.NucleusWarpService;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.Warp;
 import io.github.nucleuspowered.nucleus.modules.warp.WarpPermissions;
 import io.github.nucleuspowered.nucleus.modules.warp.event.DeleteWarpEvent;
 import io.github.nucleuspowered.nucleus.modules.warp.services.WarpService;

@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.nickname.events;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusChangeNicknameEvent;
+import io.github.nucleuspowered.nucleus.api.module.nickname.event.NucleusChangeNicknameEvent;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;

@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.connectionmessages.listeners;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
+import io.github.nucleuspowered.nucleus.api.core.event.NucleusFirstJoinEvent;
 import io.github.nucleuspowered.nucleus.modules.connectionmessages.ConnectionMessagesPermissions;
 import io.github.nucleuspowered.nucleus.modules.connectionmessages.config.ConnectionMessagesConfig;
 import io.github.nucleuspowered.nucleus.modules.core.CoreKeys;

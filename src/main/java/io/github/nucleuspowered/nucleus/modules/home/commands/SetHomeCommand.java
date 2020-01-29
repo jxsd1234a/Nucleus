@@ -4,9 +4,9 @@
  */
 package io.github.nucleuspowered.nucleus.modules.home.commands;
 
-import io.github.nucleuspowered.nucleus.api.exceptions.HomeException;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
-import io.github.nucleuspowered.nucleus.api.service.NucleusHomeService;
+import io.github.nucleuspowered.nucleus.api.module.home.NucleusHomeService;
+import io.github.nucleuspowered.nucleus.api.module.home.data.Home;
+import io.github.nucleuspowered.nucleus.api.module.home.exception.HomeException;
 import io.github.nucleuspowered.nucleus.modules.home.HomePermissions;
 import io.github.nucleuspowered.nucleus.modules.home.config.HomeConfig;
 import io.github.nucleuspowered.nucleus.modules.home.services.HomeService;

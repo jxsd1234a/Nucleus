@@ -8,7 +8,7 @@ import io.github.nucleuspowered.nucleus.Constants;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
 
 /**
- * Indicates that this contains {@link io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService.PreferenceKey}s.
+ * Indicates that this contains {@link io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService.PreferenceKey}s.
  */
 @Store(Constants.PREF_KEYS)
 public interface UserPrefKeys { }

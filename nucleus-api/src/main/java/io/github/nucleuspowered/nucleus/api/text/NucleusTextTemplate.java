@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.api.text;
 
+import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
 import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderVariables;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextRepresentable;

@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warp.parameters;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.WarpCategory;
 import io.github.nucleuspowered.nucleus.modules.warp.services.WarpService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;

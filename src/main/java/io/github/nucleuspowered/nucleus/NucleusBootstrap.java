@@ -19,11 +19,10 @@ import com.google.gson.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.typesafe.config.ConfigException;
 import io.github.nucleuspowered.nucleus.api.NucleusAPITokens;
-import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPlaceholderService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusSafeTeleportService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
+import io.github.nucleuspowered.nucleus.api.core.NucleusWarmupManagerService;
+import io.github.nucleuspowered.nucleus.api.placeholder.NucleusPlaceholderService;
+import io.github.nucleuspowered.nucleus.api.teleport.NucleusSafeTeleportService;
 import io.github.nucleuspowered.nucleus.guice.NucleusInjectorModule;
 import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
@@ -308,7 +307,8 @@ public class NucleusBootstrap {
             return;
         }
 
-        game.getServiceManager().setProvider(this.pluginContainer, NucleusModuleService.class, new ModuleRegistrationProxyService(this.serviceCollection, this.moduleContainer));
+        game.getServiceManager().setProvider(this.pluginContainer, ModuleRegistrationProxyService.class, new ModuleRegistrationProxyService(this.serviceCollection,
+                this.moduleContainer));
         game.getServiceManager().setProvider(this.pluginContainer, NucleusWarmupManagerService.class, this.serviceCollection.warmupService());
         game.getServiceManager().setProvider(this.pluginContainer, NucleusUserPreferenceService.class, this.serviceCollection.userPreferenceService());
         game.getServiceManager().setProvider(this.pluginContainer, NucleusSafeTeleportService.class, this.serviceCollection.teleportService());

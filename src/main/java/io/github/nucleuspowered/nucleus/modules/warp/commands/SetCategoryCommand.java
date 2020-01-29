@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.Warp;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.WarpCategory;
 import io.github.nucleuspowered.nucleus.modules.warp.WarpPermissions;
 import io.github.nucleuspowered.nucleus.modules.warp.services.WarpService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.configurate.datatypes;
 
 import com.flowpowered.math.vector.Vector3d;
 import io.github.nucleuspowered.neutrino.annotations.ProcessSetting;
-import io.github.nucleuspowered.nucleus.api.exceptions.NoSuchWorldException;
+import io.github.nucleuspowered.nucleus.api.core.exception.NoSuchWorldException;
 import io.github.nucleuspowered.nucleus.configurate.settingprocessor.WorldMigrationSettingProcessor;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;

@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mail.data;
 
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MailMessage;
+import io.github.nucleuspowered.nucleus.api.module.mail.data.MailMessage;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.Sponge;

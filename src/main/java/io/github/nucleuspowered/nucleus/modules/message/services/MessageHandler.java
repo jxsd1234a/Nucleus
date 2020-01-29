@@ -8,7 +8,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.service.NucleusPrivateMessagingService;
+import io.github.nucleuspowered.nucleus.api.module.message.NucleusPrivateMessagingService;
 import io.github.nucleuspowered.nucleus.modules.message.MessagePermissions;
 import io.github.nucleuspowered.nucleus.modules.message.MessageUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfig;

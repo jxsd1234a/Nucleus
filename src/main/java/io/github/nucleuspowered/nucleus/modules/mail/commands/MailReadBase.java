@@ -5,8 +5,8 @@
 package io.github.nucleuspowered.nucleus.modules.mail.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.MailMessage;
-import io.github.nucleuspowered.nucleus.api.service.NucleusMailService;
+import io.github.nucleuspowered.nucleus.api.module.mail.NucleusMailService;
+import io.github.nucleuspowered.nucleus.api.module.mail.data.MailMessage;
 import io.github.nucleuspowered.nucleus.modules.mail.data.MailData;
 import io.github.nucleuspowered.nucleus.modules.mail.services.MailHandler;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

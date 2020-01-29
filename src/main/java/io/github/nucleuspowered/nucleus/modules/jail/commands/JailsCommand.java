@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.jail.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
+import io.github.nucleuspowered.nucleus.api.util.data.NamedLocation;
 import io.github.nucleuspowered.nucleus.modules.jail.JailPermissions;
 import io.github.nucleuspowered.nucleus.modules.jail.services.JailHandler;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

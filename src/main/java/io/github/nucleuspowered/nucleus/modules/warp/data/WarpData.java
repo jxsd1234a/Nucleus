@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.warp.data;
 
 import com.flowpowered.math.vector.Vector3d;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
+import io.github.nucleuspowered.nucleus.api.module.warp.data.Warp;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;

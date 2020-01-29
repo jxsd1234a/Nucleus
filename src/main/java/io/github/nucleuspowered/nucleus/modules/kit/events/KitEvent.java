@@ -5,9 +5,9 @@
 package io.github.nucleuspowered.nucleus.modules.kit.events;
 
 import com.google.common.collect.ImmutableList;
-import io.github.nucleuspowered.nucleus.api.events.NucleusKitEvent;
-import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import io.github.nucleuspowered.nucleus.api.module.kit.data.Kit;
+import io.github.nucleuspowered.nucleus.api.module.kit.event.NucleusKitEvent;
+import io.github.nucleuspowered.nucleus.api.module.kit.exception.KitRedeemException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;

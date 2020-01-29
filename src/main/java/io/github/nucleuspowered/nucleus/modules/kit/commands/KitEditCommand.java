@@ -7,7 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands;
 import static io.github.nucleuspowered.nucleus.modules.kit.parameters.KitParameter.KIT_PARAMETER_KEY;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import io.github.nucleuspowered.nucleus.api.module.kit.data.Kit;
 import io.github.nucleuspowered.nucleus.modules.kit.KitPermissions;
 import io.github.nucleuspowered.nucleus.modules.kit.services.KitService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;

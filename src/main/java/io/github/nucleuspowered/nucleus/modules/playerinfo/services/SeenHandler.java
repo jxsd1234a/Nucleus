@@ -7,7 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.playerinfo.services;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.api.service.NucleusSeenService;
+import io.github.nucleuspowered.nucleus.api.module.playerinfo.NucleusSeenService;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;

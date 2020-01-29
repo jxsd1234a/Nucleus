@@ -5,9 +5,9 @@
 package io.github.nucleuspowered.nucleus.modules.jail.listeners;
 
 import io.github.nucleuspowered.nucleus.api.EventContexts;
-import io.github.nucleuspowered.nucleus.api.events.NucleusSendToSpawnEvent;
-import io.github.nucleuspowered.nucleus.api.events.NucleusTeleportEvent;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
+import io.github.nucleuspowered.nucleus.api.module.spawn.event.NucleusSendToSpawnEvent;
+import io.github.nucleuspowered.nucleus.api.teleport.event.NucleusTeleportEvent;
+import io.github.nucleuspowered.nucleus.api.util.data.NamedLocation;
 import io.github.nucleuspowered.nucleus.modules.core.events.NucleusOnLoginEvent;
 import io.github.nucleuspowered.nucleus.modules.fly.FlyKeys;
 import io.github.nucleuspowered.nucleus.modules.jail.JailPermissions;

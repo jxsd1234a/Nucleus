@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.standard;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import io.github.nucleuspowered.nucleus.api.module.kit.data.Kit;
 import io.github.nucleuspowered.nucleus.modules.kit.serialiser.SingleKitTypeSerilaiser;
 import io.github.nucleuspowered.nucleus.services.impl.storage.dataobjects.configurate.AbstractConfigurateBackedDataObject;
 import ninja.leaping.configurate.ConfigurationNode;

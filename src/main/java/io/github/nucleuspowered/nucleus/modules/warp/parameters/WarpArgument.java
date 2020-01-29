@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.warp.parameters;
 
 import com.google.common.collect.ImmutableList;
-import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
+import io.github.nucleuspowered.nucleus.api.module.warp.NucleusWarpService;
 import io.github.nucleuspowered.nucleus.modules.warp.WarpPermissions;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;

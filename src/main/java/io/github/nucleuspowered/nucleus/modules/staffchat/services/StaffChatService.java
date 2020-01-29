@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.staffchat.services;
 
-import io.github.nucleuspowered.nucleus.api.service.NucleusStaffChatService;
+import io.github.nucleuspowered.nucleus.api.module.staffchat.NucleusStaffChatService;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatMessageChannel;
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatUserPrefKeys;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;

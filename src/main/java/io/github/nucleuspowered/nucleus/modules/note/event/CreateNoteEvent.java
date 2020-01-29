@@ -4,7 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.note.event;
 
-import io.github.nucleuspowered.nucleus.api.events.NucleusNoteEvent;
+import io.github.nucleuspowered.nucleus.api.module.note.event.NucleusNoteEvent;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.plugin.meta.util.NonnullByDefault;

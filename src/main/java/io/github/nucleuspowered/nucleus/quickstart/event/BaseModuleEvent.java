@@ -5,14 +5,15 @@
 package io.github.nucleuspowered.nucleus.quickstart.event;
 
 import io.github.nucleuspowered.nucleus.NucleusBootstrap;
-import io.github.nucleuspowered.nucleus.api.events.NucleusModuleEvent;
-import io.github.nucleuspowered.nucleus.api.exceptions.ModulesLoadedException;
-import io.github.nucleuspowered.nucleus.api.exceptions.NoModuleException;
-import io.github.nucleuspowered.nucleus.api.exceptions.UnremovableModuleException;
-import io.github.nucleuspowered.nucleus.api.service.NucleusModuleService;
+import io.github.nucleuspowered.nucleus.api.core.event.NucleusModuleEvent;
+import io.github.nucleuspowered.nucleus.api.core.exception.ModulesLoadedException;
+import io.github.nucleuspowered.nucleus.api.core.exception.NoModuleException;
+import io.github.nucleuspowered.nucleus.api.core.exception.UnremovableModuleException;
+import io.github.nucleuspowered.nucleus.quickstart.ModuleRegistrationProxyService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import uk.co.drnaylor.quickstart.enums.LoadingStatus;
 
@@ -68,9 +69,9 @@ public abstract class BaseModuleEvent extends AbstractEvent implements NucleusMo
         }
 
         @Override
-        public void disableModule(String module, Object plugin) throws UnremovableModuleException, NoModuleException {
+        public void disableModule(String module, PluginContainer plugin) throws UnremovableModuleException, NoModuleException {
             try {
-                Sponge.getServiceManager().provideUnchecked(NucleusModuleService.class).removeModule(module, plugin);
+                Sponge.getServiceManager().provideUnchecked(ModuleRegistrationProxyService.class).removeModule(module, plugin);
             } catch (ModulesLoadedException e) {
                 // This shouldn't happen, as this gets called before the registration
                 // But, just in case...

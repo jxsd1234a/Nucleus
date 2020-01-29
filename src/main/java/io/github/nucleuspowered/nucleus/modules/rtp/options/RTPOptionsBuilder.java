@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.rtp.options;
 
 import com.google.common.base.Preconditions;
-import io.github.nucleuspowered.nucleus.api.service.NucleusRTPService;
+import io.github.nucleuspowered.nucleus.api.module.rtp.NucleusRTPService;
 import org.spongepowered.api.world.biome.BiomeType;
 
 import java.util.HashSet;

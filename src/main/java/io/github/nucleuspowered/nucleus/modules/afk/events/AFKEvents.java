@@ -5,7 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.afk.events;
 
 import com.google.common.base.Preconditions;
-import io.github.nucleuspowered.nucleus.api.events.NucleusAFKEvent;
+import io.github.nucleuspowered.nucleus.api.module.afk.event.NucleusAFKEvent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
