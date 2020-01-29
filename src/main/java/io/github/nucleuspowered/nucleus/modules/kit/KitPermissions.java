@@ -23,6 +23,9 @@ public class KitPermissions {
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "kit" }, level = SuggestedLevel.USER)
     public static final String BASE_KIT = "nucleus.kit.base";
 
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "kit reload" }, level = SuggestedLevel.OWNER)
+    public static final String BASE_KIT_RELOAD = "nucleus.kit.reload.base";
+
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "command add" }, level = SuggestedLevel.OWNER)
     public static final String BASE_KIT_COMMAND_ADD = "nucleus.kit.command.add.base";
 

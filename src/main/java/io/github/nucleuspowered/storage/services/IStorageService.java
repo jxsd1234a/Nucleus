@@ -104,6 +104,12 @@ public interface IStorageService<D extends IDataObject> {
     interface SingleCached<D extends IDataObject> extends IStorageService.Single<D> {
 
         /**
+         * Reloads the data from persistence, only clearing the
+         * cache if successful.
+         */
+        CompletableFuture<Void> reload();
+
+        /**
          * Saves the cached version if it exists.
          */
         void saveCached();

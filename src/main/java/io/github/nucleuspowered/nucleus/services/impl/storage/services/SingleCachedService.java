@@ -57,6 +57,11 @@ public class SingleCachedService<O extends IDataObject> implements IStorageServi
     }
 
     @Override
+    public CompletableFuture<Void> reload() {
+        return ServicesUtil.run(this::getFromRepo, this.pluginContainer).thenApply(x -> null);
+    }
+
+    @Override
     public Optional<O> getCached() {
         return Optional.ofNullable(this.cached);
     }
