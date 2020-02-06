@@ -47,7 +47,7 @@ license {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set("sources")
     from sourceSets.main.allSource
 }
 
@@ -65,13 +65,8 @@ jar {
                 'Git-Hash': gitHash.hash
     }
 
-    archiveName = "Nucleus-${version}-api.jar"
-}
-
-artifacts {
-    archives javadocJar
-    archives jar
-    archives sourcesJar
+    archiveVersion.set("${-> project.version}")
+    archiveFileName.set("Nucleus-${-> project.version}-API.jar")
 }
 
 blossom {
@@ -91,3 +86,22 @@ javadoc {
         'https://docs.oracle.com/javase/8/docs/api/'
     )
 }
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set('javadoc')
+    from javadoc.destinationDir
+    archiveFileName.set("Nucleus-${-> project.version}-API-javadocs.jar")
+}
+
+task copyJars(type: Copy, dependsOn: build) {
+    from([project.jar, project.javadocJar])
+    into rootProject.file('output')
+}
+
+artifacts {
+    archives javadocJar
+    archives jar
+    archives sourcesJar
+}
+
+build.dependsOn(javadocJar)

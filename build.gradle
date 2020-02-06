@@ -1,5 +1,3 @@
-import java.util.function.BiPredicate
-
 plugins {
     id 'idea'
     id 'eclipse'
@@ -69,9 +67,6 @@ project.ext.hash = ''
 
 String docVer
 def level = Level.SNAPSHOT;
-/*boolean isSnapshot
-boolean isPR
-boolean isMajor */
 
 if (project.properties.containsKey('override-doc-ver')) {
     docVer = project.properties.get('override-doc-ver')
@@ -94,21 +89,7 @@ if (level == Level.SNAPSHOT && project.hasProperty("appendGit")) {
 project.ext.fileVersion = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
 
 project(":nucleus-api") {
-    repositories {
-        jcenter()
-        maven {
-            name 'Sponge maven repo'
-            url 'https://repo.spongepowered.org/maven'
-        }
-    }
-
-    version = rootProject.versionno + rootProject.suffix + '-S' + rootProject.spongeapiversion
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-        archiveName = "Nucleus-${version}-api-javadocs.jar"
-    }
+    project(":nucleus-api").version = rootProject.versionno + rootProject.suffix + '-S' + rootProject.spongeapiversion
 }
 
 description = 'The Ultimate Essentials Plugin.'
@@ -224,7 +205,7 @@ jar {
                 'Git-Hash': gitHash.hash
     }
 
-    archiveName = getVersion
+    archiveFileName.set("${-> getVersion()}")
 }
 
 shadowJar {
@@ -240,7 +221,7 @@ shadowJar {
     }
 
     exclude "io/github/nucleuspowered/nucleus/api/NucleusAPIMod.class"
-    archiveName = "Nucleus-${rootProject.version}-MC${project.ext.minecraftversion}-plugin.jar"
+    archiveFileName.set("Nucleus-${rootProject.version}-MC${project.ext.minecraftversion}-plugin.jar")
     //shadowJar.archiveName = shadowName
    // archiveName = "Nucleus-${version}-MC${project.ext.minecraftversion}-plugin.jar"
 }
@@ -257,8 +238,8 @@ task cleanJars {
     }
 }
 
-task copyJars(type: Copy, dependsOn: ':nucleus-api:build') {
-    from([project(":nucleus-api").jar, project(":nucleus-api").javadocJar, shadowJar])
+task copyJars(type: Copy, dependsOn: ":nucleus-api:copyJars") {
+    from([shadowJar])
     into project.file('output')
 }
 
