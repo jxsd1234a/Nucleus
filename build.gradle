@@ -5,10 +5,9 @@ plugins {
     id 'eclipse'
     id 'com.github.hierynomus.license' version '0.12.1'
     id 'ninja.miserable.blossom' version '1.0.1'
- //   id 'maven'
     id 'com.github.johnrengelman.shadow' version '4.0.2'
     id 'java'
-    id 'org.spongepowered.plugin' version '0.9.0'
+    id "org.spongepowered.gradle.plugin" version "0.11.0-SNAPSHOT"
     id "de.undercouch.download" version "4.0.1"
 }
 
@@ -112,12 +111,6 @@ project(":nucleus-api") {
     }
 }
 
-if (!project.hasProperty("nosign")) {
-    apply plugin: 'signing'
-    apply plugin: 'org.spongepowered.plugin'
-    apply plugin: 'org.spongepowered.ore'
-}
-
 description = 'The Ultimate Essentials Plugin.'
 ext.url = 'http://nucleuspowered.org'
 
@@ -161,6 +154,7 @@ repositories {
 }
 
 dependencies {
+    annotationProcessor project(":nucleus-ap")
     compile project(":nucleus-ap")
     compile project(":nucleus-api", {
         ext.versionno = versionno
@@ -170,7 +164,8 @@ dependencies {
         ext.versionno = versionno
         ext.suffix = suffix
     })
-    compile "org.spongepowered:spongeapi:" + project.ext.spongeapi
+    annotationProcessor("org.spongepowered:spongeapi:" + project.ext.spongeapi)
+    implementation("org.spongepowered:spongeapi:" + project.ext.spongeapi)
     compile "org.spongepowered:configurate-core:3.6.1"
     compile "org.spongepowered:configurate-gson:3.6.1"
     compile "org.spongepowered:configurate-hocon:3.6.1"
