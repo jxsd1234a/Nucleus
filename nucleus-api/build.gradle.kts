@@ -49,6 +49,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 val javadocJar by tasks.registering(Jar::class) {
     dependsOn.add(JavaPlugin.JAVADOC_TASK_NAME)
     archiveClassifier.set("javadoc")
+    archiveFileName.set("Nucleus-${rootProject.version}-API-Javadocs.jar")
     from(tasks.javadoc)
 }
 

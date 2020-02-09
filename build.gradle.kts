@@ -1,11 +1,9 @@
-import Build_gradle.BP
+import io.github.nucleuspowered.gradle.enums.getLevel
 import io.github.nucleuspowered.gradle.task.StdOutExec
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.javax.inject.Inject
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-
-typealias BP = (String) -> Boolean
 
 open class RelNotes @Inject constructor() : DefaultTask() {
     var relNotes: String? = null
@@ -36,43 +34,14 @@ plugins {
 apply {
     plugin("kotlin")
 }
-// apply plugin: 'kotlin'
-
-enum class Level(val selectionCriteria: BP, val template: String, val isNotUnique: Boolean) {
-    SNAPSHOT( { version -> version.endsWith("SNAPSHOT") } , "snapshot", true),
-    ALPHA( { version -> version.contains("ALPHA") }, "alpha", false),
-    BETA( { version -> version.contains("BETA") }, "beta", false),
-    RELEASE_CANDIDATE( { version -> version.contains("RC") } , "rc", false),
-    RELEASE_MAJOR( { version -> version.endsWith(".0") } , "release-big", false),
-    RELEASE_MINOR( { true }, "release", false);
-}
-
-fun getLevel(version: String): Level {
-    for (level in Level.values()) {
-        if (level.selectionCriteria(version)) {
-            return level
-        }
-    }
-
-    // Fallback
-    return Level.SNAPSHOT;
-}
 
 // Get the Level
-var level = getLevel(project.properties["version"]?.toString()!!)
+var level = getLevel(project.properties["nucleusVersion"]?.toString()!!)
 
 val nucVersion = project.properties["nucleusVersion"];
 val spongeVersion = project.properties["declaredApiVersion"]
 version = "$nucVersion-S$spongeVersion"
 val versionString: String = "$nucVersion-S$spongeVersion"
-
-/**
-if (level.isNotUnique && project.hasProperty("appendGit")) {
-    version = version + '-' + hash
-}
-*/
-
-// project.ext.fileVersion = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
 
 project(":nucleus-api").version = version
 project(":nucleus-core").version = version
