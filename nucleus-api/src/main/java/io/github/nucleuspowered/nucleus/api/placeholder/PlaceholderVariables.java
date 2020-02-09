@@ -17,6 +17,8 @@ public interface PlaceholderVariables {
 
     /**
      * The empty {@link PlaceholderVariables}
+     *
+     * @return The {@link PlaceholderVariables}
      */
     static PlaceholderVariables empty() {
         return Sponge.getRegistry().createBuilder(Builder.class).build();
