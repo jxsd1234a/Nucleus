@@ -20,15 +20,16 @@ public final class NucleusAPIMetaService {
     private final int patchVersion;
     private final boolean release;
 
-    public NucleusAPIMetaService(String version, String semver, boolean isRelease) {
+    public NucleusAPIMetaService(String version) {
         this.version = version;
-        this.semver = semver;
 
-        String[] sp = semver.split("\\.", 3);
+        String[] sp = version.split("\\.", 3);
+        String[] patch = sp[2].split("-", 2);
         this.majorVersion = parse(sp[0]);
         this.minorVersion = parse(sp[1]);
-        this.patchVersion = parse(sp[2]);
-        this.release = isRelease;
+        this.patchVersion = parse(patch[0]);
+        this.semver = String.format("%d.%d.%d", this.majorVersion, this.minorVersion, this.patchVersion);
+        this.release = patch.length == 2 && !patch[1].isEmpty();
     }
 
     /**

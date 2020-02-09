@@ -23,7 +23,7 @@ open class StdOutExec : AbstractExecTask<StdOutExec>(StdOutExec::class.java) {
     @TaskAction
     override fun exec() {
         super.exec()
-        result = variableWriter.toString(StandardCharsets.UTF_8.toString())
+        result = variableWriter.toString(StandardCharsets.UTF_8.toString()).trim()
         variableWriter.reset()
     }
 

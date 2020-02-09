@@ -1,5 +1,3 @@
-import io.github.nucleuspowered.gradle.task.StdOutExec
-
 plugins {
     java
     eclipse
@@ -61,19 +59,21 @@ val downloadCompat by tasks.registering(de.undercouch.gradle.tasks.download.Down
 }
 
 tasks {
+
     blossomSourceReplacementJava {
         dependsOn(rootProject.tasks["gitHash"])
     }
+
 }
 
 blossom {
     replaceTokenIn("src/main/java/io/github/nucleuspowered/nucleus/NucleusPluginInfo.java")
-    replaceToken("@name@", project.name)
+    replaceToken("@name@", rootProject.name)
     replaceToken("@version@", rootProject.properties["nucleusVersion"])
 
     replaceToken("@description@", rootProject.properties["description"])
     replaceToken("@url@", rootProject.properties["url"])
-    replaceToken("@gitHash@", rootProject.tasks.named<StdOutExec>("gitHash").get().result)
+    replaceToken("@gitHash@", rootProject.extra["gitHash"])
 
     replaceToken("@spongeversion@", rootProject.properties["declaredApiVersion"]) //declaredApiVersion
 }

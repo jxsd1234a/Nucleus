@@ -64,6 +64,10 @@ val copyJars by tasks.registering(Copy::class) {
 
 tasks {
 
+    blossomSourceReplacementJava {
+        dependsOn(rootProject.tasks["gitHash"])
+    }
+
     jar {
         manifest {
             attributes["API-Title"] = project.name
@@ -87,9 +91,8 @@ blossom {
     replaceTokenIn("src/main/java/io/github/nucleuspowered/nucleus/api/NucleusAPITokens.java")
     replaceToken("@version@", rootProject.properties["nucleusVersion"])
     replaceToken("@description@", description)
-    replaceToken("@gitHash@", rootProject.tasks.named("gitHash"))
+    replaceToken("@gitHash@", rootProject.extra["gitHash"])
 }
-
 
 artifacts {
     archives(javadocJar)

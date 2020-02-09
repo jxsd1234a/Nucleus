@@ -2,6 +2,7 @@ import io.github.nucleuspowered.gradle.enums.getLevel
 import io.github.nucleuspowered.gradle.task.StdOutExec
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.javax.inject.Inject
+import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
@@ -34,6 +35,24 @@ plugins {
 apply {
     plugin("kotlin")
 }
+
+// Until I can figure out how to get Blossom to accept task outputs, if at all
+// this will have to do.
+fun getGitCommit() : String {
+    return try {
+        val byteOut: ByteArrayOutputStream = ByteArrayOutputStream()
+        project.exec {
+            commandLine = "git rev-parse --short HEAD".split(" ")
+            standardOutput = byteOut
+        }
+        byteOut.toString("UTF-8").trim()
+    } catch (ex: Exception) {
+        // ignore
+        "unknown"
+    }
+}
+
+extra["gitHash"] = getGitCommit()
 
 // Get the Level
 var level = getLevel(project.properties["nucleusVersion"]?.toString()!!)
@@ -77,6 +96,9 @@ dependencies {
 
 val gitHash by tasks.registering(StdOutExec::class)  {
     commandLine("git", "rev-parse", "--short", "HEAD")
+    doLast {
+        project.extra["gitHash"] = result
+    }
 }
 
 val gitCommitMessage by tasks.registering(StdOutExec::class) {

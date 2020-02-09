@@ -17,13 +17,9 @@ public final class NucleusAPITokens {
     final static String NAME = "Nucleus API";
     final static String VERSION = "@version@";
     final static String DESCRIPTION = "@description@";
-    private final static String SEMVER = "@semver@";
-
-    // For Blossom
-    private final static String isRelease = "@release@";
 
     public static void onPreInit(Object plugin) {
-        Sponge.getServiceManager().setProvider(plugin, NucleusAPIMetaService.class, new NucleusAPIMetaService(VERSION, SEMVER, isRelease.isEmpty()));
+        Sponge.getServiceManager().setProvider(plugin, NucleusAPIMetaService.class, new NucleusAPIMetaService(VERSION));
     }
 
 }

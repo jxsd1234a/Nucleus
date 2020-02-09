@@ -286,10 +286,10 @@ public class NucleusBootstrap {
 
         this.logger.info(messageProvider.getMessageString("startup.preinit", NucleusPluginInfo.NAME));
         Game game = Sponge.getGame();
-        NucleusAPITokens.onPreInit(this);
 
         // Get the mandatory config files.
         try {
+            NucleusAPITokens.onPreInit(this);
             Files.createDirectories(this.configDir);
             if (this.isServer) {
                 Files.createDirectories(this.dataDir.get());
