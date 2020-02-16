@@ -95,7 +95,7 @@ public class StaffChatCommand implements ICommandExecutor<CommandSource> {
         boolean result = service.isToggledChat(player);
         service.toggle(player, !result);
 
-        context.sendMessage("command.staffchat." + (result ? "on" : "off"));
+        context.sendMessage("command.staffchat." + (!result ? "on" : "off"));
         return context.successResult();
     }
 

@@ -23,6 +23,7 @@ import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.Collection;
 import java.util.List;
@@ -57,6 +58,11 @@ public class StaffChatMessageChannel implements
         INSTANCE = this;
     }
 
+    @Override
+    public boolean willFormat() {
+        return true;
+    }
+
     public APIChannel createChannel(MessageChannel delegated) {
         return new APIChannel(
                 delegated,
@@ -78,7 +84,17 @@ public class StaffChatMessageChannel implements
     @Override
     public void formatMessageEvent(CommandSource source, MessageEvent.MessageFormatter formatters) {
         Text prefix = this.template.getForCommandSource(source);
-        formatters.setHeader(Text.of(formatters.getHeader(), prefix));
+        if (TextSerializers.PLAIN.serialize(formatters.getHeader().toText()).contains("<" + source.getName() + ">")) {
+            // Remove it.
+            Text p = formatters.getHeader().toText().replace("<" + source.getName() + ">", Text.of(), true);
+            if (p.toPlain().trim().isEmpty()) {
+                formatters.setHeader(prefix);
+            } else {
+                formatters.setHeader(Text.of(p, prefix));
+            }
+        } else {
+            formatters.setHeader(Text.of(formatters.getHeader(), prefix));
+        }
         formatters.setBody(Text.of(this.colour, formatters.getBody()));
     }
 

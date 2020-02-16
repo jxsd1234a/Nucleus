@@ -36,7 +36,7 @@ public class StaffChatService implements NucleusStaffChatService, ServiceBase {
     }
 
     public boolean isToggledChat(Player player) {
-        return player.getMessageChannel() == StaffChatMessageChannel.getInstance();
+        return this.chatMessageFormatService.getNucleusChannel(player.getUniqueId()).filter(x -> x instanceof StaffChatMessageChannel).isPresent();
     }
 
     public void toggle(Player player, boolean toggle) {
