@@ -7,6 +7,9 @@ package io.github.nucleuspowered.nucleus.api.module.staffchat;
 import org.spongepowered.api.text.channel.MessageChannel;
 
 /**
- * Indicates that the chat event is a staff chat message
+ * Indicates that the chat event is a staff chat message.
+ *
+ * <p>Note that this is only guaranteed to appear after
+ * {@link org.spongepowered.api.event.Order#LATE}</p>
  */
 public interface NucleusStaffChatChannel extends MessageChannel { }
