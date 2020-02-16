@@ -23,11 +23,7 @@ public class NucleusTextTemplateTypeSerialiser implements TypeSerializer<Nucleus
         try {
             return this.factory.createFromString(value.getString());
         } catch (Throwable throwable) {
-            if (throwable instanceof ObjectMappingException) {
-                throw (ObjectMappingException)throwable;
-            } else {
-                throw new ObjectMappingException(throwable);
-            }
+            throw new ObjectMappingException(throwable);
         }
     }
 

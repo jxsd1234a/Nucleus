@@ -268,7 +268,7 @@ public class CommandMetadataService implements ICommandMetadataService, IReloada
                     .ifPresent(x -> this.registeredAliases.addAll(x.getAllAliases()));
             }
 
-            commands.values().forEach(CommandControl::completeRegistration);
+            commands.values().forEach(x -> x.completeRegistration(collection));
         }
     }
 

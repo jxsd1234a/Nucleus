@@ -24,6 +24,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.impl.CommandContextImpl
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifierFactory;
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.ICommandModifier;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.util.PrettyPrinter;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -149,9 +150,14 @@ public class CommandControl implements CommandCallable {
                 commandControl);
     }
 
-    public void completeRegistration() {
+    public void completeRegistration(INucleusServiceCollection serviceCollection) {
         Preconditions.checkState(this.acceptingRegistration, "Registration is complete.");
         this.acceptingRegistration = false;
+        if (this.executor instanceof IReloadableService.Reloadable) {
+            IReloadableService.Reloadable reloadable = (IReloadableService.Reloadable) this.executor;
+            serviceCollection.reloadableService().registerReloadable(reloadable);
+            reloadable.onReload(serviceCollection);
+        }
     }
 
     @Override

@@ -393,7 +393,7 @@ public class NucleusBootstrap {
                     .build();
 
             this.moduleContainer.startDiscover();
-            this.serviceCollection.reloadableService().registerReloadable(serviceCollection -> {
+            this.serviceCollection.reloadableService().registerEarlyReloadable(serviceCollection -> {
                 try {
                     this.moduleContainer.reloadSystemConfig();
                 } catch (IOException e) {

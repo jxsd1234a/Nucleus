@@ -15,18 +15,23 @@ import javax.inject.Singleton;
 @Singleton
 public class ReloadableService implements IReloadableService {
 
+    private final Set<Reloadable> earlyReloadables = new HashSet<>();
     private final Set<Reloadable> reloadables = new HashSet<>();
     private final Set<DataLocationReloadable> dataLocationReloadables = new HashSet<>();
+
+    @Override public void registerEarlyReloadable(Reloadable reloadable) {
+        this.earlyReloadables.add(reloadable);
+    }
 
     @Override public void registerReloadable(Reloadable reloadable) {
         this.reloadables.add(reloadable);
     }
 
-    @Override public void removeReloadable(Reloadable reloadable) {
-        this.reloadables.remove(reloadable);
-    }
-
     @Override public void fireReloadables(INucleusServiceCollection serviceCollection) {
+        for (Reloadable reloadable : this.reloadables) {
+            reloadable.onReload(serviceCollection);
+        }
+
         for (Reloadable reloadable1 : this.reloadables) {
             reloadable1.onReload(serviceCollection);
         }

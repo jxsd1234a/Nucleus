@@ -11,9 +11,9 @@ import io.github.nucleuspowered.nucleus.services.impl.reloadable.ReloadableServi
 @ImplementedBy(ReloadableService.class)
 public interface IReloadableService {
 
-    void registerReloadable(Reloadable reloadable);
+    void registerEarlyReloadable(Reloadable reloadable);
 
-    void removeReloadable(Reloadable reloadable);
+    void registerReloadable(Reloadable reloadable);
 
     void fireReloadables(INucleusServiceCollection serviceCollection);
 

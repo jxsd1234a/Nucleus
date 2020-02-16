@@ -125,7 +125,15 @@ public abstract class StandardModule implements Module {
         }
     }
 
-    private <T extends ServiceBase> void registerService(Class<T> serviceClass) throws Exception {
+    private void registerReloadable(Object instance) {
+        if (instance instanceof IReloadableService.Reloadable) {
+            IReloadableService.Reloadable reloadable = (IReloadableService.Reloadable) instance;
+            this.serviceCollection.reloadableService().registerReloadable(reloadable);
+            reloadable.onReload(this.serviceCollection);
+        }
+    }
+
+    private <T extends ServiceBase> void registerService(Class<T> serviceClass) {
         T serviceImpl = getInstance(serviceClass);
         if (serviceImpl == null) {
             String error = "ERROR: Cannot instantiate " + serviceClass.getName();
@@ -148,11 +156,7 @@ public abstract class StandardModule implements Module {
             register(serviceClass, serviceImpl);
         }
 
-        if (serviceImpl instanceof IReloadableService.Reloadable) {
-            IReloadableService.Reloadable reloadable = (IReloadableService.Reloadable) serviceImpl;
-            this.serviceCollection.reloadableService().registerReloadable(reloadable);
-            reloadable.onReload(this.serviceCollection);
-        }
+        registerReloadable(serviceImpl);
 
         if (serviceImpl instanceof IReloadableService.DataLocationReloadable) {
             // don't do anything let.
@@ -195,20 +199,12 @@ public abstract class StandardModule implements Module {
                     throw new IllegalStateException(error, e);
                 }
 
-                if (impl instanceof IReloadableService.Reloadable) {
-                    IReloadableService.Reloadable reloadable = (IReloadableService.Reloadable) impl;
-                    this.serviceCollection.reloadableService().registerReloadable(reloadable);
-                    reloadable.onReload(this.serviceCollection);
-                }
+                registerReloadable(impl);
 
                 // hahahaha, no
                 this.serviceCollection.commandMetadataService().registerInterceptor(impl);
             }
         }
-    }
-
-    public final void setPackageName() {
-        this.packageName = this.getClass().getPackage().getName() + ".";
     }
 
     @SuppressWarnings("unchecked")
