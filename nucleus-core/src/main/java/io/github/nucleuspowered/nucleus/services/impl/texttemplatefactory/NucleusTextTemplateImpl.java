@@ -264,11 +264,11 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
         return new Tuples.NullableTuple<>(texts, args);
     }
 
-    private Text getCmd(String msg, String cmd, String optionList, String whiteSpace) {
+    private Text getCmd(String msg, String cmd, @org.checkerframework.checker.nullness.qual.Nullable String optionList, String whiteSpace) {
         Text.Builder textBuilder = Text.builder(msg)
                 .onClick(TextActions.runCommand(cmd))
                 .onHover(setupHoverOnCmd(cmd, optionList));
-        if (optionList.contains("s")) {
+        if (optionList != null && optionList.contains("s")) {
             textBuilder.onClick(TextActions.suggestCommand(cmd));
         }
 
