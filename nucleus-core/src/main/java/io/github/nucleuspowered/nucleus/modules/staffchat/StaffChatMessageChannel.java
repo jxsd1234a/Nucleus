@@ -5,8 +5,10 @@
 package io.github.nucleuspowered.nucleus.modules.staffchat;
 
 import com.google.common.base.Preconditions;
+import io.github.nucleuspowered.nucleus.api.module.staffchat.NucleusStaffChatChannel;
 import io.github.nucleuspowered.nucleus.modules.staffchat.config.StaffChatConfig;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.chatmessageformatter.AbstractNucleusChatChannel;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
 import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
@@ -28,7 +30,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-public class StaffChatMessageChannel implements IChatMessageFormatterService.Channel, IReloadableService.Reloadable {
+public class StaffChatMessageChannel implements
+        IChatMessageFormatterService.Channel.External<StaffChatMessageChannel.APIChannel>,
+        IReloadableService.Reloadable {
 
     private static StaffChatMessageChannel INSTANCE = null;
 
@@ -51,6 +55,13 @@ public class StaffChatMessageChannel implements IChatMessageFormatterService.Cha
         this.userPreferenceService = serviceCollection.userPreferenceService();
         this.onReload(serviceCollection);
         INSTANCE = this;
+    }
+
+    public APIChannel createChannel(MessageChannel delegated) {
+        return new APIChannel(
+                delegated,
+                receivers().stream().filter(x -> delegated.getMembers().contains(x)).collect(Collectors.toList())
+        );
     }
 
     public boolean formatMessages() {
@@ -101,6 +112,14 @@ public class StaffChatMessageChannel implements IChatMessageFormatterService.Cha
         this.formatting = sc.isIncludeStandardChatFormatting();
         this.template = sc.getMessageTemplate();
         this.colour = serviceCollection.textStyleService().getColourFromString(sc.getMessageColour());
+    }
+
+    public static class APIChannel extends AbstractNucleusChatChannel.Mutable<APIChannel>
+            implements NucleusStaffChatChannel {
+
+        public APIChannel(MessageChannel messageChannel, Collection<MessageReceiver> messageReceivers) {
+            super(messageChannel, messageReceivers);
+        }
     }
 
 }

@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.services.interfaces;
 
 import com.google.inject.ImplementedBy;
 import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
+import io.github.nucleuspowered.nucleus.services.impl.chatmessageformatter.AbstractNucleusChatChannel;
 import io.github.nucleuspowered.nucleus.services.impl.chatmessageformatter.ChatMessageFormatterService;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.command.CommandSource;
@@ -40,6 +41,12 @@ public interface IChatMessageFormatterService {
 
         default boolean ignoreIgnoreList() {
             return false;
+        }
+
+        interface External<T extends AbstractNucleusChatChannel<?>> extends Channel {
+
+            T createChannel(MessageChannel delegate);
+
         }
 
     }

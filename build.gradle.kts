@@ -40,7 +40,7 @@ apply {
 // this will have to do.
 fun getGitCommit() : String {
     return try {
-        val byteOut: ByteArrayOutputStream = ByteArrayOutputStream()
+        val byteOut = ByteArrayOutputStream()
         project.exec {
             commandLine = "git rev-parse --short HEAD".split(" ")
             standardOutput = byteOut

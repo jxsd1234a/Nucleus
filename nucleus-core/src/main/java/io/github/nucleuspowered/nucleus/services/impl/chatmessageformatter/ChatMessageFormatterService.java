@@ -8,6 +8,10 @@ import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.channel.MessageReceiver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,11 +39,22 @@ public class ChatMessageFormatterService implements IChatMessageFormatterService
         }
     }
 
-    @Override public NoExceptionAutoClosable setPlayerNucleusChannelTemporarily(UUID uuid, Channel channel) {
+    @Override
+    public NoExceptionAutoClosable setPlayerNucleusChannelTemporarily(UUID uuid, Channel channel) {
         Preconditions.checkNotNull(channel);
         final Channel original = this.chatChannels.get(uuid);
+        final Optional<Player> player = Sponge.getServer().getPlayer(uuid);
+        final MessageChannel originalChannel = player.map(MessageReceiver::getMessageChannel).orElse(null);
         this.chatChannels.put(uuid, channel);
-        return () -> this.setPlayerNucleusChannel(uuid, channel);
+        if (channel instanceof Channel.External<?>) {
+            ((Channel.External<?>) channel).createChannel(originalChannel);
+        }
+        return () -> {
+            this.setPlayerNucleusChannel(uuid, original);
+            if (originalChannel != null) {
+                player.ifPresent(x -> x.setMessageChannel(originalChannel));
+            }
+        };
     }
 
 }
