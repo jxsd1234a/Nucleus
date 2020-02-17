@@ -139,10 +139,16 @@ val relNotes by tasks.registering(RelNotes::class) {
                 .resolve("${level.template}.md")
 
         // val template = File("changelogs/templates/" + level.template + ".md").getText("UTF-8")
-        val notes = project.projectDir.toPath()
+        val notesDir = project.projectDir.toPath()
                 .resolve("changelogs")
                 .resolve("templates")
-                .resolve("$versionString.md")
+
+        val notesFull = notesDir.resolve("$versionString.md")
+        val notes = if (Files.exists(notesFull)) {
+            notesFull
+        } else {
+            notesDir.resolve("${versionString.substringBefore("-")}-S$spongeVersion.md")
+        }
 
         val templateText: String = if (Files.exists(templatePath)) {
             String(Files.readAllBytes(templatePath), StandardCharsets.UTF_8)
@@ -159,7 +165,7 @@ val relNotes by tasks.registering(RelNotes::class) {
         relNotes = templateText
                 .replace("{{hash}}", gitHash.get().result!!)
                 .replace("{{info}}", notesText)
-                .replace("{{version}}", versionString)
+                .replace("{{version}}", project.properties["nucleusVersion"]?.toString()!!)
                 .replace("{{message}}", gitCommitMessage.get().result!!)
                 .replace("{{sponge}}", project.properties["declaredApiVersion"]?.toString()!!)
     }
