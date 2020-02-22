@@ -28,7 +28,7 @@ public class ReloadableService implements IReloadableService {
     }
 
     @Override public void fireReloadables(INucleusServiceCollection serviceCollection) {
-        for (Reloadable reloadable : this.reloadables) {
+        for (Reloadable reloadable : this.earlyReloadables) {
             reloadable.onReload(serviceCollection);
         }
 
