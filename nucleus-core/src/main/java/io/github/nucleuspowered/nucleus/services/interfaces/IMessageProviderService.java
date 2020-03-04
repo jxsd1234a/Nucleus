@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 @ImplementedBy(MessageProviderService.class)
@@ -26,6 +27,10 @@ public interface IMessageProviderService {
     boolean hasKey(String key);
 
     Locale getDefaultLocale();
+
+    void invalidateLocaleCacheFor(UUID uuid);
+
+    Locale getLocaleFor(CommandSource commandSource);
 
     Text getMessageFor(Locale locale, String key);
 
@@ -44,16 +49,16 @@ public interface IMessageProviderService {
     }
 
     default Text getMessageFor(CommandSource source, String key) {
-        return getMessageFor(source.getLocale(), key);
+        return getMessageFor(getLocaleFor(source), key);
     }
 
     default Text getMessageFor(CommandSource source, String key, Text... args) {
-        return getMessageFor(source.getLocale(), key, args);
+        return getMessageFor(getLocaleFor(source), key, args);
     }
 
     default Text getMessageFor(CommandSource source, String key, String... args) {
         Text[] t = Arrays.stream(args).map(TextSerializers.FORMATTING_CODE::deserialize).toArray(Text[]::new);
-        return getMessageFor(source.getLocale(), key, t);
+        return getMessageFor(getLocaleFor(source), key, t);
     }
 
     default Text getMessage(String key) {
@@ -77,35 +82,35 @@ public interface IMessageProviderService {
     }
 
     default String getMessageString(CommandSource source, String key, String... replacements) {
-        return getMessageString(source.getLocale(), key, replacements);
+        return getMessageString(getLocaleFor(source), key, replacements);
     }
 
     default Text getMessageFor(CommandSource source, String key, Object... replacements) {
-        return getMessageFor(source.getLocale(), key, replacements);
+        return getMessageFor(getLocaleFor(source), key, replacements);
     }
 
     default void sendMessageTo(CommandSource receiver, String key) {
-        receiver.sendMessage(getMessageFor(receiver.getLocale(), key));
+        receiver.sendMessage(getMessageFor(getLocaleFor(receiver), key));
     }
 
     default void sendMessageTo(MessageReceiver receiver, String key, Object... replacements) {
         if (receiver instanceof CommandSource) {
-            receiver.sendMessage(getMessageFor(((CommandSource) receiver).getLocale(), key, replacements));
+            receiver.sendMessage(getMessageFor(getLocaleFor((CommandSource) receiver), key, replacements));
         } else {
             receiver.sendMessage(getMessageFor(Sponge.getServer().getConsole(), key, replacements));
         }
     }
 
     default void sendMessageTo(CommandSource receiver, String key, Object... replacements) {
-        receiver.sendMessage(getMessageFor(receiver.getLocale(), key, replacements));
+        receiver.sendMessage(getMessageFor(getLocaleFor(receiver), key, replacements));
     }
 
     default void sendMessageTo(CommandSource receiver, String key, Text... replacements) {
-        receiver.sendMessage(getMessageFor(receiver.getLocale(), key, replacements));
+        receiver.sendMessage(getMessageFor(getLocaleFor(receiver), key, replacements));
     }
 
     default void sendMessageTo(CommandSource receiver, String key, String... replacements) {
-        receiver.sendMessage(getMessageFor(receiver.getLocale(), key, replacements));
+        receiver.sendMessage(getMessageFor(getLocaleFor(receiver), key, replacements));
     }
 
     default void sendMessageTo(Supplier<CommandSource> receiver, String key, String... replacements) {

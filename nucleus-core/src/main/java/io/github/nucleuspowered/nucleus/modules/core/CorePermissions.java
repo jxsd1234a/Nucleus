@@ -69,10 +69,20 @@ public class CorePermissions {
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "nuserprefs" }, level = SuggestedLevel.USER)
     public static final String BASE_NUSERPREFS = "nucleus.userprefs.base";
 
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "setnucleuslanguage" }, level = SuggestedLevel.USER)
+    public static final String BASE_SETNUCLEUSLANGUAGE = "nucleus.setnucleuslanguage.base";
+
+    @PermissionMetadata(descriptionKey = "permission.others", replacements = { "setnucleuslanguage" }, level = SuggestedLevel.ADMIN)
+    public static final String OTHERS_SETNUCLEUSLANGUAGE = "nucleus.setnucleuslanguage.others";
+
+    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "nucleuslanguage" }, level = SuggestedLevel.USER)
+    public static final String BASE_NUCLEUSLANGUAGE = "nucleus.nucleuslanguage.base";
+
     @PermissionMetadata(descriptionKey = "permission.others", replacements = { "nuserprefs" }, level = SuggestedLevel.ADMIN)
     public static final String OTHERS_NUSERPREFS = "nucleus.userprefs.others";
 
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "docgen" }, level = SuggestedLevel.NONE)
     public static final String BASE_DOCGEN = "nucleus.nucleus.docgen.base";
+
 
 }

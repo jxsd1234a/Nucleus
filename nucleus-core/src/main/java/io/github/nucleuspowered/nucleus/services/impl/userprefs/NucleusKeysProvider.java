@@ -5,10 +5,10 @@
 package io.github.nucleuspowered.nucleus.services.impl.userprefs;
 
 import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.Locale;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
 
@@ -19,6 +19,7 @@ public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
     public static final String TELEPORT_TARGETABLE_KEY = "nucleus:teleport-targetable";
     public static final String VANISH_ON_LOGIN_KEY = "nucleus:vanish-on-login";
     public static final String VIEW_STAFF_CHAT_KEY = "nucleus:view-staff-chat";
+    public static final String PLAYER_LOCALE = "nucleus:player-locale";
 
     @TargetID(VANISH_ON_LOGIN_KEY) @Nullable private PreferenceKeyImpl<Boolean> vanishOnLoginKey = null;
     @TargetID(TELEPORT_TARGETABLE_KEY) @Nullable private PreferenceKeyImpl<Boolean> teleportTargetKey = null;
@@ -27,6 +28,7 @@ public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
     @TargetID(MESSAGE_TOGGLE_KEY) @Nullable private PreferenceKeyImpl<Boolean> messageToggle = null;
     @TargetID(COMMAND_SPY_KEY) @Nullable private PreferenceKeyImpl<Boolean> commandSpyEnabled = null;
     @TargetID(VIEW_STAFF_CHAT_KEY) @Nullable private PreferenceKeyImpl<Boolean> viewStaffChat = null;
+    @TargetID(PLAYER_LOCALE) @Nullable private PreferenceKeyImpl<Locale> locale = null;
 
     @Override public Optional<NucleusUserPreferenceService.PreferenceKey<Boolean>> vanishOnLogin() {
         return Optional.ofNullable(this.vanishOnLoginKey);
@@ -54,6 +56,10 @@ public class NucleusKeysProvider implements NucleusUserPreferenceService.Keys {
 
     @Override public Optional<NucleusUserPreferenceService.PreferenceKey<Boolean>> viewStaffChat() {
         return Optional.ofNullable(this.viewStaffChat);
+    }
+
+    @Override public Optional<NucleusUserPreferenceService.PreferenceKey<Locale>> playerLocale() {
+        return Optional.ofNullable(this.locale);
     }
 
 }

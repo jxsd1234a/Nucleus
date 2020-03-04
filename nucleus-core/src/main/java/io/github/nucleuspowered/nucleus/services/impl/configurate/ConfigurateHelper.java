@@ -16,6 +16,7 @@ import io.github.nucleuspowered.neutrino.typeserialisers.SetTypeSerialiser;
 import io.github.nucleuspowered.neutrino.typeserialisers.ShortArrayTypeSerialiser;
 import io.github.nucleuspowered.neutrino.util.ClassConstructor;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.InstantTypeSerialiser;
+import io.github.nucleuspowered.nucleus.configurate.typeserialisers.LocaleSerialiser;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.MailMessageSerialiser;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.NamedLocationSerialiser;
 import io.github.nucleuspowered.nucleus.configurate.typeserialisers.NucleusItemStackSnapshotSerialiser;
@@ -112,6 +113,7 @@ public class ConfigurateHelper implements IConfigurateHelper {
         typeSerializerCollection.registerType(TypeTokens.WARP_CATEGORY, new WarpCategorySerialiser());
         typeSerializerCollection.registerType(TypeTokens.NAMEDLOCATION, new NamedLocationSerialiser());
         typeSerializerCollection.registerType(TypeTokens.MAIL_MESSAGE, new MailMessageSerialiser());
+        typeSerializerCollection.registerType(TypeTokens.LOCALE, new LocaleSerialiser());
 
         return typeSerializerCollection;
     }

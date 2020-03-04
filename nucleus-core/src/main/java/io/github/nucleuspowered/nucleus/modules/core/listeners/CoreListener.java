@@ -87,6 +87,7 @@ public class CoreListener implements IReloadableService.Reloadable, ListenerBase
         if (eventToFire.shouldSave()) {
             this.serviceCollection.storageManager().getUserService().save(userId, dataObject);
         }
+        this.serviceCollection.messageProvider().invalidateLocaleCacheFor(userId);
     }
 
     /* (non-Javadoc)

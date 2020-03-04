@@ -4,6 +4,10 @@
  */
 package io.github.nucleuspowered.nucleus.services.impl.messageprovider;
 
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.guice.ConfigDirectory;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -13,7 +17,10 @@ import io.github.nucleuspowered.nucleus.services.impl.messageprovider.repository
 import io.github.nucleuspowered.nucleus.services.impl.messageprovider.repository.UTF8Control;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
 import java.nio.file.Path;
@@ -23,7 +30,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -35,6 +45,7 @@ public class MessageProviderService implements IMessageProviderService, IReloada
     private static final String MESSAGES_BUNDLE_RESOURCE_LOC = "/assets/nucleus/messages.properties.{0}";
 
     private final INucleusServiceCollection serviceCollection;
+    private final IUserPreferenceService userPreferenceService;
 
     private Locale defaultLocale = Sponge.getServer().getConsole().getLocale();
     private boolean useMessagesFile;
@@ -42,12 +53,22 @@ public class MessageProviderService implements IMessageProviderService, IReloada
 
     private final PropertiesMessageRepository defaultMessagesResource;
     private final ConfigFileMessagesRepository configFileMessagesRepository;
-    private boolean hasLoaded = false;
 
     private final Map<Locale, PropertiesMessageRepository> messagesMap = new HashMap<>();
+    private final LoadingCache<UUID, Locale> localeCache = Caffeine.newBuilder()
+            .build(new CacheLoader<UUID, Locale>() {
+                @CheckForNull
+                @Override
+                public Locale load(@Nonnull UUID key) {
+                    NucleusUserPreferenceService.PreferenceKey<Locale> l =
+                            userPreferenceService.keys().playerLocale().get();
+                    return userPreferenceService.get(key, l).orElse(new Locale(""));
+                }
+            });
 
     @Inject
-    public MessageProviderService(INucleusServiceCollection serviceCollection, @ConfigDirectory Path configPath) {
+    public MessageProviderService(
+            INucleusServiceCollection serviceCollection, @ConfigDirectory Path configPath) {
         this.serviceCollection = serviceCollection;
         serviceCollection.reloadableService().registerReloadable(this);
         this.defaultMessagesResource = new PropertiesMessageRepository(
@@ -61,6 +82,7 @@ public class MessageProviderService implements IMessageProviderService, IReloada
                 configPath.resolve("messages.conf"),
                 () -> getPropertiesMessagesRepository(this.defaultLocale)
         );
+        this.userPreferenceService = serviceCollection.userPreferenceService();
     }
 
     @Override
@@ -71,6 +93,30 @@ public class MessageProviderService implements IMessageProviderService, IReloada
     @Override
     public Locale getDefaultLocale() {
         return this.defaultLocale;
+    }
+
+    @Override
+    public void invalidateLocaleCacheFor(UUID uuid) {
+        this.localeCache.invalidate(uuid);
+    }
+
+    @Override
+    public Locale getLocaleFor(CommandSource commandSource) {
+        if (commandSource instanceof User) {
+            Locale l = this.localeCache.get(((User) commandSource).getUniqueId());
+            if (l != null && !l.toString().isEmpty()) {
+                return l;
+            }
+        }
+
+        final Locale toUse;
+        if (this.useClientLocalesWhenPossible) {
+            toUse = commandSource.getLocale();
+        } else {
+            toUse = this.defaultLocale;
+        }
+
+        return toUse;
     }
 
     @Override public Text getMessageFor(Locale locale, String key) {
@@ -197,15 +243,8 @@ public class MessageProviderService implements IMessageProviderService, IReloada
     }
 
     private PropertiesMessageRepository getPropertiesMessagesRepository(Locale locale) {
-        final Locale toUse;
-        if (this.useClientLocalesWhenPossible) {
-            toUse = locale;
-        } else {
-            toUse = this.defaultLocale;
-        }
-
         return this.messagesMap.computeIfAbsent(locale, key -> {
-            if (getClass().getClassLoader().getResource(MessageFormat.format(MESSAGES_BUNDLE_RESOURCE_LOC, toUse.toLanguageTag())) != null) {
+            if (getClass().getClassLoader().getResource(MessageFormat.format(MESSAGES_BUNDLE_RESOURCE_LOC, locale.toLanguageTag())) != null) {
                 // it exists
                 return new PropertiesMessageRepository(
                         this.serviceCollection.textStyleService(),

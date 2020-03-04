@@ -4,8 +4,10 @@
  */
 package io.github.nucleuspowered.nucleus.api.core;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.api.entity.living.player.User;
 
+import java.util.Locale;
 import java.util.Optional;
 
 public interface NucleusUserPreferenceService {
@@ -37,7 +39,7 @@ public interface NucleusUserPreferenceService {
      * @param value The value to set
      * @param <T> The type of preference this is
      */
-    <T> void setPreferenceFor(User user, PreferenceKey<T> key, T value);
+    <T> void setPreferenceFor(User user, PreferenceKey<T> key, @Nullable T value);
 
     /**
      * Removes a preference associated with a user, reverting it to a default
@@ -127,6 +129,8 @@ public interface NucleusUserPreferenceService {
          * @return The {@link PreferenceKey}, if the module is loaded.
          */
         Optional<PreferenceKey<Boolean>> viewStaffChat();
+
+        Optional<PreferenceKey<Locale>> playerLocale();
     }
 
     /**

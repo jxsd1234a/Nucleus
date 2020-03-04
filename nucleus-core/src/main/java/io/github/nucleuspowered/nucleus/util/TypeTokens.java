@@ -22,6 +22,7 @@ import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -72,4 +73,7 @@ public final class TypeTokens {
     public static final TypeToken<WorldProperties> WORLD_PROPERTIES = TypeToken.of(WorldProperties.class);
 
     public static final TypeToken<Predicate<Entity>> PREDICATE_ENTITY = new TypeToken<Predicate<Entity>>() {};
+
+    public static final TypeToken<Locale> LOCALE = TypeToken.of(Locale.class);
+
 }
