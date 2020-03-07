@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.modules.staffchat.config.StaffChatConfig
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.chatmessageformatter.AbstractNucleusChatChannel;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
@@ -116,7 +117,7 @@ public class StaffChatMessageChannel implements
     private boolean test(Player player) {
         if (this.permissionService.hasPermission(player, StaffChatPermissions.BASE_STAFFCHAT)) {
             return this.userPreferenceService
-                    .getPreferenceFor(player, StaffChatUserPrefKeys.VIEW_STAFF_CHAT)
+                    .getPreferenceFor(player, NucleusKeysProvider.VIEW_STAFF_CHAT)
                     .orElse(true);
         }
 

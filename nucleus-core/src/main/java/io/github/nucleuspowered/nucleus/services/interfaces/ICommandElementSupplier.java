@@ -12,9 +12,12 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.text.Text;
 
 @ImplementedBy(CommandElementSupplier.class)
 public interface ICommandElementSupplier {
+
+    CommandElement createLocaleElement(Text key);
 
     CommandElement createOnlyOtherUserPermissionElement(String permission);
 

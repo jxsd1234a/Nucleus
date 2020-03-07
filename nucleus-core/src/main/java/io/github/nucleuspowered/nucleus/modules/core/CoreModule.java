@@ -37,6 +37,5 @@ public class CoreModule extends ConfigurableModule<CoreConfig, CoreConfigAdapter
 
     @Override public void performPostTasks(INucleusServiceCollection serviceCollection) {
         super.performPostTasks(serviceCollection);
-        this.serviceCollection.userPreferenceService().postInit();
     }
 }

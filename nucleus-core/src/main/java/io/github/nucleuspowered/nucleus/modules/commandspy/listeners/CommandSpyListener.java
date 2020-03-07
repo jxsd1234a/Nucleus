@@ -7,10 +7,10 @@ package io.github.nucleuspowered.nucleus.modules.commandspy.listeners;
 import com.google.common.collect.ImmutableSet;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyPermissions;
-import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.commandspy.config.CommandSpyConfig;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import io.github.nucleuspowered.nucleus.services.interfaces.ITextStyleService;
@@ -66,7 +66,7 @@ public class CommandSpyListener implements IReloadableService.Reloadable, Listen
                     .stream()
                     .filter(x -> !x.getUniqueId().equals(currentUUID))
                     .filter(x -> this.permissionService.hasPermission(x, CommandSpyPermissions.BASE_COMMANDSPY))
-                    .filter(x -> this.userPreferenceService.getUnwrapped(x.getUniqueId(), CommandSpyUserPrefKeys.COMMAND_SPY))
+                    .filter(x -> this.userPreferenceService.getUnwrapped(x.getUniqueId(), NucleusKeysProvider.COMMAND_SPY))
                     .collect(Collectors.toList());
 
                 if (!playerList.isEmpty()) {

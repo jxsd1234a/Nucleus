@@ -5,13 +5,13 @@
 package io.github.nucleuspowered.nucleus.modules.commandspy.commands;
 
 import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyPermissions;
-import io.github.nucleuspowered.nucleus.modules.commandspy.CommandSpyUserPrefKeys;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
@@ -42,8 +42,8 @@ public class CommandSpyCommand implements ICommandExecutor<Player> {
                 context.getOne(NucleusParameters.Keys.BOOL, Boolean.class)
                     .orElseGet(() -> !userPreferenceService.getUnwrapped(
                             uuid,
-                            CommandSpyUserPrefKeys.COMMAND_SPY));
-        userPreferenceService.set(uuid, CommandSpyUserPrefKeys.COMMAND_SPY, to);
+                            NucleusKeysProvider.COMMAND_SPY));
+        userPreferenceService.set(uuid, NucleusKeysProvider.COMMAND_SPY, to);
         // "loc:" indicates to the engine that the text in the key is localisable
         context.sendMessage("command.commandspy.success", to ? "loc:standard.enabled" : "loc:standard.disabled");
 

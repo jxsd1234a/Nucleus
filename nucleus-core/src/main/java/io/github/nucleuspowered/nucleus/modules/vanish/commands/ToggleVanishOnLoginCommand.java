@@ -5,13 +5,13 @@
 package io.github.nucleuspowered.nucleus.modules.vanish.commands;
 
 import io.github.nucleuspowered.nucleus.modules.vanish.VanishPermissions;
-import io.github.nucleuspowered.nucleus.modules.vanish.VanishUserPrefKeys;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
@@ -39,11 +39,11 @@ public class ToggleVanishOnLoginCommand implements ICommandExecutor<Player> {
     @Override public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         IUserPreferenceService ups = context.getServiceCollection().userPreferenceService();
         UUID uuid = context.getIfPlayer().getUniqueId();
-        boolean keys = ups.get(uuid, VanishUserPrefKeys.VANISH_ON_LOGIN).orElse(true);
+        boolean keys = ups.get(uuid, NucleusKeysProvider.VANISH_ON_LOGIN).orElse(true);
 
         // If specified - get the key. Else, the inverse of what we have now.
         boolean toggle = context.getOne(NucleusParameters.Keys.BOOL, Boolean.class).orElse(!keys);
-        ups.set(uuid, VanishUserPrefKeys.VANISH_ON_LOGIN, toggle);
+        ups.set(uuid, NucleusKeysProvider.VANISH_ON_LOGIN, toggle);
 
         context.sendMessage("command.vanishonlogin.toggle", toggle ? "loc:standard.enabled" : "loc:standard.disabled");
         return context.successResult();

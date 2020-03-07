@@ -23,8 +23,10 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-@ModuleData(id = "vanish", name = "Vanish", dependencies = CoreModule.ID)
+@ModuleData(id = VanishModule.ID, name = "Vanish", dependencies = CoreModule.ID)
 public class VanishModule extends ConfigurableModule<VanishConfig, VanishConfigAdapter> {
+
+    public static final String ID = "vanish";
 
     @Inject
     public VanishModule(Supplier<DiscoveryModuleHolder<?, ?>> moduleHolder, INucleusServiceCollection collection) {

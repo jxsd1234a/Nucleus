@@ -12,7 +12,6 @@ import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceServi
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -44,14 +43,14 @@ public class SetNucleusLanguageCommand implements ICommandExecutor<CommandSource
         return new CommandElement[] {
                 serviceCollection.commandElementSupplier()
                     .createOtherUserPermissionElement(false, CorePermissions.OTHERS_SETNUCLEUSLANGUAGE),
-                GenericArguments.string(Text.of(LOCALE_ENTRY))
+                serviceCollection.commandElementSupplier().createLocaleElement(Text.of(LOCALE_ENTRY))
         };
     }
 
     @Override
     public ICommandResult execute(ICommandContext<? extends CommandSource> context) throws CommandException {
         User target = context.getUserFromArgs();
-        Locale locale = Locale.forLanguageTag(context.requireOne(LOCALE_ENTRY, String.class));
+        Locale locale = context.requireOne(LOCALE_ENTRY, Locale.class);
         // This should exist...
         NucleusUserPreferenceService.PreferenceKey<Locale> preferenceKey = this.preferenceService.keys().playerLocale().get();
 

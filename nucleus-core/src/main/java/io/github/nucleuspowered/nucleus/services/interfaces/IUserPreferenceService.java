@@ -21,9 +21,9 @@ import javax.annotation.Nullable;
 @ImplementedBy(UserPreferenceService.class)
 public interface IUserPreferenceService extends NucleusUserPreferenceService {
 
-    CommandElement getElement();
-
     void postInit();
+
+    CommandElement getElement();
 
     void register(PreferenceKeyImpl<?> key);
 

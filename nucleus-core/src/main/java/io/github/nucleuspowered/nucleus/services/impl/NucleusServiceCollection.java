@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.services.impl;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.nucleus.guice.ConfigDirectory;
 import io.github.nucleuspowered.nucleus.guice.DataDirectory;
-import io.github.nucleuspowered.nucleus.services.IInitService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IChatMessageFormatterService;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandElementSupplier;
@@ -33,6 +32,7 @@ import io.github.nucleuspowered.nucleus.services.interfaces.ITextStyleService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserCacheService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IWarmupService;
+import io.github.nucleuspowered.nucleus.util.LazyLoad;
 import org.slf4j.Logger;
 import org.spongepowered.api.plugin.PluginContainer;
 
@@ -90,30 +90,30 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
             Logger logger,
             @DataDirectory Supplier<Path> dataPath,
             @ConfigDirectory Path configPath) {
-        this.messageProviderService = new LazyLoad<>(injector, IMessageProviderService.class);
-        this.economyServiceProvider = new LazyLoad<>(injector, IEconomyServiceProvider.class);
-        this.warmupService = new LazyLoad<>(injector, IWarmupService.class);
-        this.cooldownService = new LazyLoad<>(injector, ICooldownService.class);
-        this.userPreferenceService = new LazyLoad<>(injector, IUserPreferenceService.class);
-        this.permissionCheckService = new LazyLoad<>(injector, IPermissionService.class);
-        this.reloadableService = new LazyLoad<>(injector, IReloadableService.class);
-        this.playerOnlineService = new LazyLoad<>(injector, IPlayerOnlineService.class);
-        this.storageManager = new LazyLoad<>(injector, IStorageManager.class);
-        this.commandMetadataService = new LazyLoad<>(injector, ICommandMetadataService.class);
-        this.playerDisplayNameService = new LazyLoad<>(injector, IPlayerDisplayNameService.class);
-        this.moduleConfigProvider = new LazyLoad<>(injector, IModuleDataProvider.class);
-        this.nucleusTeleportServiceProvider = new LazyLoad<>(injector, INucleusTeleportService.class);
-        this.textStyleServiceProvider = new LazyLoad<>(injector, ITextStyleService.class);
-        this.commandElementSupplierProvider = new LazyLoad<>(injector, ICommandElementSupplier.class);
-        this.nucleusTextTemplateFactoryProvider = new LazyLoad<>(injector, INucleusTextTemplateFactory.class);
-        this.textFileControllerCollectionProvider = new LazyLoad<>(injector, ITextFileControllerCollection.class);
-        this.userCacheServiceProvider = new LazyLoad<>(injector, IUserCacheService.class);
-        this.playerInformationServiceProvider = new LazyLoad<>(injector, IPlayerInformationService.class);
-        this.configurateHelperProvider = new LazyLoad<>(injector, IConfigurateHelper.class);
-        this.platformServiceProvider = new LazyLoad<>(injector, IPlatformService.class);
-        this.compatibilityServiceProvider = new LazyLoad<>(injector, ICompatibilityService.class);
-        this.chatMessageFormatterProvider = new LazyLoad<>(injector, IChatMessageFormatterService.class);
-        this.placeholderServiceProvider = new LazyLoad<>(injector, IPlaceholderService.class);
+        this.messageProviderService = new LazyLoad<>(this, injector, IMessageProviderService.class);
+        this.economyServiceProvider = new LazyLoad<>(this, injector, IEconomyServiceProvider.class);
+        this.warmupService = new LazyLoad<>(this, injector, IWarmupService.class);
+        this.cooldownService = new LazyLoad<>(this, injector, ICooldownService.class);
+        this.userPreferenceService = new LazyLoad<>(this, injector, IUserPreferenceService.class);
+        this.permissionCheckService = new LazyLoad<>(this, injector, IPermissionService.class);
+        this.reloadableService = new LazyLoad<>(this, injector, IReloadableService.class);
+        this.playerOnlineService = new LazyLoad<>(this, injector, IPlayerOnlineService.class);
+        this.storageManager = new LazyLoad<>(this, injector, IStorageManager.class);
+        this.commandMetadataService = new LazyLoad<>(this, injector, ICommandMetadataService.class);
+        this.playerDisplayNameService = new LazyLoad<>(this, injector, IPlayerDisplayNameService.class);
+        this.moduleConfigProvider = new LazyLoad<>(this, injector, IModuleDataProvider.class);
+        this.nucleusTeleportServiceProvider = new LazyLoad<>(this, injector, INucleusTeleportService.class);
+        this.textStyleServiceProvider = new LazyLoad<>(this, injector, ITextStyleService.class);
+        this.commandElementSupplierProvider = new LazyLoad<>(this, injector, ICommandElementSupplier.class);
+        this.nucleusTextTemplateFactoryProvider = new LazyLoad<>(this, injector, INucleusTextTemplateFactory.class);
+        this.textFileControllerCollectionProvider = new LazyLoad<>(this, injector, ITextFileControllerCollection.class);
+        this.userCacheServiceProvider = new LazyLoad<>(this, injector, IUserCacheService.class);
+        this.playerInformationServiceProvider = new LazyLoad<>(this, injector, IPlayerInformationService.class);
+        this.configurateHelperProvider = new LazyLoad<>(this, injector, IConfigurateHelper.class);
+        this.platformServiceProvider = new LazyLoad<>(this, injector, IPlatformService.class);
+        this.compatibilityServiceProvider = new LazyLoad<>(this, injector, ICompatibilityService.class);
+        this.chatMessageFormatterProvider = new LazyLoad<>(this, injector, IChatMessageFormatterService.class);
+        this.placeholderServiceProvider = new LazyLoad<>(this, injector, IPlaceholderService.class);
         this.injector = injector;
         this.pluginContainer = pluginContainer;
         this.logger = logger;
@@ -277,27 +277,6 @@ public class NucleusServiceCollection implements INucleusServiceCollection {
 
     @Override public Supplier<Path> dataDir() {
         return this.dataDir;
-    }
-
-    private class LazyLoad<T> implements Provider<T> {
-        private final Class<T> clazz;
-        private final Injector injector;
-        private T instance;
-
-        LazyLoad(Injector injector, Class<T> clazz) {
-            this.injector = injector;
-            this.clazz = clazz;
-        }
-
-        @Override public T get() {
-            if (this.instance == null) {
-                this.instance = this.injector.getInstance(this.clazz);
-                if (this.instance instanceof IInitService) {
-                    ((IInitService) this.instance).init(NucleusServiceCollection.this);
-                }
-            }
-            return this.instance;
-        }
     }
 
 }

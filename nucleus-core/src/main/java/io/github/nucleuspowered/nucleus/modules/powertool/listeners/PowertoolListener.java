@@ -5,10 +5,10 @@
 package io.github.nucleuspowered.nucleus.modules.powertool.listeners;
 
 import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolPermissions;
-import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolUserPreferenceKeys;
 import io.github.nucleuspowered.nucleus.modules.powertool.services.PowertoolService;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
@@ -59,7 +59,7 @@ public class PowertoolListener implements ListenerBase {
         ItemType item = player.getItemInHand(HandTypes.MAIN_HAND).get().getType();
 
         // If the powertools are toggled on.
-        if (this.userPreferenceService.get(player.getUniqueId(), PowertoolUserPreferenceKeys.POWERTOOL_ENABLED).orElse(true)) {
+        if (this.userPreferenceService.get(player.getUniqueId(), NucleusKeysProvider.POWERTOOL_ENABLED).orElse(true)) {
             // Execute all powertools if they exist.
             this.service.getPowertoolForItem(player.getUniqueId(), item).ifPresent(x -> {
                 // Cancel the interaction.

@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.quickstart.module;
 import com.google.common.collect.ImmutableMap;
 import io.github.nucleuspowered.nucleus.Constants;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
-import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.api.placeholder.PlaceholderParser;
 import io.github.nucleuspowered.nucleus.quickstart.annotation.RequireExistenceOf;
 import io.github.nucleuspowered.nucleus.quickstart.annotation.RequiresPlatform;
@@ -24,12 +23,9 @@ import io.github.nucleuspowered.nucleus.scaffold.task.TaskBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.permission.PermissionMetadata;
 import io.github.nucleuspowered.nucleus.services.impl.playerinformation.NucleusProvider;
-import io.github.nucleuspowered.nucleus.services.impl.userprefs.PreferenceKeyImpl;
-import io.github.nucleuspowered.nucleus.services.impl.userprefs.UserPrefKeys;
 import io.github.nucleuspowered.nucleus.services.interfaces.ICommandMetadataService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
-import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
@@ -361,33 +357,6 @@ public abstract class StandardModule implements Module {
         for (Class<? extends NucleusProvider> r : registries) {
             NucleusProvider instance = getInstance(r);
             this.serviceCollection.playerInformationService().registerProvider(instance);
-        }
-    }
-
-    public final void loadUserPrefKeys() {
-        Set<Class<? extends UserPrefKeys>> keyClasses;
-        if (this.objectTypesToClassListMap != null) {
-            keyClasses = getClassesFromList(Constants.PREF_KEYS);
-        } else {
-            keyClasses = getStreamForModule(UserPrefKeys.class).collect(Collectors.toSet());
-        }
-
-        if (!keyClasses.isEmpty()) {
-            // Get the User Preference Service
-            IUserPreferenceService ups = this.serviceCollection.userPreferenceService();
-            for (Class<? extends UserPrefKeys> r : keyClasses) {
-                // These will contain static fields.
-                Arrays.stream(r.getFields())
-                        .filter(x -> Modifier.isStatic(x.getModifiers()) && NucleusUserPreferenceService.PreferenceKey.class.isAssignableFrom(x.getType()))
-                        .forEach(x -> {
-                            try {
-                                PreferenceKeyImpl<?> key = (PreferenceKeyImpl<?>) x.get(null);
-                                ups.register(key);
-                            } catch (IllegalAccessException e) {
-                                this.serviceCollection.logger().error("Could not register " + x.getName() + " in the User Preference Service", e);
-                            }
-                        });
-            }
         }
     }
 

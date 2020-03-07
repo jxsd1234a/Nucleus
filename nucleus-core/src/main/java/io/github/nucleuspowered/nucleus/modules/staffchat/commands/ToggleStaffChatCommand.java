@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.staffchat.commands;
 
 import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatPermissions;
-import io.github.nucleuspowered.nucleus.modules.staffchat.StaffChatUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.staffchat.services.StaffChatService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
@@ -13,6 +12,7 @@ import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
@@ -39,8 +39,8 @@ public class ToggleStaffChatCommand implements ICommandExecutor<Player> {
         final Player src = context.getIfPlayer();
         boolean result =
                 context.getOne(NucleusParameters.Keys.BOOL, Boolean.class).orElseGet(() ->
-                    ups.getPreferenceFor(src, StaffChatUserPrefKeys.VIEW_STAFF_CHAT).orElse(true));
-        ups.setPreferenceFor(src, StaffChatUserPrefKeys.VIEW_STAFF_CHAT, !result);
+                    ups.getPreferenceFor(src, NucleusKeysProvider.VIEW_STAFF_CHAT).orElse(true));
+        ups.setPreferenceFor(src, NucleusKeysProvider.VIEW_STAFF_CHAT, !result);
         StaffChatService service = context.getServiceCollection().getServiceUnchecked(StaffChatService.class);
 
         if (!result && service.isToggledChat(src)) {

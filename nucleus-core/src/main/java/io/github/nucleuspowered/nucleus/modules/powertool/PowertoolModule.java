@@ -14,8 +14,10 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-@ModuleData(id = "powertool", name = "Powertool", dependencies = CoreModule.ID)
+@ModuleData(id = PowertoolModule.ID, name = "Powertool", dependencies = CoreModule.ID)
 public class PowertoolModule extends StandardModule {
+
+    public static final String ID = "powertool";
 
     @Inject
     public PowertoolModule(Supplier<DiscoveryModuleHolder<?, ?>> moduleHolder, INucleusServiceCollection collection) {

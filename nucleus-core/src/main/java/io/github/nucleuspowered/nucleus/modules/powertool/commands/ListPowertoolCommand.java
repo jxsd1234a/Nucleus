@@ -6,12 +6,12 @@ package io.github.nucleuspowered.nucleus.modules.powertool.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolPermissions;
-import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolUserPreferenceKeys;
 import io.github.nucleuspowered.nucleus.modules.powertool.services.PowertoolService;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
@@ -41,7 +41,7 @@ public class ListPowertoolCommand implements ICommandExecutor<Player> {
     @Override public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         UUID uuid = context.getUniqueId().get();
         boolean toggle = context.getServiceCollection().userPreferenceService()
-                .getUnwrapped(uuid, PowertoolUserPreferenceKeys.POWERTOOL_ENABLED);
+                .getUnwrapped(uuid, NucleusKeysProvider.POWERTOOL_ENABLED);
 
         PowertoolService service = context.getServiceCollection().getServiceUnchecked(PowertoolService.class);
         Map<String, List<String>> powertools = service.getPowertools(uuid);

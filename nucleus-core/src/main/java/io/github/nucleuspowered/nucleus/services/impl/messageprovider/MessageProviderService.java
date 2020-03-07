@@ -7,6 +7,8 @@ package io.github.nucleuspowered.nucleus.services.impl.messageprovider;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.guice.ConfigDirectory;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
@@ -22,14 +24,18 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.translation.locale.Locales;
 
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.CheckForNull;
@@ -40,9 +46,23 @@ import javax.inject.Singleton;
 @Singleton
 public class MessageProviderService implements IMessageProviderService, IReloadableService.Reloadable {
 
+    private static final String LANGUAGE_KEY_PREFIX = "language.";
     private static final String MESSAGES_BUNDLE = "assets.nucleus.messages";
 
-    private static final String MESSAGES_BUNDLE_RESOURCE_LOC = "/assets/nucleus/messages.properties.{0}";
+    private static final String MESSAGES_BUNDLE_RESOURCE_LOC = "messages_{0}.properties";
+
+    private static final Set<Locale> KNOWN_LOCALES = ImmutableSet.<Locale>builder()
+            .add(Locale.UK)
+            .add(Locale.FRANCE)
+            .add(Locale.GERMANY)
+            .add(Locales.ES_ES)
+            .add(Locale.ITALY)
+            .add(Locales.PT_BR)
+            .add(Locale.SIMPLIFIED_CHINESE)
+            .add(Locale.TRADITIONAL_CHINESE)
+            .add(Locales.RU_RU)
+            .build();
+    private static final Map<String, Locale> LOCALES = new HashMap<>();
 
     private final INucleusServiceCollection serviceCollection;
     private final IUserPreferenceService userPreferenceService;
@@ -93,6 +113,28 @@ public class MessageProviderService implements IMessageProviderService, IReloada
     @Override
     public Locale getDefaultLocale() {
         return this.defaultLocale;
+    }
+
+    @Override
+    public Optional<Locale> getLocaleFromName(String l) {
+        if (LOCALES.isEmpty()) {
+            // for each locale, get the language name
+            for (final Locale locale : KNOWN_LOCALES) {
+                for (final Locale innerLocale : KNOWN_LOCALES) {
+                    String key = LANGUAGE_KEY_PREFIX + innerLocale.toString().toLowerCase(Locale.ENGLISH);
+                    String name =
+                            getPropertiesMessagesRepository(locale)
+                                    .getString(key)
+                                    .toLowerCase(Locale.ENGLISH);
+                    if (!LOCALES.containsKey(name)) {
+                        LOCALES.put(name, innerLocale);
+                    }
+                }
+                LOCALES.put(locale.toString().toLowerCase(Locale.ENGLISH), locale);
+            }
+        }
+
+        return Optional.ofNullable(LOCALES.get(l.toLowerCase(Locale.ENGLISH)));
     }
 
     @Override
@@ -157,7 +199,7 @@ public class MessageProviderService implements IMessageProviderService, IReloada
         CoreConfig coreConfig = serviceCollection.moduleDataProvider().getModuleConfig(CoreConfig.class);
         this.useMessagesFile = coreConfig.isCustommessages();
         this.useClientLocalesWhenPossible = coreConfig.isClientLocaleWhenPossible();
-        this.defaultLocale = Locale.forLanguageTag(coreConfig.getServerLocale());
+        this.defaultLocale = Locale.forLanguageTag(coreConfig.getServerLocale().replace("_", "-"));
         this.serviceCollection.logger().info(getMessageString("language.set", this.defaultLocale.toLanguageTag()));
         reloadMessageFile();
     }
@@ -236,6 +278,11 @@ public class MessageProviderService implements IMessageProviderService, IReloada
         }
     }
 
+    @Override
+    public List<String> getAllLocaleNames() {
+        return ImmutableList.copyOf(LOCALES.keySet());
+    }
+
     private void appendComma(StringBuilder stringBuilder) {
         if (stringBuilder.length() > 0) {
             stringBuilder.append(", ");
@@ -244,7 +291,9 @@ public class MessageProviderService implements IMessageProviderService, IReloada
 
     private PropertiesMessageRepository getPropertiesMessagesRepository(Locale locale) {
         return this.messagesMap.computeIfAbsent(locale, key -> {
-            if (getClass().getClassLoader().getResource(MessageFormat.format(MESSAGES_BUNDLE_RESOURCE_LOC, locale.toLanguageTag())) != null) {
+            if (Sponge.getAssetManager().getAsset(
+                    this.serviceCollection.pluginContainer(),
+                    MessageFormat.format(MESSAGES_BUNDLE_RESOURCE_LOC, locale.toString())).isPresent()) {
                 // it exists
                 return new PropertiesMessageRepository(
                         this.serviceCollection.textStyleService(),

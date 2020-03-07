@@ -5,13 +5,13 @@
 package io.github.nucleuspowered.nucleus.modules.powertool.commands;
 
 import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolPermissions;
-import io.github.nucleuspowered.nucleus.modules.powertool.PowertoolUserPreferenceKeys;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.scaffold.command.annotation.Command;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.CommandElement;
@@ -36,11 +36,11 @@ public class TogglePowertoolCommand implements ICommandExecutor<Player> {
     @Override public ICommandResult execute(ICommandContext<? extends Player> context) throws CommandException {
         Player src = context.getCommandSourceUnchecked();
         IUserPreferenceService ups = context.getServiceCollection().userPreferenceService();
-        boolean keys = ups.get(src.getUniqueId(), PowertoolUserPreferenceKeys.POWERTOOL_ENABLED).orElse(true);
+        boolean keys = ups.get(src.getUniqueId(), NucleusKeysProvider.POWERTOOL_ENABLED).orElse(true);
 
         // If specified - get the key. Else, the inverse of what we have now.
         boolean toggle = context.getOne(NucleusParameters.Keys.BOOL, Boolean.class).orElse(!keys);
-        ups.set(src.getUniqueId(), PowertoolUserPreferenceKeys.POWERTOOL_ENABLED, toggle);
+        ups.set(src.getUniqueId(), NucleusKeysProvider.POWERTOOL_ENABLED, toggle);
 
         context.sendMessage("command.powertool.toggle", context.getMessage(toggle ? "standard.enabled" : "standard.disabled"));
         return context.successResult();

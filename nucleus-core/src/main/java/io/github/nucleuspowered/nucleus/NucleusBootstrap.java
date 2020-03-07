@@ -346,7 +346,6 @@ public class NucleusBootstrap {
                                 holder -> this.serviceCollection.commandMetadataService().completeRegistrationPhase(this.serviceCollection))
                             .createEnablePhase("events", (module, holder) -> module.loadEvents())
                             .createEnablePhase("runnables", (module, holder) -> module.loadRunnables())
-                            .createEnablePhase("prefKeys", (module, holder) -> module.loadUserPrefKeys())
                             .createEnablePhase("infoproviders", (module, holder) -> module.loadInfoProviders())
                             .createEnablePhase("enableTasks", (module, holder) -> module.performEnableTasks(this.serviceCollection))
                             .createPreEnablePhase("postenable", holder -> Sponge.getEventManager().post(new BaseModuleEvent.Enabled(this)))
@@ -437,6 +436,7 @@ public class NucleusBootstrap {
             if (coreConfig.isErrorOnStartup()) {
                 throw new IllegalStateException("In main.conf, core.simulate-error-on-startup is set to TRUE. Remove this config entry to allow Nucleus to start. Simulating error and disabling Nucleus.");
             }
+            this.serviceCollection.userPreferenceService().postInit();
         } catch (Throwable construction) {
             this.logger.info(messageProvider.getMessageString("startup.modulenotloaded", NucleusPluginInfo.NAME));
             construction.printStackTrace();

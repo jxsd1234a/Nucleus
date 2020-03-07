@@ -6,10 +6,10 @@ package io.github.nucleuspowered.nucleus.modules.message.infoprovider;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.modules.message.MessagePermissions;
-import io.github.nucleuspowered.nucleus.modules.message.MessageUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.message.services.MessageHandler;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.playerinformation.NucleusProvider;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.User;
@@ -31,7 +31,7 @@ public class MessageInfoProvider implements NucleusProvider {
             MessageHandler handler = serviceCollection.getServiceUnchecked(MessageHandler.class);
             boolean socialSpy = handler.isSocialSpy(user);
             boolean msgToggle = serviceCollection.userPreferenceService()
-                    .getUnwrapped(user.getUniqueId(), MessageUserPrefKeys.RECEIVING_MESSAGES);
+                    .getUnwrapped(user.getUniqueId(), NucleusKeysProvider.RECEIVING_MESSAGES);
             IMessageProviderService mp = serviceCollection.messageProvider();
             List<Text> lt = Lists.newArrayList(
                     mp.getMessageFor(source, "seen.socialspy",

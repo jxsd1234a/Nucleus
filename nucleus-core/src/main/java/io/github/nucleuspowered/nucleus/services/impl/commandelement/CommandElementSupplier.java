@@ -17,6 +17,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
 
@@ -32,7 +33,13 @@ public class CommandElementSupplier implements ICommandElementSupplier {
         this.permissionService = serviceCollection.permissionService();
     }
 
-    @Override public CommandElement createOnlyOtherUserPermissionElement(String permission) {
+    @Override
+    public CommandElement createLocaleElement(Text key) {
+        return new LocaleElement(key, this.serviceCollection);
+    }
+
+    @Override
+    public CommandElement createOnlyOtherUserPermissionElement(String permission) {
         return GenericArguments.optional(
                 new NucleusRequirePermissionArgument(
                         NucleusParameters.ONE_USER.get(this.serviceCollection),

@@ -17,8 +17,10 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-@ModuleData(id = "teleport", name = "Teleport", dependencies = CoreModule.ID)
+@ModuleData(id = TeleportModule.ID, name = "Teleport", dependencies = CoreModule.ID)
 public class TeleportModule extends ConfigurableModule<TeleportConfig, TeleportConfigAdapter> {
+
+    public static final String ID = "teleport";
 
     @Inject
     public TeleportModule(Supplier<DiscoveryModuleHolder<?, ?>> moduleHolder, INucleusServiceCollection collection) {

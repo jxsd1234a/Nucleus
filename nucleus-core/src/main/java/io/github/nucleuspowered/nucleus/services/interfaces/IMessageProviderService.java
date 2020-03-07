@@ -17,7 +17,9 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -29,6 +31,8 @@ public interface IMessageProviderService {
     Locale getDefaultLocale();
 
     void invalidateLocaleCacheFor(UUID uuid);
+
+    Optional<Locale> getLocaleFromName(String name);
 
     Locale getLocaleFor(CommandSource commandSource);
 
@@ -135,4 +139,5 @@ public interface IMessageProviderService {
 
     String getTimeString(Locale locale, long time);
 
+    List<String> getAllLocaleNames();
 }

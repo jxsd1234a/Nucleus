@@ -6,11 +6,11 @@ package io.github.nucleuspowered.nucleus.modules.vanish.listener;
 
 import io.github.nucleuspowered.nucleus.modules.vanish.VanishKeys;
 import io.github.nucleuspowered.nucleus.modules.vanish.VanishPermissions;
-import io.github.nucleuspowered.nucleus.modules.vanish.VanishUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfig;
 import io.github.nucleuspowered.nucleus.modules.vanish.services.VanishService;
 import io.github.nucleuspowered.nucleus.scaffold.listener.ListenerBase;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
@@ -77,7 +77,7 @@ public class VanishListener implements IReloadableService.Reloadable, ListenerBa
         boolean persist = this.service.isVanished(player);
 
         boolean shouldVanish = (this.permissionService.hasPermission(player, VanishPermissions.VANISH_ONLOGIN)
-                && this.userPreferenceService.get(player.getUniqueId(), VanishUserPrefKeys.VANISH_ON_LOGIN).orElse(false))
+                && this.userPreferenceService.get(player.getUniqueId(), NucleusKeysProvider.VANISH_ON_LOGIN).orElse(false))
                 || persist;
 
         if (shouldVanish) {

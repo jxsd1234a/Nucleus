@@ -10,13 +10,13 @@ import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.module.message.NucleusPrivateMessagingService;
 import io.github.nucleuspowered.nucleus.modules.message.MessagePermissions;
-import io.github.nucleuspowered.nucleus.modules.message.MessageUserPrefKeys;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfig;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusMessageEvent;
 import io.github.nucleuspowered.nucleus.scaffold.service.ServiceBase;
 import io.github.nucleuspowered.nucleus.scaffold.service.annotations.APIService;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.impl.texttemplatefactory.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.services.impl.userprefs.NucleusKeysProvider;
 import io.github.nucleuspowered.nucleus.services.interfaces.INucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerDisplayNameService;
@@ -80,7 +80,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
     public boolean isSocialSpy(User user) {
         Tristate ts = forcedSocialSpyState(user);
         if (ts == Tristate.UNDEFINED) {
-            return this.serviceCollection.userPreferenceService().getUnwrapped(user.getUniqueId(), MessageUserPrefKeys.SOCIAL_SPY);
+            return this.serviceCollection.userPreferenceService().getUnwrapped(user.getUniqueId(), NucleusKeysProvider.SOCIAL_SPY);
         }
 
         return ts.asBoolean();
@@ -126,7 +126,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
             return false;
         }
 
-        this.serviceCollection.userPreferenceService().set(user.getUniqueId(), MessageUserPrefKeys.SOCIAL_SPY, isSocialSpy);
+        this.serviceCollection.userPreferenceService().set(user.getUniqueId(), NucleusKeysProvider.SOCIAL_SPY, isSocialSpy);
         return true;
     }
 
@@ -213,7 +213,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, IReloadab
         IUserPreferenceService userPreferenceService = this.serviceCollection.userPreferenceService();
         // Cancel message if the reciever has message toggle false
         if (receiver instanceof Player && !this.serviceCollection.permissionService().hasPermission(sender, MessagePermissions.MSGTOGGLE_BYPASS) &&
-                !userPreferenceService.getUnwrapped(((Player) receiver).getUniqueId(), MessageUserPrefKeys.RECEIVING_MESSAGES)) {
+                !userPreferenceService.getUnwrapped(((Player) receiver).getUniqueId(), NucleusKeysProvider.RECEIVING_MESSAGES)) {
 
             isCancelled = true;
             isBlocked = true;

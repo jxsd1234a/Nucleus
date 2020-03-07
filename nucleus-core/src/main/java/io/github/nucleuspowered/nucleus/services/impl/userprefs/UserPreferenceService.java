@@ -11,6 +11,7 @@ import io.github.nucleuspowered.nucleus.api.core.NucleusUserPreferenceService;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IUserPreferenceService;
+import io.github.nucleuspowered.nucleus.util.LazyLoadFunction;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
 import org.spongepowered.api.command.args.CommandArgs;
@@ -21,9 +22,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import javax.annotation.Nullable;
 @Singleton
 public class UserPreferenceService implements IUserPreferenceService {
 
-    private final NucleusKeysProvider provider = new NucleusKeysProvider();
+    private final NucleusKeysProvider provider;
 
     private final Map<String, NucleusUserPreferenceService.PreferenceKey<?>> registered = new HashMap<>();
     private final Element element;
@@ -45,32 +46,19 @@ public class UserPreferenceService implements IUserPreferenceService {
     private final INucleusServiceCollection serviceCollection;
 
     @Inject
-    public UserPreferenceService(
-            INucleusServiceCollection serviceCollection) {
+    public UserPreferenceService(INucleusServiceCollection serviceCollection) {
         this.serviceCollection = serviceCollection;
         this.element = new Element(serviceCollection);
+        this.provider = new NucleusKeysProvider(serviceCollection);
+    }
+
+    @Override
+    public void postInit() {
+        this.provider.getAll().forEach(x -> register((PreferenceKeyImpl<?>) x));
     }
 
     @Override public CommandElement getElement() {
         return this.element;
-    }
-
-    @Override public void postInit() {
-        // Get fields
-        Arrays.stream(NucleusKeysProvider.class.getDeclaredFields())
-                .filter(x -> x.isAnnotationPresent(TargetID.class))
-                .forEach(field -> {
-                    TargetID id = field.getAnnotation(TargetID.class);
-                    NucleusUserPreferenceService.PreferenceKey<?> key = this.registered.get(id.value());
-                    if (key != null) {
-                        try {
-                            field.setAccessible(true);
-                            field.set(this.provider, key);
-                        } catch (IllegalAccessException e) {
-                            this.serviceCollection.logger().error("Could not set " + id.value() + " in the User Preference Service", e);
-                        }
-                    }
-                });
     }
 
     @Override public void register(PreferenceKeyImpl<?> key) {
@@ -82,7 +70,9 @@ public class UserPreferenceService implements IUserPreferenceService {
         this.element.keys.put(key.getID().toLowerCase(), key);
     }
 
-    @Override public <T> void set(UUID uuid, NucleusUserPreferenceService.PreferenceKey<T> key, @Nullable T value) {
+    @SuppressWarnings("rawtypes")
+    @Override
+    public <T> void set(UUID uuid, NucleusUserPreferenceService.PreferenceKey<T> key, @Nullable T value) {
         PreferenceKeyImpl pki;
         if (Objects.requireNonNull(key) instanceof PreferenceKeyImpl) {
             pki = (PreferenceKeyImpl) key;
@@ -91,6 +81,7 @@ public class UserPreferenceService implements IUserPreferenceService {
         }
 
         set(uuid, pki, value);
+        ((PreferenceKeyImpl<T>) key).onSet(this.serviceCollection, uuid, value);
     }
 
     @Override public <T> void set(UUID uuid, PreferenceKeyImpl<T> key, @Nullable T value) {
@@ -173,14 +164,15 @@ public class UserPreferenceService implements IUserPreferenceService {
         private final INucleusServiceCollection serviceCollection;
 
         private enum Type {
-            BOOLEAN(GenericArguments.bool(VALUE_ARG)),
-            DOUBLE(GenericArguments.doubleNum(VALUE_ARG)),
-            INTEGER(GenericArguments.integer(VALUE_ARG)),
-            STRING(GenericArguments.remainingRawJoinedStrings(VALUE_ARG));
+            BOOLEAN(new LazyLoadFunction<>(s -> GenericArguments.bool(VALUE_ARG))),
+            DOUBLE(new LazyLoadFunction<>(s -> GenericArguments.doubleNum(VALUE_ARG))),
+            INTEGER(new LazyLoadFunction<>(s -> GenericArguments.integer(VALUE_ARG))),
+            STRING(new LazyLoadFunction<>(s -> GenericArguments.remainingRawJoinedStrings(VALUE_ARG))),
+            LOCALE(new LazyLoadFunction<>(s -> s.commandElementSupplier().createLocaleElement(VALUE_ARG)));
 
-            final CommandElement element;
+            final LazyLoadFunction<INucleusServiceCollection, CommandElement> element;
 
-            Type(CommandElement element) {
+            Type(LazyLoadFunction<INucleusServiceCollection, CommandElement> element) {
                 this.element = element;
             }
         }
@@ -202,7 +194,7 @@ public class UserPreferenceService implements IUserPreferenceService {
             Type type = parseFirst(source, args, context, next);
 
             if (args.hasNext()) {
-                type.element.parse(source, args, context);
+                type.element.apply(this.serviceCollection).parse(source, args, context);
             }
         }
 
@@ -219,6 +211,8 @@ public class UserPreferenceService implements IUserPreferenceService {
                     type = Type.DOUBLE;
                 } else if (cls == String.class) {
                     type = Type.STRING;
+                } else if (cls == Locale.class) {
+                    type = Type.LOCALE;
                 }
 
                 if (type != null) {
@@ -276,7 +270,7 @@ public class UserPreferenceService implements IUserPreferenceService {
                             .map(Map.Entry::getKey)
                             .collect(Collectors.toList());
                 } else {
-                    return parseFirst(src, args, context, arg1).element.complete(src, args, context);
+                    return parseFirst(src, args, context, arg1).element.apply(this.serviceCollection).complete(src, args, context);
                 }
             } catch (ArgumentParseException e) {
                 return ImmutableList.of();
