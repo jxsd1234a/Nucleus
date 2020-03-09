@@ -8,6 +8,7 @@ import com.flowpowered.math.vector.Vector3d;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class OfflineLocation {
             return Optional.empty();
         }
 
-        return Sponge.getServer().getWorld(this.lastWorld)
+        return Sponge.getServer().loadWorld(this.lastWorld)
                 .map(world -> new Transform<>(world, this.lastPosition, this.lastRotation));
     }
 
