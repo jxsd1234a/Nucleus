@@ -36,6 +36,10 @@ public class UUIDTransform {
         return Sponge.getServer().getWorld(this.world);
     }
 
+    public Optional<World> loadWorld() {
+        return Sponge.getServer().loadWorld(this.world);
+    }
+
     public UUID getWorldUUID() {
         return this.world;
     }
@@ -50,6 +54,10 @@ public class UUIDTransform {
 
     public Optional<Transform<World>> getTransform() {
         return getWorld().map(x -> new Transform<>(x, this.position, this.rotation));
+    }
+
+    public Optional<Transform<World>> loadTransform() {
+        return loadWorld().map(x -> new Transform<>(x, this.position, this.rotation));
     }
 
 }

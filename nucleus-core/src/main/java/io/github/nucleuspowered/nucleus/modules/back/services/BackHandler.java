@@ -29,7 +29,7 @@ public class BackHandler implements NucleusBackService, ServiceBase {
     public Optional<Transform<World>> getLastLocation(User user) {
         UUIDTransform transform = this.lastLocation.get(user.getUniqueId());
         if (transform != null) {
-            return transform.getTransform();
+            return transform.loadTransform();
         }
 
         return Optional.empty();
