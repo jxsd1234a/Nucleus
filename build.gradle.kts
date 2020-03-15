@@ -67,8 +67,8 @@ val versionString: String = if (nucSuffix == null) {
 }
 version = versionString
 
-project(":nucleus-api").version = version
-project(":nucleus-core").version = version
+project(":nucleus-api").version = versionString
+project(":nucleus-core").version = versionString
 
 group = "io.github.nucleuspowered"
 

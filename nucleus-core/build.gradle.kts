@@ -69,7 +69,7 @@ tasks {
 blossom {
     replaceTokenIn("src/main/java/io/github/nucleuspowered/nucleus/NucleusPluginInfo.java")
     replaceToken("@name@", rootProject.name)
-    replaceToken("@version@", rootProject.properties["nucleusVersion"])
+    replaceToken("@version@", version)
 
     replaceToken("@description@", rootProject.properties["description"])
     replaceToken("@url@", rootProject.properties["url"])
