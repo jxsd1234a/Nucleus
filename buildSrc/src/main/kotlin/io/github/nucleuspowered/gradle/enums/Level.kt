@@ -4,9 +4,9 @@
  */
 package io.github.nucleuspowered.gradle.enums
 
-fun getLevel(version: String): Level {
+fun getLevel(version: String, suffix: String?): Level {
     for (level in Level.values()) {
-        if (level.selectionCriteria(version)) {
+        if (level.selectionCriteria(version, suffix)) {
             return level
         }
     }
@@ -15,11 +15,11 @@ fun getLevel(version: String): Level {
     return Level.SNAPSHOT
 }
 
-enum class Level(val selectionCriteria: (String) -> Boolean, val template: String, val isNotUnique: Boolean) {
-    SNAPSHOT( { version -> version.endsWith("SNAPSHOT") } , "snapshot", true),
-    ALPHA( { version -> version.contains("ALPHA") }, "alpha", false),
-    BETA( { version -> version.contains("BETA") }, "beta", false),
-    RELEASE_CANDIDATE( { version -> version.contains("RC") } , "rc", false),
-    RELEASE_MAJOR( { version -> version.endsWith(".0") } , "release-big", false),
-    RELEASE_MINOR( { true }, "release", false);
+enum class Level(val selectionCriteria: (String, String?) -> Boolean, val template: String, val isNotUnique: Boolean) {
+    SNAPSHOT( { _, suffix -> suffix != null && suffix.endsWith("SNAPSHOT") } , "snapshot", true),
+    ALPHA( { _, suffix -> suffix != null && suffix.contains("ALPHA") }, "alpha", false),
+    BETA( { _, suffix -> suffix != null && suffix.contains("BETA") }, "beta", false),
+    RELEASE_CANDIDATE( { _, suffix -> suffix != null && suffix.contains("RC") } , "rc", false),
+    RELEASE_MAJOR( { version, _ -> version.endsWith(".0") } , "release-big", false),
+    RELEASE_MINOR( { _, _ -> true }, "release", false);
 }

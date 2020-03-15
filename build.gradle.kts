@@ -55,12 +55,17 @@ fun getGitCommit() : String {
 extra["gitHash"] = getGitCommit()
 
 // Get the Level
-var level = getLevel(project.properties["nucleusVersion"]?.toString()!!)
+val nucVersion = project.properties["nucleusVersion"]?.toString()!!
+val nucSuffix : String? = project.properties["nucleusVersionSuffix"]?.toString()
 
-val nucVersion = project.properties["nucleusVersion"];
+var level = getLevel(nucVersion, nucSuffix)
 val spongeVersion = project.properties["declaredApiVersion"]
-version = "$nucVersion-S$spongeVersion"
-val versionString: String = "$nucVersion-S$spongeVersion"
+val versionString: String = if (nucSuffix == null) {
+    "$nucVersion-S$spongeVersion"
+} else {
+    "$nucVersion-S$spongeVersion-$nucSuffix"
+}
+version = versionString
 
 project(":nucleus-api").version = version
 project(":nucleus-core").version = version
