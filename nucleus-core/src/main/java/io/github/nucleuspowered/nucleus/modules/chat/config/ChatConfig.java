@@ -59,15 +59,11 @@ public class ChatConfig {
         return this.templates.isUseGroupTemplates();
     }
 
-    public boolean isCheckPermissionGroups() {
-        return this.templates.isCheckPermissionGroups();
-    }
-
     public ChatTemplateConfig getDefaultTemplate() {
         return this.templates.getDefaultTemplate();
     }
 
-    public Map<String, WeightedChatTemplateConfig> getGroupTemplates() {
+    public Map<String, ChatTemplateConfig> getGroupTemplates() {
         return ImmutableMap.copyOf(this.templates.getGroupTemplates());
     }
 

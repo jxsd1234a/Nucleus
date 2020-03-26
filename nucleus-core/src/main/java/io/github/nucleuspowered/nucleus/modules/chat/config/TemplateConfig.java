@@ -17,24 +17,21 @@ public class TemplateConfig {
     @Setting(value = "use-group-templates", comment = "config.chat.useGroupTemplates")
     private boolean useGroupTemplates = true;
 
-    @Setting(value = "check-permission-groups", comment = "config.chat.check-permission-groups")
-    private boolean checkPermissionGroups = true;
-
     @Setting(value = "default", comment = "config.chat.default-template")
     private ChatTemplateConfig defaultTemplate = new ChatTemplateConfig();
 
     @NoMergeIfPresent
     @Setting(value = "group-templates", comment = "config.chat.group-templates")
-    private Map<String, WeightedChatTemplateConfig> groupTemplates = new HashMap<String, WeightedChatTemplateConfig>() {{
+    private Map<String, ChatTemplateConfig> groupTemplates = new HashMap<String, ChatTemplateConfig>() {{
         // We don't want this affecting the default group, but we need an example.
-        put("DefaultTemplate", new WeightedChatTemplateConfig());
+        put("DefaultTemplate", new ChatTemplateConfig());
     }};
 
     public ChatTemplateConfig getDefaultTemplate() {
         return this.defaultTemplate;
     }
 
-    public Map<String, WeightedChatTemplateConfig> getGroupTemplates() {
+    public Map<String, ChatTemplateConfig> getGroupTemplates() {
         return this.groupTemplates;
     }
 
@@ -42,7 +39,4 @@ public class TemplateConfig {
         return this.useGroupTemplates;
     }
 
-    public boolean isCheckPermissionGroups() {
-        return this.checkPermissionGroups;
-    }
 }
