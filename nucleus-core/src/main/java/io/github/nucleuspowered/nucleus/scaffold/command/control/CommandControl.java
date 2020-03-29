@@ -507,7 +507,9 @@ public class CommandControl implements CommandCallable {
         } else if (args.size() > 1) {
             CommandArgs.Snapshot state = args.getSnapshot();
             CommandCallable callable = this.subcommands.get(args.peek().toLowerCase());
-            options.addAll(callable.getSuggestions(source, arguments.split(" ")[1], targetPosition));
+            String[] splitArgs = arguments.split(" ", 2);
+            String targetArg = splitArgs.length == 1 ? "" : splitArgs[1];
+            options.addAll(callable.getSuggestions(source, targetArg, targetPosition));
             args.applySnapshot(state);
         }
 
