@@ -53,7 +53,7 @@ public class ConnectionListener implements IReloadableService.Reloadable, Listen
         }
 
         if (Sponge.getServer().hasWhitelist()
-            && Sponge.getServiceManager().provideUnchecked(WhitelistService.class).isWhitelisted(user.getProfile())) {
+            && !Sponge.getServiceManager().provideUnchecked(WhitelistService.class).isWhitelisted(user.getProfile())) {
             if (this.whitelistMessage != null) {
                 event.setMessage(this.whitelistMessage);
                 event.setMessageCancelled(false);
