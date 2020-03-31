@@ -22,6 +22,7 @@ import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.ban.BanService;
+import org.spongepowered.api.service.whitelist.WhitelistService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Tristate;
 
@@ -51,7 +52,8 @@ public class ConnectionListener implements Reloadable, ListenerBase {
             return;
         }
 
-        if (Sponge.getServer().hasWhitelist()) {
+        if (Sponge.getServer().hasWhitelist() &&
+                !Sponge.getServiceManager().provideUnchecked(WhitelistService.class).isWhitelisted(user.getProfile())) {
             if (this.whitelistMessage != null) {
                 event.setMessage(this.whitelistMessage);
                 event.setMessageCancelled(false);
