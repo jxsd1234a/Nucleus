@@ -19,6 +19,8 @@ import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEv
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.HashMap;
@@ -31,10 +33,12 @@ public class ExperienceListener implements ListenerBase {
 
     private final IPermissionService permissionService;
     private final Map<UUID, Integer> deadExpPlayers = new HashMap<>();
+    private final PluginContainer pluginContainer;
 
     @Inject
     public ExperienceListener(INucleusServiceCollection serviceCollection) {
         this.permissionService = serviceCollection.permissionService();
+        this.pluginContainer = serviceCollection.pluginContainer();
     }
 
     // We check the tristate as we have three potential behaviours:
@@ -72,7 +76,8 @@ public class ExperienceListener implements ListenerBase {
 
     private void applyExperience(Player player) {
         if (this.deadExpPlayers.containsKey(player.getUniqueId())) {
-            player.offer(Keys.TOTAL_EXPERIENCE, this.deadExpPlayers.get(player.getUniqueId()));
+            int exp = this.deadExpPlayers.get(player.getUniqueId());
+            Task.builder().delayTicks(1).execute(() -> player.offer(Keys.TOTAL_EXPERIENCE, exp)).submit(this.pluginContainer);
             this.deadExpPlayers.remove(player.getUniqueId());
         }
     }
