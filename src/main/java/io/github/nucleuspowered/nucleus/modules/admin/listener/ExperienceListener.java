@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.listener;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.interfaces.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -78,7 +79,7 @@ public class ExperienceListener implements ListenerBase {
         if (this.deadExpPlayers.containsKey(player.getUniqueId())) {
             final int e = this.deadExpPlayers.get(player.getUniqueId());
             //player.offer(Keys.TOTAL_EXPERIENCE, e);
-            Task.builder().delayTicks(1).execute(() -> player.offer(Keys.TOTAL_EXPERIENCE, e));
+            Task.builder().delayTicks(1).execute(() -> player.offer(Keys.TOTAL_EXPERIENCE, e)).submit(Nucleus.getNucleus());
             this.deadExpPlayers.remove(player.getUniqueId());
         }
     }
