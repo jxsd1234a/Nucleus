@@ -2,7 +2,7 @@
  * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
  * at the root of this project for more details.
  */
-package io.github.nucleuspowered.nucleus.modules.admin.parameter;
+package io.github.nucleuspowered.nucleus.modules.experience.parameter;
 
 import com.google.common.collect.ImmutableList;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 public class ExperienceLevelArgument extends CommandElement {
 
-    private final Pattern argumentPattern = Pattern.compile("^(l|lv|l:|lv:)?(\\d+)(l|lv)?$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ARGUMENT_PATTERN = Pattern.compile("^(l|lv|l:|lv:)?(\\d+)(l|lv)?$", Pattern.CASE_INSENSITIVE);
     private final IMessageProviderService messageProviderService;
 
     public ExperienceLevelArgument(@Nullable Text key, INucleusServiceCollection serviceCollection) {
@@ -39,8 +39,8 @@ public class ExperienceLevelArgument extends CommandElement {
     @Nullable
     @Override
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
-        Matcher m = this.argumentPattern.matcher(args.next());
-        if (m.find(0) && m.group(1) != null || m.group(3) != null ) {
+        Matcher m = ARGUMENT_PATTERN.matcher(args.next());
+        if (m.find(0) && (m.group(1) != null || m.group(3) != null)) {
             return Integer.parseInt(m.group(2));
         }
 

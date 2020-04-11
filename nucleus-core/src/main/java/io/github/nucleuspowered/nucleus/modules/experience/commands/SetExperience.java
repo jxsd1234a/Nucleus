@@ -2,10 +2,10 @@
  * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
  * at the root of this project for more details.
  */
-package io.github.nucleuspowered.nucleus.modules.admin.commands.exp;
+package io.github.nucleuspowered.nucleus.modules.experience.commands;
 
-import io.github.nucleuspowered.nucleus.modules.admin.AdminPermissions;
-import io.github.nucleuspowered.nucleus.modules.admin.parameter.ExperienceLevelArgument;
+import io.github.nucleuspowered.nucleus.modules.experience.ExperiencePermissions;
+import io.github.nucleuspowered.nucleus.modules.experience.parameter.ExperienceLevelArgument;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
@@ -26,7 +26,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import java.util.Optional;
 
 @Command(aliases = "set", parentCommand = ExperienceCommand.class,
-        basePermission = AdminPermissions.BASE_EXP_SET, commandDescriptionKey = "exp.set")
+        basePermission = ExperiencePermissions.BASE_EXP_SET, commandDescriptionKey = "exp.set")
 @NonnullByDefault
 public class SetExperience implements ICommandExecutor<CommandSource> {
 

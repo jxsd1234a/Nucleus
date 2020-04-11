@@ -64,7 +64,8 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
 
     private final Map<UUID, Map<String, Context>> standardContexts = new ConcurrentHashMap<>();
 
-    @Inject public NucleusPermissionService(
+    @Inject
+    public NucleusPermissionService(
             INucleusServiceCollection serviceCollection,
             IReloadableService service) {
         this.messageProviderService = serviceCollection.messageProvider();
@@ -96,6 +97,10 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
         return hasPermission(permissionSubject, permission, this.useRole);
     }
 
+    @Override public Tristate hasPermissionTristate(Subject subject, String permission) {
+        return hasPermissionTristate(subject, permission, this.useRole);
+    }
+
     @Override public boolean hasPermissionWithConsoleOverride(Subject subject, String permission, boolean permissionIfConsoleAndOverridden) {
         if (this.consoleOverride && subject instanceof ConsoleSource) {
             return permissionIfConsoleAndOverridden;
@@ -109,7 +114,9 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
     }
 
     @Override public void onReload(INucleusServiceCollection serviceCollection) {
-        this.useRole = serviceCollection.moduleDataProvider().getModuleConfig(CoreConfig.class).isUseParentPerms();
+        CoreConfig coreConfig = serviceCollection.moduleDataProvider().getModuleConfig(CoreConfig.class);
+        this.useRole = coreConfig.isUseParentPerms();
+        this.consoleOverride = coreConfig.isConsoleOverride();
     }
 
     @Override public void registerDescriptions() {
@@ -219,6 +226,15 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
     }
 
     private boolean hasPermission(Subject subject, String permission, boolean checkRole) {
+        Tristate tristate = hasPermissionTristate(subject, permission, checkRole);
+        if (tristate == Tristate.UNDEFINED) {
+            return subject.hasPermission(permission); // guarantees the correct response.
+        }
+
+        return tristate.asBoolean();
+    }
+
+    private Tristate hasPermissionTristate(Subject subject, String permission, boolean checkRole) {
         if (checkRole && permission.startsWith("nucleus.")) {
             Tristate tristate = subject.getPermissionValue(subject.getActiveContexts(), permission);
             if (tristate == Tristate.UNDEFINED) {
@@ -226,9 +242,9 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
                 if (result != null) { // check the "parent" perm
                     String perm = result.getSuggestedLevel().getPermission();
                     if (perm == null) {
-                        return subject.hasPermission(permission);
+                        return subject.getPermissionValue(subject.getActiveContexts(), permission);
                     } else {
-                        return subject.hasPermission(perm);
+                        return subject.getPermissionValue(subject.getActiveContexts(), perm);
                     }
                 }
 
@@ -236,9 +252,9 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
                     if (permission.startsWith(entry.getKey())) {
                         String perm = entry.getValue().getSuggestedLevel().getPermission();
                         if (perm == null) {
-                            return subject.hasPermission(permission);
+                            return subject.getPermissionValue(subject.getActiveContexts(), permission);
                         } else {
-                            return subject.hasPermission(perm);
+                            return subject.getPermissionValue(subject.getActiveContexts(), perm);
                         }
                     }
                 }
@@ -256,13 +272,13 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
                 }
 
                 // guarantees that the subject default is selected.
-                return subject.hasPermission(permission);
+                return Tristate.UNDEFINED; // subject.hasPermission(permission);
             }
 
-            return tristate.asBoolean();
+            return tristate;
         }
 
-        return subject.hasPermission(permission);
+        return Tristate.UNDEFINED;
     }
 
     @Override

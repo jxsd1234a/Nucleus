@@ -55,7 +55,10 @@ abstract class FlatFileStorageRepository implements IStorageRepository {
     Optional<JsonObject> get(@Nullable Path path) throws DataLoadException {
         if (path != null) {
             try {
-                // Write the new file
+                if (Files.size(path) == 0) {
+                    return Optional.empty(); // nothing in the file, don't do anything with it.
+                }
+                // Read the file.
                 try (BufferedReader reader = Files.newBufferedReader(path)) {
                     return Optional.of(new JsonParser()
                             .parse(reader.lines().collect(Collectors.joining()))

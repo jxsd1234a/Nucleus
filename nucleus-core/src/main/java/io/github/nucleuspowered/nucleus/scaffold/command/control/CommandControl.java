@@ -505,12 +505,16 @@ public class CommandControl implements CommandCallable {
                     .filter(x -> x.toLowerCase().startsWith(args.get(0).toLowerCase()))
                     .forEach(options::add);
         } else if (args.size() > 1) {
-            CommandArgs.Snapshot state = args.getSnapshot();
             CommandCallable callable = this.subcommands.get(args.peek().toLowerCase());
-            String[] splitArgs = arguments.split(" ", 2);
-            String targetArg = splitArgs.length == 1 ? "" : splitArgs[1];
-            options.addAll(callable.getSuggestions(source, targetArg, targetPosition));
-            args.applySnapshot(state);
+
+            // If we have a subcommand, get the completions for that too.
+            if (callable != null) {
+                CommandArgs.Snapshot state = args.getSnapshot();
+                String[] splitArgs = arguments.split(" ", 2);
+                String targetArg = splitArgs.length == 1 ? "" : splitArgs[1];
+                options.addAll(callable.getSuggestions(source, targetArg, targetPosition));
+                args.applySnapshot(state);
+            }
         }
 
         options.addAll(this.element.complete(source, args, context));

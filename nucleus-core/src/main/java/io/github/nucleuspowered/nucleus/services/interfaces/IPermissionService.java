@@ -16,6 +16,7 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.util.Tristate;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,8 @@ public interface IPermissionService extends ContextCalculator<Subject> {
     void checkServiceChange(ProviderRegistration<PermissionService> service);
 
     boolean hasPermission(Subject subject, String permission);
+
+    Tristate hasPermissionTristate(Subject subject, String permission);
 
     boolean hasPermissionWithConsoleOverride(Subject subject, String permission, boolean permissionIfConsoleAndOverridden);
 

@@ -3,6 +3,7 @@ plugins {
     eclipse
     id("ninja.miserable.blossom")
     id("de.undercouch.download")
+    id("com.github.hierynomus.license")
 }
 
 group = "io.github.nucleuspowered"
@@ -76,4 +77,21 @@ blossom {
     replaceToken("@gitHash@", rootProject.extra["gitHash"])
 
     replaceToken("@spongeversion@", rootProject.properties["declaredApiVersion"]) //declaredApiVersion
+}
+
+configure<nl.javadude.gradle.plugins.license.LicenseExtension> {
+    val name: String = rootProject.name
+
+    exclude("**/*.info")
+    exclude("assets/**")
+    exclude("*.properties")
+    exclude("*.txt")
+
+    header = file("../HEADER.txt")
+    sourceSets = project.sourceSets
+
+    ignoreFailures = false
+    strictCheck = true
+
+    mapping("java", "SLASHSTAR_STYLE")
 }

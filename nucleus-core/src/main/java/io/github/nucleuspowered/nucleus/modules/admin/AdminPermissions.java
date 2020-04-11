@@ -30,18 +30,6 @@ public class AdminPermissions {
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "broadcast" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_BROADCAST = "nucleus.broadcast.base";
 
-    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "exp" }, level = SuggestedLevel.ADMIN)
-    public static final String BASE_EXP = "nucleus.exp.base";
-
-    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "exp give" }, level = SuggestedLevel.ADMIN)
-    public static final String BASE_EXP_GIVE = "nucleus.exp.give.base";
-
-    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "exp set" }, level = SuggestedLevel.ADMIN)
-    public static final String BASE_EXP_SET = "nucleus.exp.set.base";
-
-    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "exp take" }, level = SuggestedLevel.ADMIN)
-    public static final String BASE_EXP_TAKE = "nucleus.exp.take.base";
-
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "gamemode" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_GAMEMODE = "nucleus.gamemode.base";
 
