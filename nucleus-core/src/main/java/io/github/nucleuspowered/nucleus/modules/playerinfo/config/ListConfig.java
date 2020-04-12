@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.playerinfo.config;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.neutrino.annotations.Default;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
@@ -15,9 +14,7 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import uk.co.drnaylor.quickstart.config.NoMergeIfPresent;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @NonnullByDefault
 @ConfigSerializable
@@ -43,10 +40,6 @@ public class ListConfig {
         return this.groupByPermissionGroup.enabled;
     }
 
-    public Map<String, String> getAliases() {
-        return ImmutableMap.copyOf(this.groupByPermissionGroup.groupAliasing);
-    }
-
     public List<String> getOrder() {
         return ImmutableList.copyOf(this.groupByPermissionGroup.groupPriority);
     }
@@ -57,10 +50,6 @@ public class ListConfig {
         }
 
         return this.groupByPermissionGroup.defaultGroupName;
-    }
-
-    public boolean isUseAliasOnly() {
-        return this.groupByPermissionGroup.useAliasOnly;
     }
 
     public boolean isPanelCompatibility() {
@@ -84,16 +73,6 @@ public class ListConfig {
 
         @Setting(value = "enabled", comment = "config.playerinfo.list.groups")
         private boolean enabled = false;
-
-        @Setting(value = "use-aliases-only", comment = "config.playerinfo.list.aliasonly")
-        private boolean useAliasOnly = false;
-
-        @NoMergeIfPresent
-        @Setting(value = "group-aliases", comment = "config.playerinfo.list.groupaliases")
-        private Map<String, String> groupAliasing = new HashMap<String, String>() {{
-            put("example-default-group", "Default Group");
-            put("example-default-group-2", "Default Group");
-        }};
 
         @NoMergeIfPresent
         @Setting(value = "group-order", comment = "config.playerinfo.list.grouporder")

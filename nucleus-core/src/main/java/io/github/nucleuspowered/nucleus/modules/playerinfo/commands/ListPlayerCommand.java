@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.playerinfo.commands;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.modules.afk.services.AFKHandler;
@@ -21,30 +20,27 @@ import io.github.nucleuspowered.nucleus.scaffold.command.annotation.EssentialsEq
 import io.github.nucleuspowered.nucleus.scaffold.command.modifier.CommandModifiers;
 import io.github.nucleuspowered.nucleus.services.INucleusServiceCollection;
 import io.github.nucleuspowered.nucleus.services.interfaces.IPermissionService;
+import io.github.nucleuspowered.nucleus.services.interfaces.IPlayerOnlineService;
 import io.github.nucleuspowered.nucleus.services.interfaces.IReloadableService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.context.Contextual;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
 
 @NonnullByDefault
 @EssentialsEquivalent({"list", "who", "playerlist", "online", "plist"})
@@ -61,12 +57,9 @@ import javax.annotation.Nullable;
 )
 public class ListPlayerCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
 
-    public static final String WEIGHT_OPTION = "nucleus.list.weight";
+    public static final String LIST_OPTION = "nucleus.list.group";
 
     private ListConfig listConfig = new ListConfig();
-
-    public static final BiFunction<IPermissionService, Subject, Integer> weightingFunction =
-            (permissionService, subject) -> permissionService.getIntOptionFromSubject(subject, WEIGHT_OPTION).orElse(0);
 
     @Override public ICommandResult execute(ICommandContext<? extends CommandSource> context) throws CommandException {
         boolean showVanished = context.testPermission(PlayerInfoPermissions.LIST_SEEVANISHED);
@@ -88,7 +81,7 @@ public class ListPlayerCommand implements ICommandExecutor<CommandSource>, IRelo
 
         Optional<PermissionService> optPermissionService = Sponge.getServiceManager().provide(PermissionService.class);
         if (this.listConfig.isGroupByPermissionGroup() && optPermissionService.isPresent()) {
-            builder.contents(listByPermissionGroup(context, players, showVanished));
+            builder.contents(listByPermissionGroup(context, showVanished));
         } else {
             // If we have players, send them on.
             builder.contents(getPlayerList(players, showVanished, context));
@@ -98,37 +91,17 @@ public class ListPlayerCommand implements ICommandExecutor<CommandSource>, IRelo
         return context.successResult();
     }
 
-    private List<Text> listByPermissionGroup(ICommandContext<? extends CommandSource> context, Collection<Player> players, boolean showVanished)
-            throws CommandException {
-        // Get the groups
-        List<Subject> groups = Lists.newArrayList();
-        PermissionService service = Sponge.getServiceManager().provideUnchecked(PermissionService.class);
-        try {
-            service.getGroupSubjects().applyToAll(groups::add).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            throw context.createException("command.list.permission.failed");
-        }
-
-        // If weights are the same, sort them in reverse order - that way we get the most inherited
-        // groups first and display them first.
-        groups.sort((x, y) -> groupComparison(weightingFunction, context.getServiceCollection().permissionService(), x, y));
-
-        // Keep a copy of the players that we will remove from.
-        final Map<Player, List<String>> playersToList = players.stream()
-            .collect(Collectors.toMap(x -> x, y -> Util.getParentSubjects(y).join().stream().map(Contextual::getIdentifier).collect(Collectors.toList())));
-
+    private List<Text> listByPermissionGroup(ICommandContext<? extends CommandSource> context, boolean showVanished) {
         // Messages
         final List<Text> messages = Lists.newArrayList();
 
-        final Map<String, List<Player>> groupToPlayer = linkPlayersToGroups(groups, this.listConfig.getAliases(), playersToList);
+        String defName = this.listConfig.getDefaultGroupName();
+        final Map<String, List<Player>> groupToPlayer = playerList(
+                context,
+                showVanished,
+                defName
+        );
 
-        // For the rest of the players...
-        if (!playersToList.isEmpty()) {
-            groupToPlayer.computeIfAbsent(this.listConfig.getDefaultGroupName(), g -> Lists.newArrayList()).addAll(playersToList.keySet());
-        }
-
-        // Create messages based on the alias list first.
         this.listConfig.getOrder().forEach(alias -> {
             List<Player> plList = groupToPlayer.get(alias);
             if (plList != null && !plList.isEmpty()) {
@@ -140,26 +113,37 @@ public class ListPlayerCommand implements ICommandExecutor<CommandSource>, IRelo
             groupToPlayer.remove(alias);
         });
 
-        String defaultGroupName = this.listConfig.getDefaultGroupName();
-        if (this.listConfig.isUseAliasOnly()) {
-            List<Player> playersLeft = groupToPlayer.entrySet().stream().flatMap(x -> x.getValue().stream()).collect(Collectors.toList());
-            if (!playersLeft.isEmpty()) {
-                getList(playersLeft, showVanished, messages, defaultGroupName, context);
-            }
-        } else {
-            groupToPlayer.entrySet().stream()
-                    .filter(x -> !x.getValue().isEmpty())
-                    .filter(x -> !x.getKey().equals(this.listConfig.getDefaultGroupName()))
-                    .sorted((x, y) -> x.getKey().compareToIgnoreCase(y.getKey()))
-                    .forEach(x -> getList(x.getValue(), showVanished, messages, x.getKey(), context));
+        groupToPlayer.entrySet().stream()
+                .filter(x -> !x.getValue().isEmpty())
+                .filter(x -> !x.getKey().equals(defName))
+                .sorted((x, y) -> x.getKey().compareToIgnoreCase(y.getKey()))
+                .forEach(x -> getList(x.getValue(), showVanished, messages, x.getKey(), context));
 
-            List<Player> pl = groupToPlayer.get(defaultGroupName);
-            if (pl != null && !pl.isEmpty()) {
-                getList(pl, showVanished, messages, defaultGroupName, context);
-            }
+        List<Player> pl = groupToPlayer.get(defName);
+        if (pl != null && !pl.isEmpty()) {
+            getList(pl, showVanished, messages, defName, context);
         }
 
         return messages;
+    }
+
+    private Map<String, List<Player>> playerList(
+            ICommandContext<? extends CommandSource> context,
+            boolean showVanished,
+            String def) {
+        IPlayerOnlineService playerOnlineService = context.getServiceCollection().playerOnlineService();
+        IPermissionService permissionService = context.getServiceCollection().permissionService();
+        Map<String, List<Player>> map = new HashMap<>();
+        for (Player player : Sponge.getServer().getOnlinePlayers()) {
+            if (showVanished || playerOnlineService.isOnline(context.getCommandSourceUnchecked(), player)) {
+                String perm = permissionService.getOptionFromSubject(player, LIST_OPTION).orElse(def);
+                if (perm.trim().isEmpty()) {
+                    perm = def;
+                }
+                map.computeIfAbsent(perm, y -> new ArrayList<>()).add(player);
+            }
+        }
+        return map;
     }
 
     @Override
@@ -167,67 +151,22 @@ public class ListPlayerCommand implements ICommandExecutor<CommandSource>, IRelo
         this.listConfig = serviceCollection.moduleDataProvider().getModuleConfig(PlayerInfoConfig.class).getList();
     }
 
-    public static Map<String, List<Player>> linkPlayersToGroups(List<Subject> groups, Map<String, String> groupAliases,
-           Map<Player, List<String>> players) {
-
-        final Map<String, List<Player>> groupToPlayer = Maps.newHashMap();
-
-        for (Subject x : groups) {
-            List<Player> groupPlayerList;
-            String groupName = x.getIdentifier();
-            if (groupAliases.containsKey(x.getIdentifier())) {
-                groupName = groupAliases.get(x.getIdentifier());
-            }
-
-            // Get the players in the group.
-            Collection<Player> cp = players.entrySet().stream().filter(k -> k.getValue().contains(x.getIdentifier()))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            if (!cp.isEmpty()) {
-                groupPlayerList = groupToPlayer.computeIfAbsent(groupName, g -> Lists.newArrayList());
-                cp.forEach(players::remove);
-                groupPlayerList.addAll(cp);
-            }
-        }
-
-        return groupToPlayer;
-    }
-
-    // For testing
-
-    public static int groupComparison(
-            BiFunction<IPermissionService, Subject, Integer> weightingFunction,
-            IPermissionService permissionService,
-            Subject x,
-            Subject y)  {
-        // If the weight of x is bigger than y, x should go first. We therefore need a large x to provide a negative number.
-        int res = weightingFunction.apply(permissionService, y) - weightingFunction.apply(permissionService, x);
-        if (res == 0) {
-            // If x is bigger than y, x should go first. We therefore need a large x to provide a negative number,
-            // so x is above y.
-            return y.getParents().size() - x.getParents().size();
-        }
-
-        return res;
-    }
-
-    private void getList(Collection<Player> player, boolean showVanished, List<Text> messages, @Nullable String groupName,
+    private void getList(Collection<Player> player, boolean showVanished, List<Text> messages, String groupName,
             ICommandContext<? extends CommandSource> context) {
+        Text groupNameText = TextSerializers.FORMATTING_CODE.deserialize(groupName);
         List<Text> m = getPlayerList(player, showVanished, context);
         if (this.listConfig.isCompact()) {
             boolean isFirst = true;
             for (Text y : m) {
                 Text.Builder tb = Text.builder();
-                if (isFirst && groupName != null) {
-                    tb.append(Text.of(TextColors.YELLOW, groupName, ": "));
+                if (isFirst) {
+                    tb.append(Text.of(TextColors.YELLOW, groupNameText, ": "));
                 }
                 isFirst = false;
                 messages.add(tb.append(y).build());
             }
         } else {
-            if (groupName != null) {
-                messages.add(Text.of(TextColors.YELLOW, groupName, ":"));
-            }
+            messages.add(Text.of(TextColors.YELLOW, groupNameText, ":"));
             messages.addAll(m);
         }
     }
