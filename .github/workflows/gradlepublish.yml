@@ -29,3 +29,8 @@ jobs:
     # the publishing section of your build.gradle
     - name: Publish to GitHub Packages
       run: gradle publish
+      env:
+        USER: ${{ github.actor }}
+        KEY: ${{ secrets.GITHUB_TOKEN }}
+        REPO: "NucleusPowered/Nucleus"
+
