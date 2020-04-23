@@ -3,6 +3,7 @@ plugins {
     idea
     eclipse
     maven
+    `maven-publish`
     id("com.github.hierynomus.license")
     id("ninja.miserable.blossom")
 }
@@ -84,6 +85,30 @@ tasks {
 
     build {
         dependsOn(javadocJar)
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("api") {
+            from(components["java"])
+            setArtifacts(listOf(javadocJar.get(), sourcesJar.get(), tasks.jar.get()))
+            version = "${rootProject.version}"
+            groupId = rootProject.properties["groupId"]?.toString()!!
+            artifactId = project.properties["artifactId"]?.toString()!!
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri(project.findProperty("gpr.uri") as String? ?:
+                    "${rootProject.properties["ghUri"]?.toString()!!}${System.getenv("GITHUB_REPOSITORY")}")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String? ?:System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
 

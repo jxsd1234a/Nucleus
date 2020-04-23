@@ -26,6 +26,7 @@ plugins {
     java
     idea
     eclipse
+    `maven-publish`
     id("com.github.hierynomus.license") version "0.15.0"
     id("ninja.miserable.blossom") version "1.0.1"
     id("com.github.johnrengelman.shadow") version "5.2.0"
@@ -201,6 +202,7 @@ compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
 
+val shadowJar: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar by tasks
 tasks {
 
     shadowJar {
@@ -252,6 +254,31 @@ tasks {
     }
 
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("core") {
+            shadow.component(this)
+            setArtifacts(listOf(shadowJar))
+            version = versionString
+            groupId = project.properties["groupId"]?.toString()!!
+            artifactId = project.properties["artifactId"]?.toString()!!
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri(project.findProperty("gpr.uri") as String? ?:
+                "${project.properties["ghUri"]?.toString()!!}${System.getenv("GITHUB_REPOSITORY")}")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
 
 license {
     // ext.name = project.name
