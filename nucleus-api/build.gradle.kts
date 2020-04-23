@@ -103,10 +103,10 @@ publishing {
         maven {
             name = "GitHubPackages"
             url = uri(project.findProperty("gpr.uri") as String? ?:
-                    "${rootProject.properties["ghUri"]?.toString()!!}${System.getenv("GITHUB_REPOSITORY")}")
+                    "${rootProject.properties["ghUri"]?.toString()!!}${System.getenv("REPO")}")
             credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") as String? ?:System.getenv("GITHUB_TOKEN")
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USER")
+                password = project.findProperty("gpr.key") as String? ?:System.getenv("KEY")
             }
         }
     }
