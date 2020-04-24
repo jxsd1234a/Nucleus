@@ -82,6 +82,7 @@ public class RepairCommand extends AbstractCommand<Player> implements Reloadable
         EnumMap<ResultType, Integer> resultCount = new EnumMap<ResultType, Integer>(ResultType.class) {{
             put(ResultType.SUCCESS, 0);
             put(ResultType.ERROR, 0);
+            put(ResultType.NEGATIVE_DURABILITY, 0);
             put(ResultType.NO_DURABILITY, 0);
             put(ResultType.RESTRICTED, 0);
         }};
