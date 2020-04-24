@@ -147,7 +147,9 @@ public class RepairCommand extends AbstractCommand<Player> implements Reloadable
         location = Nucleus.getNucleus().getMessageProvider().getMessageFromKey("command.repair.location." + location).orElse("inventory");
 
         if (resultCount.get(ResultType.SUCCESS) == 0 && resultCount.get(ResultType.ERROR) == 0
-                && resultCount.get(ResultType.NO_DURABILITY) == 0 && resultCount.get(ResultType.RESTRICTED) == 0) {
+                && resultCount.get(ResultType.NO_DURABILITY) == 0
+                && resultCount.get(ResultType.NEGATIVE_DURABILITY) == 0
+                && resultCount.get(ResultType.RESTRICTED) == 0) {
             throw ReturnMessageException.fromKey("command.repair.empty", pl.getName(), location);
         } else {
             // Non-repairable Message - Only used when all items processed had no durability
