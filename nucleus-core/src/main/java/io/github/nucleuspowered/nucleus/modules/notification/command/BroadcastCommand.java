@@ -2,12 +2,12 @@
  * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
  * at the root of this project for more details.
  */
-package io.github.nucleuspowered.nucleus.modules.admin.commands;
+package io.github.nucleuspowered.nucleus.modules.notification.command;
 
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
-import io.github.nucleuspowered.nucleus.modules.admin.AdminPermissions;
-import io.github.nucleuspowered.nucleus.modules.admin.config.AdminConfig;
-import io.github.nucleuspowered.nucleus.modules.admin.config.BroadcastConfig;
+import io.github.nucleuspowered.nucleus.modules.notification.NotificationPermissions;
+import io.github.nucleuspowered.nucleus.modules.notification.config.BroadcastConfig;
+import io.github.nucleuspowered.nucleus.modules.notification.config.NotificationConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
@@ -24,7 +24,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.TypeTokens;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-@Command(aliases = {"broadcast", "bcast", "bc"}, basePermission = AdminPermissions.BASE_BROADCAST, commandDescriptionKey = "broadcast")
+@Command(aliases = {"broadcast", "bcast", "bc"}, basePermission = NotificationPermissions.BASE_BROADCAST, commandDescriptionKey = "broadcast")
 @EssentialsEquivalent({"broadcast", "bcast"})
 @NonnullByDefault
 public class BroadcastCommand implements ICommandExecutor<CommandSource>, IReloadableService.Reloadable {
@@ -60,7 +60,7 @@ public class BroadcastCommand implements ICommandExecutor<CommandSource>, IReloa
     @Override public void onReload(INucleusServiceCollection serviceCollection) {
         this.bc = serviceCollection
                 .moduleDataProvider()
-                .getModuleConfig(AdminConfig.class)
+                .getModuleConfig(NotificationConfig.class)
                 .getBroadcastMessage();
     }
 }

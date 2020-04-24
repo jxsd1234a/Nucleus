@@ -69,6 +69,16 @@ public interface NucleusTextTemplate extends TextRepresentable {
     }
 
     /**
+     * Gets the {@link Text} where the tokens have been parsed from the viewpoint of the supplied {@link CommandSource}. Any unknown tokens in
+     * the parsed text will be left blank.
+     *
+     * @param source The {@link CommandSource} that will influence what is displayed by the tokens.
+     * @param sender The {@link CommandSource} that can be considered the <code>{{sender}}</code>
+     * @return The parsed {@link Text}
+     */
+    Text getForCommandSource(CommandSource source, CommandSource sender);
+
+    /**
      * Gets the {@link Text} where the tokens have been parsed from the viewpoint of the supplied {@link CommandSource}.
      *
      * <p>

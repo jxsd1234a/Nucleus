@@ -115,6 +115,17 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
     }
 
     @Override
+    public Text getForCommandSource(CommandSource source, CommandSource sender) {
+        Optional<Text> s =
+                Optional.of(this.serviceCollection.placeholderService().parse(sender, "displayname").toText());
+        return getForCommandSource(source,
+                ImmutableMap.<String, Function<CommandSource, Optional<Text>>>builder()
+                        .put("sender", se -> s)
+                        .build(),
+                NucleusPlaceholderStandardBuilder.EMPTY);
+    }
+
+    @Override
     public Text getForCommandSource(CommandSource source,
             @Nullable Map<String, Function<CommandSource, Optional<Text>>> tokensArray) {
         return getForCommandSource(source, tokensArray, NucleusPlaceholderStandardBuilder.EMPTY);

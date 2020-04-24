@@ -27,9 +27,6 @@ public class AdminPermissions {
     @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "blockzap" }, level = SuggestedLevel.ADMIN)
     public static final String EXEMPT_WARMUP_BLOCKZAP = "nucleus.blockzap.exempt.warmup";
 
-    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "broadcast" }, level = SuggestedLevel.ADMIN)
-    public static final String BASE_BROADCAST = "nucleus.broadcast.base";
-
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "gamemode" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_GAMEMODE = "nucleus.gamemode.base";
 
@@ -83,9 +80,6 @@ public class AdminPermissions {
 
     @PermissionMetadata(descriptionKey = "permission.exempt.warmup", replacements = { "killentity" }, level = SuggestedLevel.ADMIN)
     public static final String EXEMPT_WARMUP_KILLENTITY = "nucleus.killentity.exempt.warmup";
-
-    @PermissionMetadata(descriptionKey = "permission.base", replacements = { "plainbroadcast" }, level = SuggestedLevel.OWNER)
-    public static final String BASE_PLAINBROADCAST = "nucleus.plainbroadcast.base";
 
     @PermissionMetadata(descriptionKey = "permission.base", replacements = { "stop" }, level = SuggestedLevel.ADMIN)
     public static final String BASE_STOP = "nucleus.stop.base";

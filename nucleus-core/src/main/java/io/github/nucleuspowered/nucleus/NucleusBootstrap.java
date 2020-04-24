@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.typesafe.config.ConfigException;
 import io.github.nucleuspowered.nucleus.api.NucleusAPITokens;
@@ -73,6 +74,7 @@ import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.teleport.TeleportHelperFilter;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
+import uk.co.drnaylor.quickstart.config.AbstractConfigAdapter;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleDiscoveryException;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleLoaderException;
 import uk.co.drnaylor.quickstart.holders.DiscoveryModuleHolder;
@@ -96,7 +98,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 @Plugin(id = NucleusPluginInfo.ID, name = NucleusPluginInfo.NAME, version = NucleusPluginInfo.VERSION, description = NucleusPluginInfo.DESCRIPTION, dependencies = @Dependency(id = "spongeapi", version = NucleusPluginInfo.SPONGE_API_VERSION))
 public class NucleusBootstrap {
@@ -364,6 +365,10 @@ public class NucleusBootstrap {
                     .setModuleEnabler(enabler)
                     .setRequireModuleDataAnnotation(true)
                     .setNoMergeIfPresent(true)
+                    .transformConfig(new AbstractConfigAdapter.Transformation(
+                            new Object[] { "admin", "broadcast-message-template" },
+                            (inputPath, valueAtPath) -> new Object[] { "notification", "broadcast-message-template" }
+                    ))
                     .setModuleConfigurationHeader(m -> {
                             StringBuilder ssb = new StringBuilder().append(divider).append("\n");
                             String name = m.getClass().getAnnotation(ModuleData.class).name();

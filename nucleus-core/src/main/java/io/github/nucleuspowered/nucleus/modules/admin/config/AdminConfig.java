@@ -14,13 +14,6 @@ public class AdminConfig {
     @Setting(value = "sudo-permission-levels", comment = "config.sudo.permissionlevel")
     private CommonPermissionLevelConfig levelConfig = new CommonPermissionLevelConfig();
 
-    @Setting(value = "broadcast-message-template", comment = "config.broadcast.template")
-    private BroadcastConfig broadcastMessage = new BroadcastConfig();
-
-    public BroadcastConfig getBroadcastMessage() {
-        return this.broadcastMessage;
-    }
-
     public CommonPermissionLevelConfig getLevelConfig() {
         return this.levelConfig;
     }

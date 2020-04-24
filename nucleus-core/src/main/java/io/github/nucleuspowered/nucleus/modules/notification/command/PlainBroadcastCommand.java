@@ -2,9 +2,9 @@
  * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
  * at the root of this project for more details.
  */
-package io.github.nucleuspowered.nucleus.modules.admin.commands;
+package io.github.nucleuspowered.nucleus.modules.notification.command;
 
-import io.github.nucleuspowered.nucleus.modules.admin.AdminPermissions;
+import io.github.nucleuspowered.nucleus.modules.notification.NotificationPermissions;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandExecutor;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandResult;
@@ -19,7 +19,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault
 @Command(aliases = { "plainbroadcast", "pbcast", "pbc" },
-        basePermission = AdminPermissions.BASE_PLAINBROADCAST,
+        basePermission = NotificationPermissions.BASE_PLAINBROADCAST,
         commandDescriptionKey = "plainbroadcast")
 public class PlainBroadcastCommand implements ICommandExecutor<CommandSource> {
 
@@ -40,6 +40,7 @@ public class PlainBroadcastCommand implements ICommandExecutor<CommandSource> {
                     context.getServiceCollection().placeholderService(),
                     context.getCommandSourceUnchecked())
                     .send(context.getCause());
+            
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             return context.errorResult("command.plainbroadcast.failed");

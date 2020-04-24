@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.scaffold.command.ICommandContext;
 import io.github.nucleuspowered.nucleus.services.interfaces.IMessageProviderService;
 import io.github.nucleuspowered.nucleus.util.PaginationBuilderWrapper;
@@ -34,10 +33,8 @@ import org.spongepowered.api.item.inventory.entity.MainPlayerInventory;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.profile.GameProfile;
-import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.pagination.PaginationService;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextRepresentable;
@@ -58,19 +55,12 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nullable;
@@ -236,37 +226,6 @@ public class Util {
 
         // Check that we're not too far out.
         return !(displacement.getX() > radius || displacement.getZ() > radius);
-    }
-
-    /**
-     * Gets all of the subject's parent {@link Subject}s for the given {@link Context}
-     *
-     * @param pl The {@link Subject} to get the parents of
-     * @return The {@link List} of {@link Subject}s, or an empty list if there nothing was found.
-     */
-    public static CompletableFuture<List<Subject>> getParentSubjects(Subject pl) {
-        Set<Context> contextSet = pl.getActiveContexts();
-
-        return CompletableFuture.supplyAsync(() -> {
-            Map<Subject, Integer> subjects = Maps.newHashMap();
-
-            // Try to cache already known values
-            Function<Subject, Integer> subjectIntegerFunction = subject -> subjects.computeIfAbsent(subject, k -> k.getParents(contextSet).size());
-
-            return pl.getParents(contextSet).stream().distinct()
-                    .map(x -> {
-                        try {
-                            return x.resolve().get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.comparingInt(subjectIntegerFunction::apply))
-                    .collect(Collectors.toList());
-        });
-
     }
 
     public static void compressAndDeleteFile(Path from) throws IOException {
