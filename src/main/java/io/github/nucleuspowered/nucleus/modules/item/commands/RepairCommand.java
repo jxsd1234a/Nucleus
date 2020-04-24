@@ -150,10 +150,14 @@ public class RepairCommand extends AbstractCommand<Player> implements Reloadable
             throw ReturnMessageException.fromKey("command.repair.empty", pl.getName(), location);
         } else {
             // Non-repairable Message - Only used when all items processed had no durability
-            if (resultCount.get(ResultType.NO_DURABILITY) > 0 && resultCount.get(ResultType.SUCCESS) == 0
+            int durabilityCount = resultCount.get(ResultType.NO_DURABILITY) + resultCount.get(ResultType.NEGATIVE_DURABILITY);
+            if (durabilityCount > 0 && resultCount.get(ResultType.SUCCESS) == 0
                     && resultCount.get(ResultType.ERROR) == 0 && resultCount.get(ResultType.RESTRICTED) == 0) {
-                if (resultCount.get(ResultType.NO_DURABILITY) == 1) {
+                if (durabilityCount == 1) {
                     ItemStackSnapshot item = lastItem.get(ResultType.NO_DURABILITY);
+                    if (item == null) {
+                        item = lastItem.get(ResultType.NEGATIVE_DURABILITY);
+                    }
                     pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat(
                             "command.repair.nodurability.single",
                             item.get(Keys.DISPLAY_NAME).orElse(Text.of(item.getTranslation().get())).toBuilder()
@@ -165,7 +169,7 @@ public class RepairCommand extends AbstractCommand<Player> implements Reloadable
                 } else {
                     pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(
                             "command.repair.nodurability.multiple",
-                            resultCount.get(ResultType.NO_DURABILITY).toString(), pl.getName(), location
+                            durabilityCount, pl.getName(), location
                     ));
                 }
             }
@@ -247,27 +251,31 @@ public class RepairCommand extends AbstractCommand<Player> implements Reloadable
         if (checkRestrictions && (this.whitelist && !this.restrictions.contains(stack.getType()) || this.restrictions.contains(stack.getType()))) {
             return new RepairResult(stack, ResultType.RESTRICTED);
         }
-        if (stack.get(DurabilityData.class).isPresent()) {
-            DurabilityData durabilityData = stack.get(DurabilityData.class).get();
-            DataTransactionResult transactionResult = stack.offer(Keys.ITEM_DURABILITY, durabilityData.durability().getMaxValue());
-            if (transactionResult.isSuccessful()) {
-                return new RepairResult(stack, ResultType.SUCCESS);
-            } else {
-                return new RepairResult(stack, ResultType.ERROR);
+        try {
+            if (stack.get(DurabilityData.class).isPresent()) {
+                DurabilityData durabilityData = stack.get(DurabilityData.class).get();
+                DataTransactionResult transactionResult = stack.offer(Keys.ITEM_DURABILITY, durabilityData.durability().getMaxValue());
+                if (transactionResult.isSuccessful()) {
+                    return new RepairResult(stack, ResultType.SUCCESS);
+                } else {
+                    return new RepairResult(stack, ResultType.ERROR);
+                }
             }
-        } else {
-            return new RepairResult(stack, ResultType.NO_DURABILITY);
+        } catch (IllegalArgumentException ignored) {
+            // Sponge will throw this if a mod uses negative durability as a item discriminator.
+            return new RepairResult(stack, ResultType.NEGATIVE_DURABILITY);
         }
+        return new RepairResult(stack, ResultType.NO_DURABILITY);
     }
 
     private enum ResultType {
-        SUCCESS, ERROR, RESTRICTED, NO_DURABILITY
+        SUCCESS, ERROR, RESTRICTED, NEGATIVE_DURABILITY, NO_DURABILITY
     }
 
-    private class RepairResult {
+    private static class RepairResult {
 
-        private ItemStack stack;
-        private ResultType type;
+        private final ItemStack stack;
+        private final ResultType type;
 
         public RepairResult(ItemStack stack, ResultType type) {
             this.stack = stack;
