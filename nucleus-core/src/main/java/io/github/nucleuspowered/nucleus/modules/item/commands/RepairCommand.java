@@ -82,6 +82,7 @@ public class RepairCommand implements ICommandExecutor<Player>, IReloadableServi
         EnumMap<ResultType, Integer> resultCount = new EnumMap<ResultType, Integer>(ResultType.class) {{
             put(ResultType.SUCCESS, 0);
             put(ResultType.ERROR, 0);
+            put(ResultType.NEGATIVE_DURABILITY, 0);
             put(ResultType.NO_DURABILITY, 0);
             put(ResultType.RESTRICTED, 0);
         }};
@@ -157,10 +158,14 @@ public class RepairCommand implements ICommandExecutor<Player>, IReloadableServi
             return context.errorResult("command.repair.empty", pl.getName(), location);
         } else {
             // Non-repairable Message - Only used when all items processed had no durability
-            if (resultCount.get(ResultType.NO_DURABILITY) > 0 && resultCount.get(ResultType.SUCCESS) == 0
+            int durabilityCount = resultCount.get(ResultType.NO_DURABILITY) + resultCount.get(ResultType.NEGATIVE_DURABILITY);
+            if (durabilityCount > 0 && resultCount.get(ResultType.SUCCESS) == 0
                     && resultCount.get(ResultType.ERROR) == 0 && resultCount.get(ResultType.RESTRICTED) == 0) {
-                if (resultCount.get(ResultType.NO_DURABILITY) == 1) {
+                if (durabilityCount == 1) {
                     ItemStackSnapshot item = lastItem.get(ResultType.NO_DURABILITY);
+                    if (item == null) {
+                        item = lastItem.get(ResultType.NEGATIVE_DURABILITY);
+                    }
                     context.sendMessage(
                             "command.repair.nodurability.single",
                             item.get(Keys.DISPLAY_NAME).orElse(Text.of(item.getTranslation().get())).toBuilder()
@@ -258,27 +263,30 @@ public class RepairCommand implements ICommandExecutor<Player>, IReloadableServi
         if (checkRestrictions && (this.whitelist && !this.restrictions.contains(stack.getType()) || this.restrictions.contains(stack.getType()))) {
             return new RepairResult(stack, ResultType.RESTRICTED);
         }
-        if (stack.get(DurabilityData.class).isPresent()) {
-            DurabilityData durabilityData = stack.get(DurabilityData.class).get();
-            DataTransactionResult transactionResult = stack.offer(Keys.ITEM_DURABILITY, durabilityData.durability().getMaxValue());
-            if (transactionResult.isSuccessful()) {
-                return new RepairResult(stack, ResultType.SUCCESS);
-            } else {
-                return new RepairResult(stack, ResultType.ERROR);
+        try {
+            if (stack.get(DurabilityData.class).isPresent()) {
+                DurabilityData durabilityData = stack.get(DurabilityData.class).get();
+                DataTransactionResult transactionResult = stack.offer(Keys.ITEM_DURABILITY, durabilityData.durability().getMaxValue());
+                if (transactionResult.isSuccessful()) {
+                    return new RepairResult(stack, ResultType.SUCCESS);
+                } else {
+                    return new RepairResult(stack, ResultType.ERROR);
+                }
             }
-        } else {
-            return new RepairResult(stack, ResultType.NO_DURABILITY);
+        } catch (IllegalArgumentException e) {
+            return new RepairResult(stack, ResultType.NEGATIVE_DURABILITY);
         }
+        return new RepairResult(stack, ResultType.NO_DURABILITY);
     }
 
     private enum ResultType {
-        SUCCESS, ERROR, RESTRICTED, NO_DURABILITY
+        SUCCESS, ERROR, RESTRICTED, NEGATIVE_DURABILITY, NO_DURABILITY;
     }
 
     private static class RepairResult {
 
-        private ItemStack stack;
-        private ResultType type;
+        private final ItemStack stack;
+        private final ResultType type;
 
         RepairResult(ItemStack stack, ResultType type) {
             this.stack = stack;
