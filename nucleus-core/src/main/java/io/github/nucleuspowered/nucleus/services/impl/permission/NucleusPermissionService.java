@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.services.impl.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.github.nucleuspowered.nucleus.api.util.NoExceptionAutoClosable;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.scaffold.command.NucleusParameters;
@@ -28,6 +29,7 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Identifiable;
 import org.spongepowered.api.util.Tristate;
@@ -63,6 +65,7 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
     private final Map<String, IPermissionService.Metadata> prefixMetadataMap = new HashMap<>();
 
     private final Map<UUID, Map<String, Context>> standardContexts = new ConcurrentHashMap<>();
+    private final Map<SuggestedLevel, Set<SubjectReference>> appliedRoles = new HashMap<>();
 
     @Inject
     public NucleusPermissionService(
@@ -74,6 +77,25 @@ public class NucleusPermissionService implements IPermissionService, IReloadable
         // Register the context calculators.
         Sponge.getServiceManager().provide(PermissionService.class).ifPresent(x -> x.registerContextCalculator(this));
         service.registerReloadable(this);
+    }
+
+    @Override
+    public void assignUserRoleToDefault() {
+        assignRoleToGroup(SuggestedLevel.USER, Sponge.getServiceManager().provideUnchecked(PermissionService.class).getDefaults());
+    }
+
+    @Override
+    public void assignRoleToGroup(SuggestedLevel role, Subject subject) {
+        for (Map.Entry<String, IPermissionService.Metadata> permission : this.metadataMap.entrySet()) {
+            if (permission.getValue().getSuggestedLevel() == role) {
+                subject.getTransientSubjectData().setPermission(ImmutableSet.of(), permission.getValue().getPermission(), Tristate.TRUE);
+            }
+        }
+        for (Map.Entry<String, IPermissionService.Metadata> permission : this.prefixMetadataMap.entrySet()) {
+            if (permission.getValue().getSuggestedLevel() == role) {
+                subject.getTransientSubjectData().setPermission(ImmutableSet.of(), permission.getValue().getPermission(), Tristate.TRUE);
+            }
+        }
     }
 
     @Override public boolean isOpOnly() {

@@ -28,6 +28,10 @@ import java.util.UUID;
 @ImplementedBy(NucleusPermissionService.class)
 public interface IPermissionService extends ContextCalculator<Subject> {
 
+    void assignUserRoleToDefault();
+
+    void assignRoleToGroup(SuggestedLevel role, Subject subject);
+
     boolean isOpOnly();
 
     void registerContextCalculator(ContextCalculator<Subject> calculator);

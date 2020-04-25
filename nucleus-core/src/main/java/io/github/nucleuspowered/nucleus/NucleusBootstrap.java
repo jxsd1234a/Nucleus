@@ -57,6 +57,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
@@ -454,6 +455,14 @@ public class NucleusBootstrap {
         this.serviceCollection.permissionService().registerDescriptions();
         Sponge.getEventManager().post(new BaseModuleEvent.Complete(this));
         this.logger.info(messageProvider.getMessageString("startup.completeinit", NucleusPluginInfo.NAME));
+    }
+
+    @Listener
+    public void onPostInit(GamePostInitializationEvent event) {
+        if (this.serviceCollection.moduleDataProvider().getModuleConfig(CoreConfig.class).isGiveDefaultsUserPermissions()) {
+            this.logger.info(this.serviceCollection.messageProvider().getMessageString("startup.defaultpermission"));
+            this.serviceCollection.permissionService().assignUserRoleToDefault();
+        }
     }
 
     @Listener(order = Order.EARLY)

@@ -36,10 +36,6 @@ public class CoreConfig {
     private KickOnStopConfig kickOnStop = new KickOnStopConfig();
 
     @DoNotGenerate
-    @Setting(value = "enable-doc-gen")
-    private boolean enableDocGen = false;
-
-    @DoNotGenerate
     @Setting(value = "simulate-error-on-startup")
     private boolean errorOnStartup = false;
 
@@ -48,14 +44,6 @@ public class CoreConfig {
 
     @Setting(value = "console-overrides-exemptions", comment = "config.core.consoleoverrides")
     private boolean consoleOverride = true;
-
-    @DoNotGenerate
-    @Setting(value = "trace-user-creations-level")
-    private int traceUserCreations = 0;
-
-    @DoNotGenerate
-    @Setting(value = "print-file-save-load")
-    private boolean printSaveLoad = false;
 
     @NoMergeIfPresent
     @Setting(value = "world-uuid-migration", comment = "config.core.worlduuidmigration")
@@ -85,11 +73,11 @@ public class CoreConfig {
     @Setting(value = "enable-partial-name-matching", comment = "config.core.partialname")
     private boolean partialMatch = true;
 
-    @Setting(value = "print-message-when-permission-isnt-registered", comment = "config.core.printMissingPerms")
-    private boolean printWhenPermissionIsntRegistered = false;
-
     @Setting(value = "use-client-locale-where-possible", comment = "config.core.clientlocale")
     private boolean clientLocale = false;
+
+    @Setting(value = "give-default-group-user-permissions", comment = "config.core.defaultperms")
+    private boolean giveDefaultsUserPermissions = false;
 
     public boolean isDebugmode() {
         return this.debugmode;
@@ -119,10 +107,6 @@ public class CoreConfig {
         return this.kickOnStop.getKickOnStopMessage();
     }
 
-    public boolean isEnableDocGen() {
-        return this.enableDocGen;
-    }
-
     public boolean isErrorOnStartup() {
         return this.errorOnStartup;
     }
@@ -133,18 +117,6 @@ public class CoreConfig {
 
     public boolean isConsoleOverride() {
         return this.consoleOverride;
-    }
-
-    /**
-     * For debugging. 0 is off, 1 is abnormal players, such as "offline", 2 is everyone.
-     * @return The level to debug.
-     */
-    public int traceUserCreations() {
-        return this.traceUserCreations;
-    }
-
-    public boolean isPrintSaveLoad() {
-        return this.printSaveLoad;
     }
 
     public Map<UUID, String> getUuidMigration() {
@@ -179,11 +151,11 @@ public class CoreConfig {
         return this.partialMatch;
     }
 
-    public boolean isPrintWhenPermissionIsntRegistered() {
-        return this.printWhenPermissionIsntRegistered;
-    }
-
     public boolean isClientLocaleWhenPossible() {
         return this.clientLocale;
+    }
+
+    public boolean isGiveDefaultsUserPermissions() {
+        return this.giveDefaultsUserPermissions;
     }
 }
