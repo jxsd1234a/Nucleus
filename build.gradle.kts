@@ -62,10 +62,11 @@ val nucSuffix : String? = project.properties["nucleusVersionSuffix"]?.toString()
 var level = getLevel(nucVersion, nucSuffix)
 val spongeVersion = project.properties["declaredApiVersion"]
 val versionString: String = if (nucSuffix == null) {
-    "$nucVersion-S$spongeVersion"
+    nucVersion
 } else {
-    "$nucVersion-S$spongeVersion-$nucSuffix"
+    "$nucVersion-$nucSuffix"
 }
+val filenameSuffix = "SpongeAPI$spongeVersion"
 version = versionString
 
 project(":nucleus-api").version = versionString
@@ -232,7 +233,7 @@ tasks {
 
         exclude("io/github/nucleuspowered/nucleus/api/NucleusAPIMod.class")
         val minecraftVersion = project.properties["minecraftversion"]
-        archiveFileName.set("Nucleus-${versionString}-MC${minecraftVersion}-plugin.jar")
+        archiveFileName.set("Nucleus-${versionString}-MC${minecraftVersion}-$filenameSuffix-plugin.jar")
     }
 
     build {
