@@ -1,14 +1,10 @@
 import io.github.nucleuspowered.gradle.enums.getLevel
+import io.github.nucleuspowered.gradle.task.RelNotesTask
 import io.github.nucleuspowered.gradle.task.StdOutExec
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.javax.inject.Inject
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-
-open class RelNotes @Inject constructor() : DefaultTask() {
-    var relNotes: String? = null
-}
 
 val kotlin_version: String by extra
 buildscript {
@@ -60,7 +56,7 @@ val nucVersion = project.properties["nucleusVersion"]?.toString()!!
 val nucSuffix : String? = project.properties["nucleusVersionSuffix"]?.toString()
 
 var level = getLevel(nucVersion, nucSuffix)
-val spongeVersion = project.properties["declaredApiVersion"]
+val spongeVersion: String = project.properties["declaredApiVersion"]!!.toString()
 val versionString: String = if (nucSuffix == null) {
     nucVersion
 } else {
@@ -136,46 +132,14 @@ val copyJars by tasks.registering(Copy::class) {
     into(project.file("output"))
 }
 
-val relNotes by tasks.registering(RelNotes::class) {
+val relNotes by tasks.registering(RelNotesTask::class) {
     dependsOn(gitHash)
     dependsOn(gitCommitMessage)
-    doLast {
-        val templatePath = project.projectDir.toPath()
-                .resolve("changelogs")
-                .resolve("templates")
-                .resolve("${level.template}.md")
-
-        // val template = File("changelogs/templates/" + level.template + ".md").getText("UTF-8")
-        val notesDir = project.projectDir.toPath()
-                .resolve("changelogs")
-                .resolve("templates")
-
-        val notesFull = notesDir.resolve("$versionString.md")
-        val notes = if (Files.exists(notesFull)) {
-            notesFull
-        } else {
-            notesDir.resolve("${versionString.substringBefore("-")}-S$spongeVersion.md")
-        }
-
-        val templateText: String = if (Files.exists(templatePath)) {
-            String(Files.readAllBytes(templatePath), StandardCharsets.UTF_8)
-        } else {
-            "There are no templated release notes available."
-        }
-
-        val notesText: String = if (Files.exists(notes)) {
-            String(Files.readAllBytes(notes), StandardCharsets.UTF_8)
-        } else {
-            "There are no release notes available."
-        }
-
-        relNotes = templateText
-                .replace("{{hash}}", gitHash.get().result!!)
-                .replace("{{info}}", notesText)
-                .replace("{{version}}", project.properties["nucleusVersion"]?.toString()!!)
-                .replace("{{message}}", gitCommitMessage.get().result!!)
-                .replace("{{sponge}}", project.properties["declaredApiVersion"]?.toString()!!)
-    }
+    versionString { -> versionString }
+    spongeVersion { -> spongeVersion }
+    gitHash { -> gitHash.get().result!! }
+    gitCommit { -> gitCommitMessage.get().result!! }
+    level { -> level }
 }
 
 val writeRelNotes by tasks.registering {
@@ -194,6 +158,18 @@ val outputRelNotes by tasks.registering {
     }
 }
 
+val shadowJar: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar by tasks
+
+val upload by tasks.registering(io.github.nucleuspowered.gradle.task.UploadToOre::class) {
+    dependsOn(shadowJar)
+    dependsOn(relNotes)
+    fileProvider = shadowJar.archiveFile
+    notes = { relNotes.get().relNotes!! }
+    releaseLevel = { level }
+    apiKey = properties["ore_apikey"]?.toString() ?: System.getenv("NUCLEUS_ORE_APIKEY")
+    pluginid = "nucleus"
+}
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
@@ -203,9 +179,7 @@ compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
 
-val shadowJar: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar by tasks
 tasks {
-
     shadowJar {
         dependsOn(":nucleus-api:build")
         dependsOn(":nucleus-core:build")
