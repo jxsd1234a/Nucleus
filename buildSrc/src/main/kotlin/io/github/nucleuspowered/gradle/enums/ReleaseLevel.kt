@@ -15,11 +15,11 @@ fun getLevel(version: String, suffix: String?): ReleaseLevel {
     return ReleaseLevel.SNAPSHOT
 }
 
-enum class ReleaseLevel(val selectionCriteria: (String, String?) -> Boolean, val template: String, val isSnapshot: Boolean) {
-    SNAPSHOT( { _, suffix -> suffix != null && suffix.endsWith("SNAPSHOT") } , "snapshot", true),
-    ALPHA( { _, suffix -> suffix != null && suffix.contains("ALPHA") }, "alpha", false),
-    BETA( { _, suffix -> suffix != null && suffix.contains("BETA") }, "beta", false),
-    RELEASE_CANDIDATE( { _, suffix -> suffix != null && suffix.contains("RC") } , "rc", false),
-    RELEASE_MAJOR( { version, _ -> version.endsWith(".0") } , "release-big", false),
-    RELEASE_MINOR( { _, _ -> true }, "release", false);
+enum class ReleaseLevel(val selectionCriteria: (String, String?) -> Boolean, val template: String, val isSnapshot: Boolean, val isRelease: Boolean) {
+    SNAPSHOT( { _, suffix -> suffix != null && suffix.endsWith("SNAPSHOT") } , "snapshot", true, false),
+    ALPHA( { _, suffix -> suffix != null && suffix.contains("ALPHA") }, "alpha", false, false),
+    BETA( { _, suffix -> suffix != null && suffix.contains("BETA") }, "beta", false, false),
+    RELEASE_CANDIDATE( { _, suffix -> suffix != null && suffix.contains("RC") } , "rc", false, false),
+    RELEASE_MAJOR( { version, _ -> version.endsWith(".0") } , "release-big", false, true),
+    RELEASE_MINOR( { _, _ -> true }, "release", false, true);
 }
