@@ -4,6 +4,7 @@ cache:
   - ./.gradle
 build_script:
   - cmd: gradlew clean build shadowJar --no-daemon -i --refresh-dependencies
+  - cmd: ./gradlew setupDecompWorkspace --refresh-dependencies
 test: off
 artifacts:
   - path: ./build/libs/*.*
